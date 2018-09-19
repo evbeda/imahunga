@@ -1,0 +1,16 @@
+{% extends '../shared/base.html' %}
+{% load staticfiles %}
+{% block content %}
+<link href="{% static 'css/login.css' %}" rel="stylesheet">
+<form class="center-vert-and-hor">
+    <div class="container text-center">
+        <div class="ac-font">Welcome!</div>
+        <p>Login with your Eventbrite account</p>
+        <form role="form">
+            <div class="col-lg-12 text-center">
+                <a class="btn btn-default" href="{% url "social:begin" "eventbrite" %}"> Login with Eventbrite </a>
+            </div>
+        </form>
+    </div>
+</form>
+{% endblock %}
