@@ -4,8 +4,10 @@ certifi==2018.8.24
 chardet==3.0.4
 decorator==4.3.0
 defusedxml==0.5.0
+dj-database-url==0.4.2
 Django==1.11
 eventbrite==3.3.3
+gunicorn==19.9.0
 idna==2.7
 ipdb==0.11
 ipython==6.5.0
@@ -16,6 +18,7 @@ parso==0.3.1
 pexpect==4.6.0
 pickleshare==0.7.4
 prompt-toolkit==1.0.15
+psycopg2-binary==2.7.4
 ptyprocess==0.6.0
 Pygments==2.2.0
 PyJWT==1.6.4
@@ -30,3 +33,4 @@ social-auth-core==1.7.0
 traitlets==4.3.2
 urllib3==1.23
 wcwidth==0.1.7
+whitenoise==3.3.1
