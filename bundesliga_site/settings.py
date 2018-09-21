@@ -28,8 +28,9 @@ SECRET_KEY = '!qm=lvh*1xg7yyh^wo^6^z2l430x#bxl3)kg###=+#x-s3#x)$'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'imahunga.herokuapp.com',
-    '127.0.0.1'
+    '127.0.0.1',
+    'localhost',
+    '.herokuapp.com',
 ]
 
 
