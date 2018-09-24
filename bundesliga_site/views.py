@@ -2,6 +2,7 @@ from django.views.generic.base import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.views.generic.list import ListView
 from social_django.models import UserSocialAuth
 from eventbrite import Eventbrite
 
@@ -22,6 +23,14 @@ class HomeView(TemplateView, LoginRequiredMixin):
             get_auth_token(self.request.user),
         )
         context['me'] = eventbrite.get('/users/me/')
+        # Bring live and draf events of user
+        context['events'] = [
+            event
+            # Status : live, draft, canceled, started, ended, all
+            for event in eventbrite.get(
+                '/users/me/owned_events/?status=live,draft'
+            )['events']
+        ]
         return context
 
 
@@ -38,3 +47,4 @@ def get_auth_token(user):
     except UserSocialAuth.DoesNotExist:
         print ('UserSocialAuth does not exists!')
     return token
+
