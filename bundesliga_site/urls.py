@@ -28,4 +28,5 @@ urlpatterns = [
     url(r'^accounts/logout/$', logout, name='logout'),
     url(r'^password_reset/$', login, name='password_reset'),
     url(r'^$', HomeView.as_view(template_name='index.html'), name='index'),
+    # url(r'^events_discount/(?P<id>[0-9]+)/$', views.edit_task, name='events_discount'),
 ]
