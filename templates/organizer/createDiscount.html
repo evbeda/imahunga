@@ -1,0 +1,19 @@
+{% extends '../shared/base.html' %}
+{%block content%}
+	<div>
+		<h1 class="row">Create Discount</h1>
+		<hr>
+	</div>
+	<form action="" method="POST">
+		{% csrf_token %}
+		<label>Name</label>
+		<input type = "text" placeholder="Discount Name" name="discount_name_{{membertype.id}}"/>
+		<label>{{membertype.type_name}}</label>
+		<input type="number" name="discount_{{ membertype.id }}" min="0"/>
+		<select name="discount_type_{{membertype.id}}">
+			<option value="fixed">$</option>
+			<option value="percentage">%</option>>
+		</select>
+		<button class="btn btn-success">Save</button>
+	</form>
+{%endblock%}
