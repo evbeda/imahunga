@@ -1,0 +1,25 @@
+{% extends '../shared/base.html' %}
+{% block content %}
+    <form action="" method="POST">
+    {% csrf_token %}
+    {% for event in events %}
+        <div class="card mb-3">
+            <div class="container-fluid">
+                <div class="row" style="height: 100px;">
+                    <div class="col-1">
+                        <input type="checkbox" name="event_{{ event.id }}">
+                    </div>
+                    <div class="col-2" >
+                        <img class="card-img mh-100" src="{{ event.logo.url }}" style+height="50px" alt="event_image">
+                    </div>
+                    <div class="card-body col-9">
+                        <h5 class="card-title">{{ event.name.text }}</h5>
+                        <p class="card-text">{{ event.description.text }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+        <input type="submit" > >agregar evento</button>
+    </form>
+{% endblock %}
