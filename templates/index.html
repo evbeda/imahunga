@@ -1,15 +1,15 @@
 {% extends './shared/base.html' %}
 {% block content %}
 	<div>
-		<button type="button" class="btn btn-primary"><a href="#">Add Event</a></button>
+		<button type="button" class="btn btn-primary"><a href="{% url 'select_events' %}">Add Event</a></button>
 
 	</div>
-	{% for event in events %}
+	{% for event in object_list %}
 		<div class="card mb-3">
 			<img class="card-img-top" src="{{event.logo.url}}" height="50px" alt="event_image">
 			<div class="card-body">
-				<h5 class="card-title">{{event.name.text}}</h5>
-				<p class="card-text">{{event.description.text}}</p>
+				<h5 class="card-title">{{event.name}}</h5>
+				<p class="card-text">{{event.name}}</p>
 				<h5 class="card-title"><a href="">
 					<small class="text-muted">Manage Discounts</small>
 				</a></h5>

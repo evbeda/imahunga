@@ -19,7 +19,7 @@ from django.conf.urls import (
 )
 from django.contrib import admin
 from django.contrib.auth.views import login, logout
-from .views import HomeView, SelectEvents
+from bundesliga_app.views import HomeView, SelectEvents
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
