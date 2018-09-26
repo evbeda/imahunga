@@ -1,0 +1,19 @@
+{% extends '../shared/base.html' %}
+{% block content %}
+	<div>
+		<h1>{{event.name}}</h1>
+		<button type="button" class="btn btn-primary"><a href="{% url 'create_discount' event.event_id %}">Add Discount</a></button>
+	</div>
+	{% for discount in discounts %}
+		<div class="card mb-3">
+			<img class="card-img-top" src="{{event.logo.url}}" height="50px" alt="event_image">
+			<div class="card-body">
+				<h5 class="card-title">{{discount.name}}</h5>
+				<p class="card-text">{{discount.name}}</p>
+				<h5 class="card-title"><a href="">
+					<small class="text-muted">Manage Discount</small>
+				</a></h5>
+			</div>
+		</div>
+	{% endfor %}
+{% endblock %}
