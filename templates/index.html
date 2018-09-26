@@ -4,13 +4,13 @@
 		<button type="button" class="btn btn-primary"><a href="{% url 'select_events' %}">Add Event</a></button>
 
 	</div>
-	{% for event in object_list %}
+	{% for event in events %}
 		<div class="card mb-3">
 			<img class="card-img-top" src="{{event.logo.url}}" height="50px" alt="event_image">
 			<div class="card-body">
 				<h5 class="card-title">{{event.name}}</h5>
 				<p class="card-text">{{event.name}}</p>
-				<h5 class="card-title"><a href="">
+				<h5 class="card-title"><a href="{% url 'events_discount' event.event_id %}">
 					<small class="text-muted">Manage Discounts</small>
 				</a></h5>
 			</div>

@@ -1,26 +1,28 @@
-from django.shortcuts import render, redirect
+from bundesliga_app.models import Event
+from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic.list import ListView
-from eventbrite import Eventbrite
-from bundesliga_app.models import Event
 from django.http import HttpResponseRedirect
+from eventbrite import Eventbrite
+from .models import Discount
 from .utils import get_auth_token
-from .models import MemberType, Discount
 
 
 @method_decorator(login_required, name='dispatch')
-class HomeView(ListView, LoginRequiredMixin):
+class HomeView(TemplateView, LoginRequiredMixin):
 
-    """ This is the index view. Here we display all the banners that the user
-    has created """
+    """ This is the index view.
+    Here we show all the events of the user in our app """
 
     template_name = 'index.html'
 
-    queryset = Event.objects.all()
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data(**kwargs)
+        context['events'] = Event.objects.filter(organizer=self.request.user)
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -44,7 +46,6 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
         ]
 
     def post(self, *args, **kwargs):
-        # import ipdb; ipdb.set_trace()
         events = self._get_event()
         request_body_elements = str(self.request.body).split('event_')
         request_body_elements.pop(0)
@@ -65,8 +66,6 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                         name=event_in_api['name']['text'],
                         organizer=self.request.user,
                     )
-            else:
-                continue
         return HttpResponseRedirect(reverse('index'))
 
     def get_context_data(self, **kwargs):
@@ -83,28 +82,53 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
 
 
 @method_decorator(login_required, name='dispatch')
+class EventDiscountsView(TemplateView, LoginRequiredMixin):
+
+    """ This is the the Event Discounts view,
+    here the organizer can manage the discounts of the event"""
+
+    template_name = 'organizer/event_discounts.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EventDiscountsView, self).get_context_data(**kwargs)
+        context['event'] = get_object_or_404(
+            Event,
+            event_id=self.kwargs['event_id'],
+        )
+        # Get Discounts of the Event
+        context['discounts'] = Discount.objects.filter(
+            event=self.kwargs['event_id']
+        )
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
 class CreateDiscount(TemplateView, LoginRequiredMixin):
-    template_name = 'organizer/createDiscount.html'
+    template_name = 'organizer/create_discount.html'
+
+    def _get_event(self):
+        return get_object_or_404(
+            Event,
+            event_id=self.kwargs['event_id'],
+        )
 
     def post(self, *args, **kwargs):
-        # import ipdb
-        # ipdb.set_trace()
-        selectedItems = self.request.POST.getlist('select_membertype')
-        for i in range(0, len(selectedItems)):
-            index = selectedItems[i][-1]
-            discount_value = float(self.request.POST['discount_' + index])
-            discount_type = self.request.POST['discount_type_' + index]
-            membertype = MemberType.objects.get(id=index)
-            discount = Discount(discount_name=self.request.POST['discount_name_' + index],
-                                event_id=1,
-                                membertype=membertype,
-                                discount_value=discount_value,
-                                discount_value_type=discount_type,
-                                )
-            discount.save()
-        return redirect("index")
+        discount_value = float(self.request.POST['discount'])
+        discount_type = self.request.POST['discount_type']
+        Discount.objects.create(
+            name=self.request.POST['discount_name'],
+            event=self._get_event(),
+            value=discount_value,
+            value_type=discount_type,
+        )
+        return HttpResponseRedirect(
+            reverse(
+                'events_discount',
+                kwargs={'event_id': self._get_event().event_id},
+            )
+        )
 
     def get_context_data(self, **kwargs):
         context = super(CreateDiscount, self).get_context_data(**kwargs)
-        context['membertypelist'] = MemberType.objects.all()
+        context['event'] = self._get_event()
         return context

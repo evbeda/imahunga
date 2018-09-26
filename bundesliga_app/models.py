@@ -16,23 +16,11 @@ class Event(models.Model):
         return self.name
 
 
-class MemberType(models.Model):
-    type_number = models.IntegerField()
-    type_name = models.CharField(max_length=200)
-
-    class Meta:
-        ordering=['type_number']
-
-    def __str__(self):
-        return self.type_name
-
-
 class Discount(models.Model):
-    discount_name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
     event = models.ForeignKey(Event)
-    membertype = models.ForeignKey(MemberType)
-    discount_value = models.FloatField()
-    discount_value_type = models.CharField(max_length=200)
+    value = models.FloatField()
+    value_type = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.discount_name
+        return self.name

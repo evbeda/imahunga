@@ -19,7 +19,7 @@ from django.conf.urls import (
 )
 from django.contrib import admin
 from django.contrib.auth.views import login, logout
-from bundesliga_app.views import HomeView, SelectEvents
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -27,9 +27,5 @@ urlpatterns = [
     url(r'^accounts/login/$', login, name='login'),
     url(r'^accounts/logout/$', logout, name='logout'),
     url(r'^password_reset/$', login, name='password_reset'),
-    url(r'^$', HomeView.as_view(template_name='index.html'), name='index'),
-    url(r'^select_events/$', SelectEvents.as_view(template_name='organizer/select_events.html'), name='select_events'),
-    # url(r'^add_event/(?P<id>[0-9]+)/$', views.add_event, name='add_event'),
     url(r'^', include('bundesliga_app.urls')),
-    # url(r'^events_discount/(?P<id>[0-9]+)/$', views.edit_task, name='events_discount'),
 ]
