@@ -6,7 +6,11 @@
 		<div class="card mb-5">
 			<div class="row" style="height: 150px;">
 				<div class="input-group-prepend">
-					<img class="card-img mh-100 img-fluid" src={{event.logo}} style="width: 300px">
+					{% if event.logo %}
+                        <img class="card-img mh-100 img-fluid" src={{event.logo}} style="width: 300px">
+                    {% else %}
+                        <img class="card-img mh-100 img-fluid" src="{% static 'images/default-img.png' %}" style="width: 300px" alt="img por defecto">
+                    {% endif %}
 				</div>
 				<div class="card-body">
 					<h5 class="card-title">{{event.name}}</h5>
