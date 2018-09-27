@@ -70,6 +70,7 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                     Event.objects.create(
                         event_id=event_in_api['id'],
                         name=event_in_api['name']['text'],
+                        logo=event_in_api['logo']['url'],
                         organizer=self.request.user,
                         is_active=True,
                     )
@@ -78,6 +79,7 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                         event_id=event_in_api['id'],
                         name=event_in_api['name']['text'],
                         organizer=self.request.user,
+                        logo=event_in_api['logo']['url'],
                         is_active=True,
                     )
         return HttpResponseRedirect(reverse('index'))

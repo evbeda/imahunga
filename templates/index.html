@@ -1,19 +1,29 @@
 {% extends './shared/base.html' %}
 {% block content %}
-	<div>
-		<button type="button" class="btn btn-primary"><a href="{% url 'select_events' %}">Add Event</a></button>
-
-	</div>
+{% load static %}
+<div class="container mt-5">
 	{% for event in events %}
-		<div class="card mb-3">
-			<img class="card-img-top" src="{{event.logo.url}}" height="50px" alt="event_image">
-			<div class="card-body">
-				<h5 class="card-title">{{event.name}}</h5>
-				<p class="card-text">{{event.name}}</p>
-				<h5 class="card-title"><a href="{% url 'events_discount' event.event_id %}">
-					<small class="text-muted">Manage Discounts</small>
-				</a></h5>
+		<div class="card mb-5">
+			<div class="row" style="height: 150px;">
+				<div class="input-group-prepend">
+					<img class="card-img mh-100 img-fluid" src={{event.logo}} style="width: 300px">
+				</div>
+				<div class="card-body">
+					<h5 class="card-title">{{event.name}}</h5>
+					<p class="card-text">{{event.name}}</p>
+					<h5 class="card-title">
+						<a href="{% url 'events_discount' event.event_id %}">
+							<img style="height:15px"; src="{% static 'images/settings.png' %}">
+							<small class="text-muted">Manage Discounts</small>
+						</a>
+					</h5>
+				</div>
 			</div>
 		</div>
 	{% endfor %}
+
+	<div class="row float-right col-2">
+			<a class= "btn btn-success col-12" href="{% url 'select_events' %}">Add Event</a>
+	</div>
+</div>
 {% endblock %}
