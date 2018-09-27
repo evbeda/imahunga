@@ -129,8 +129,8 @@ class CreateDiscount(TemplateView, LoginRequiredMixin):
         )
 
     def post(self, *args, **kwargs):
-        discount_value = float(self.request.POST['discount'])
         discount_type = self.request.POST['discount_type']
+        discount_value = float(self.request.POST['discount_' + discount_type])
         Discount.objects.create(
             name=self.request.POST['discount_name'],
             event=self._get_event(),
