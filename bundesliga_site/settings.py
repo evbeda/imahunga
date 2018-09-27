@@ -159,6 +159,7 @@ SOCIAL_AUTH_EVENTBRITE_SECRET = get_env_variable(
 )
 
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -183,4 +184,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # https://warehouse.python.org/project/whitenoise/
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
