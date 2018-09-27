@@ -1,19 +1,33 @@
 {% extends '../shared/base.html' %}
+{% load static %}
 {% block content %}
 	<div>
-		<h1>{{event.name}}</h1>
-		<button type="button" class="btn btn-primary"><a href="{% url 'create_discount' event.event_id %}">Add Discount</a></button>
+		<h1>{{event.name}}'s Discounts</h1>
+		<hr>
 	</div>
+	{% if discounts %}
 	{% for discount in discounts %}
 		<div class="card mb-3">
-			<img class="card-img-top" src="{{event.logo.url}}" height="50px" alt="event_image">
 			<div class="card-body">
 				<h5 class="card-title">{{discount.name}}</h5>
-				<p class="card-text">{{discount.name}}</p>
-				<h5 class="card-title"><a href="">
+				<div class="container row">
+					<label class="card-text mr-4">Discount value: </label>
+					{% if discount.value_type == fixed%}
+						<span class="card-text">$</span>
+						<p class="card-text">{{discount.value}}</p>
+					{% else %}
+						<p class="card-text">{{discount.value}}</p>
+						<span class="card-text">%</span>
+					{% endif %}
+				</div>
+				<h5 class="card-title mt-3"><a href="">
+					<img style="height:15px"; src="{% static 'images/settings.png' %}">
 					<small class="text-muted">Manage Discount</small>
 				</a></h5>
 			</div>
 		</div>
 	{% endfor %}
+	{% else %}
+		<a id="add_discount_button" href="{% url 'create_discount' event.event_id %}" class="btn btn-success float-right">Add Discount</a>
+	{% endif %}
 {% endblock %}
