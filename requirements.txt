@@ -8,14 +8,18 @@ defusedxml==0.5.0
 dj-database-url==0.4.2
 Django==1.11
 eventbrite==3.3.3
+factory-boy==2.11.1
+Faker==0.9.1
 gunicorn==19.9.0
 idna==2.7
 ipdb==0.11
 ipython==6.5.0
 ipython-genutils==0.2.0
 jedi==0.12.1
+mock==2.0.0
 oauthlib==2.1.0
 parso==0.3.1
+pbr==4.2.0
 pexpect==4.6.0
 pickleshare==0.7.4
 prompt-toolkit==1.0.15
@@ -23,6 +27,7 @@ psycopg2-binary==2.7.4
 ptyprocess==0.6.0
 Pygments==2.2.0
 PyJWT==1.6.4
+python-dateutil==2.7.3
 python3-openid==3.1.0
 pytz==2018.5
 requests==2.19.1
@@ -31,6 +36,7 @@ simplegeneric==0.8.1
 six==1.11.0
 social-auth-app-django==2.1.0
 social-auth-core==1.7.0
+text-unidecode==1.2
 traitlets==4.3.2
 urllib3==1.23
 wcwidth==0.1.7
