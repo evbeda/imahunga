@@ -1,18 +1,78 @@
 {% extends '../shared/base.html' %}
 {%block content%}
+<head>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('#percentage-value').hide()
+			$('#fixed-value').hide()
+			$('#insert_discount_title').hide()
+    		$('#discount_type').on('change',function() {
+      			if ( this.value == 'fixed'){
+      				$('#insert_discount_title').show()
+        			$('#fixed-value').show()
+					$('#percentage-value').hide()
+        		} else{
+        			if(this.value == 'percentage'){
+        				$('#insert_discount_title').show()
+        				$('#percentage-value').show()
+						$('#fixed-value').hide()
+        			}else{
+        				$('#percentage-value').hide()
+						$('#fixed-value').hide()
+						$('#insert_discount_title').hide()
+        			}
+        		}
+    		});
+		});
+	</script>
+</head>
+<body>
 	<div>
 		<h1 class="row">Create Discount</h1>
 		<hr>
 	</div>
 	<form action="" method="POST">
 		{% csrf_token %}
-		<label>Name</label>
-		<input type = "text" placeholder="Discount Name" name="discount_name"/>
-		<input type="number" name="discount" min="0"/>
-		<select name="discount_type">
-			<option value="fixed">$</option>
-			<option value="percentage">%</option>>
-		</select>
-		<button class="btn btn-success">Save</button>
+		<div class="container">
+			<label class="font-weight-bold">Name</label>
+			<div class="input-group input-group-lg">
+  				<input type="text" class="form-control" aria-label="Large" name="discount_name" placeholder="Discount Name">
+			</div>
+		</div>
+
+		<div class="container mt-3">
+			<label class="font-weight-bold">Discount amount</label>
+			<label class="font-italic row container">Select Discount Type</label>
+			<select id="discount_type"class="custom-select" name="discount_type">
+				<option value="empty_value">Choose an option</option>
+				<option value="fixed">Fixed Amount $</option>
+				<option value="percentage">Percentage %</option>>
+			</select>
+		</div>
+
+		<div class="container mt-3" id="insert_discount_title">
+			<label class="font-italic row container">Insert your discount</label>
+		</div>
+		<div class="container" id="fixed-value" name="fixed-value">
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+				    <span class="input-group-text">$</span>
+				</div>
+				<input type="number" name="discount_fixed" class="form-control" min=0 >
+			</div>
+		</div>
+
+		<div class="container" id="percentage-value" name="percentage-value">
+			<div class="input-group mb-3">
+				<input type="number" name="discount_percentage" class="form-control" min=0 max=100>
+				<div class="input-group-append">
+				    <span class="input-group-text">%</span>
+				</div>
+			</div>
+		</div>
+		<div class="contianer float-right mt-5 col-2">
+			<button class="btn btn-success col-12">Save</button>
+		</div>
 	</form>
+</body>
 {%endblock%}
