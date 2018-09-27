@@ -11,6 +11,7 @@ class Event(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
