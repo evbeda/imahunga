@@ -65,12 +65,16 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
         for event_in_api in events:
             # If the event id is an event of organizer
             if event_in_api['id'] in events_id:
+                logo_dict = event_in_api['logo']
+                logo = ""
+                if logo_dict:
+                    logo = event_in_api['logo']['url']
                 # Verify if this event already exist
                 if not Event.objects.filter(event_id=event_in_api['id']).exists():
                     Event.objects.create(
                         event_id=event_in_api['id'],
                         name=event_in_api['name']['text'],
-                        logo=event_in_api['logo']['url'],
+                        logo=logo,
                         organizer=self.request.user,
                         is_active=True,
                     )
@@ -79,7 +83,7 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                         event_id=event_in_api['id'],
                         name=event_in_api['name']['text'],
                         organizer=self.request.user,
-                        logo=event_in_api['logo']['url'],
+                        logo=logo,
                         is_active=True,
                     )
         return HttpResponseRedirect(reverse('index'))
@@ -96,8 +100,32 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
             context['already_selected_id'].append(event.event_id)
         # Bring live events of user
         context['events'] = self._get_event()
+        for event in context['events']:
+            event['local_date'] = self.get_local_date(event)
         return context
 
+    def get_local_date(self,event):
+        for value in event['start'].values():
+            date_complete = value
+        date_complete = date_complete.split('-')
+        day = date_complete[2].split('T')[0]
+        months = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
+        ]
+        month = months[int(date_complete[1]) - 1]
+        year = date_complete[0]
+        return '{} {}, {}'.format(month, day, year)
 
 @method_decorator(login_required, name='dispatch')
 class EventDiscountsView(TemplateView, LoginRequiredMixin):
