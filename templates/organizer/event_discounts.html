@@ -12,7 +12,7 @@
 				<h5 class="card-title">{{discount.name}}</h5>
 				<div class="container row">
 					<label class="card-text mr-4">Discount value: </label>
-					{% if discount.value_type == fixed%}
+					{% if discount.value_type == "fixed" %}
 						<span class="card-text">$</span>
 						<p class="card-text">{{discount.value}}</p>
 					{% else %}
