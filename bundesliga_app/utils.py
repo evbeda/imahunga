@@ -13,5 +13,5 @@ def get_auth_token(user):
             provider='eventbrite'
         ).access_token
     except UserSocialAuth.DoesNotExist:
-        print ('UserSocialAuth does not exists!')
+        return 'UserSocialAuth does not exists!'
     return token
