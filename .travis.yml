@@ -16,9 +16,10 @@ install:
 
 before_script:
   - psql -c 'create database travisdb;' -U postgres
+  - python manage.py migrate
+  - coverage erase
 
 script:
- - python manage.py migrate
  - coverage run manage.py test
 
 after_success:

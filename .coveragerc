@@ -1,0 +1,23 @@
+[run]
+source =
+  bundesliga_app
+  bundesliga_site
+omit =
+    env/*
+    myvenv/*
+    */test*
+    manage.py
+    bundesliga_site/wsgi.py
+    */migrations/*,
+    */urls.py,
+    */settings/*,
+    */wsgi.py,
+    manage.py,
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def setUp
+    def test_
+    return raw_input
+    if __name__ == '__main__'

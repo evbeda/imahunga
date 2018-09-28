@@ -6,8 +6,16 @@ from .factories import (
     EventFactory,
     OrganizerFactory,
 )
-from .views import CreateDiscount
+from .views import (
+    CreateDiscount,
+    SelectEvents,
+)
 from mock import patch
+from django.apps import apps
+from bundesliga_app.apps import BundesligaAppConfig
+from bundesliga_app.utils import get_auth_token
+
+
 # Create your tests here.
 MOCK_EVENTS_API = {
     'name': {
@@ -88,6 +96,12 @@ MOCK_EVENTS_API = {
 }
 
 
+class BundesligaAppConfigTest(TestCase):
+    def test_apps(self):
+        self.assertEqual(BundesligaAppConfig.name, 'bundesliga_app')
+        self.assertEqual(apps.get_app_config('bundesliga_app').name, 'bundesliga_app')
+
+
 class TestBase(TestCase):
     def setUp(self):
         self.organizer = OrganizerFactory()
@@ -100,6 +114,23 @@ class TestBase(TestCase):
             password='12345',
         )
         return login
+
+class AuthTokenTest(TestBase):
+    def setUp(self):
+        super(AuthTokenTest, self).setUp()
+
+    def test_get_auth_token(self):
+        self.assertEqual(
+            get_auth_token(self.organizer),
+            self.organizer.social_auth.get(provider='eventbrite').access_token
+        )
+
+    def test_get_auth_token_invalid_user(self):
+        no_log_organizer = OrganizerFactory()
+        self.assertEqual(
+            get_auth_token(no_log_organizer),
+            'UserSocialAuth does not exists!'
+        )
 
 
 class HomeViewTest(TestBase):
@@ -238,7 +269,7 @@ class SelectEventsViewTest(TestBase):
             return_value=123456,
         )
         self.mock_get_events_api = self.get_events_api_patcher.start()
-        self.response = self.client.get('/select_events')
+        self.response = self.client.get('/select_events/')
 
     @skip("Mock for API does not works yet")
     def test_select_events(self):
@@ -256,4 +287,12 @@ class SelectEventsViewTest(TestBase):
         self.assertContains(
             self.response,
             self.organizer,
+        )
+
+    @skip("Mock for API does not works yet")
+    def test_date_conversor(self):
+        self.response.context_data['events'] = MOCK_EVENTS_API
+        self.assertEqual(
+             self.response.context_data['view'].get_local_date(MOCK_EVENTS_API),
+            'November 03, 2018'
         )
