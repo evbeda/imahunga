@@ -106,7 +106,7 @@ DB_FROM_ENV = dj_database_url.config(conn_max_age=500)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'evbbanner',
+        'NAME': 'imahunga',
         'USER': 'name',
         'PASSWORD': '',
         'HOST': 'localhost',

@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 	<div>
-		<h1>{{event.name}}'s Discounts</h1>
+		<h1>{{event_name}}'s Discounts</h1>
 		<hr>
 	</div>
 	{% if discounts %}
@@ -28,6 +28,6 @@
 		</div>
 	{% endfor %}
 	{% else %}
-		<a id="add_discount_button" href="{% url 'create_discount' event.event_id %}" class="btn btn-success float-right">Add Discount</a>
+		<a id="add_discount_button" href="{% url 'create_discount' event.id %}" class="btn btn-success float-right">Add Discount</a>
 	{% endif %}
 {% endblock %}

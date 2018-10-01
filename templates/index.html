@@ -2,21 +2,21 @@
 {% block content %}
 {% load static %}
 <div class="container mt-5">
-	{% for event in events %}
+	{% for id, event in events.items %}
 		<div class="card mb-5">
 			<div class="row" style="height: 150px;">
 				<div class="input-group-prepend">
 					{% if event.logo %}
-                        <img class="card-img mh-100 img-fluid" src={{event.logo}} style="width: 300px">
+                        <img class="card-img mh-100 img-fluid" src={{event.logo.url}} style="width: 300px">
                     {% else %}
                         <img class="card-img mh-100 img-fluid" src="{% static 'images/default-img.png' %}" style="width: 300px" alt="img por defecto">
                     {% endif %}
 				</div>
 				<div class="card-body">
-					<h5 class="card-title">{{event.name}}</h5>
-					<p class="card-text">{{event.name}}</p>
+					<h5 class="card-title">{{event.name.text}}</h5>
+					<p class="card-text">{{event.local_date}}</p>
 					<h5 class="card-title">
-						<a href="{% url 'events_discount' event.event_id %}">
+						<a href="{% url 'events_discount' id %}">
 							<img style="height:15px"; src="{% static 'images/settings.png' %}">
 							<small class="text-muted">Manage Discounts</small>
 						</a>
