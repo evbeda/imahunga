@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect
+from django.contrib import messages
 from eventbrite import Eventbrite
 from .models import Discount
 from .utils import get_auth_token
@@ -21,7 +22,8 @@ class HomeView(TemplateView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
-        context['events'] = Event.objects.filter(organizer=self.request.user).filter(is_active=True)
+        context['events'] = Event.objects.filter(
+            organizer=self.request.user).filter(is_active=True)
         return context
 
 
@@ -60,7 +62,8 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
             db_selected_ids.append(event.event_id)
         for db_event_id in db_selected_ids:
             if db_event_id not in events_id:
-                Event.objects.filter(event_id=db_event_id).update(is_active=False)
+                Event.objects.filter(
+                    event_id=db_event_id).update(is_active=False)
         # For each event in the api, verify if the selected ones are corrects
         for event_in_api in events:
             # If the event id is an event of organizer
@@ -104,7 +107,7 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
             event['local_date'] = self.get_local_date(event)
         return context
 
-    def get_local_date(self,event):
+    def get_local_date(self, event):
         for value in event['start'].values():
             date_complete = value
         date_complete = date_complete.split('-')
@@ -126,6 +129,7 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
         month = months[int(date_complete[1]) - 1]
         year = date_complete[0]
         return '{} {}, {}'.format(month, day, year)
+
 
 @method_decorator(login_required, name='dispatch')
 class EventDiscountsView(TemplateView, LoginRequiredMixin):
@@ -158,21 +162,32 @@ class CreateDiscount(TemplateView, LoginRequiredMixin):
             event_id=self.kwargs['event_id'],
         )
 
+    def _get_event_discount(self):
+        discount = Discount.objects.filter(
+            event=self._get_event().event_id
+        )
+        return discount
+
     def post(self, *args, **kwargs):
-        discount_type = self.request.POST['discount_type']
-        discount_value = float(self.request.POST['discount_' + discount_type])
-        Discount.objects.create(
-            name=self.request.POST['discount_name'],
-            event=self._get_event(),
-            value=discount_value,
-            value_type=discount_type,
-        )
-        return HttpResponseRedirect(
-            reverse(
-                'events_discount',
-                kwargs={'event_id': self._get_event().event_id},
+        discounts = self._get_event_discount()
+        if len(discounts) != 0:
+            messages.error(self.request, 'You already have a discount for this event')
+            return self.render_to_response(self.get_context_data())
+        else:
+            discount_type = self.request.POST['discount_type']
+            discount_value = float(self.request.POST['discount_' + discount_type])
+            Discount.objects.create(
+                name=self.request.POST['discount_name'],
+                event=self._get_event(),
+                value=discount_value,
+                value_type=discount_type,
             )
-        )
+            return HttpResponseRedirect(
+                reverse(
+                    'events_discount',
+                    kwargs={'event_id': self._get_event().event_id},
+                )
+            )
 
     def get_context_data(self, **kwargs):
         context = super(CreateDiscount, self).get_context_data(**kwargs)
