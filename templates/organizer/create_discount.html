@@ -9,6 +9,11 @@
 		<h1 class="row">Create Discount</h1>
 		<hr>
 	</div>
+	{% if messages %}
+	    {% for message in messages %}
+	      <p class="alert alert-danger">{{ message }}</p>
+	    {% endfor %}
+	{% endif %}
 	<form action="" method="POST">
 		{% csrf_token %}
 		<div class="container">
@@ -52,5 +57,6 @@
 			<button class="btn btn-success col-12">Save</button>
 		</div>
 	</form>
+
 </body>
 {%endblock%}
