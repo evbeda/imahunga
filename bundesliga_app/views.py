@@ -9,7 +9,12 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from eventbrite import Eventbrite
 from .models import Discount
-from .utils import get_auth_token
+from .utils import (
+    get_auth_token,
+    get_local_date,
+    get_event_eb_api,
+    get_events_user_eb_api,
+)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -20,32 +25,46 @@ class HomeView(TemplateView, LoginRequiredMixin):
 
     template_name = 'index.html'
 
+    # Get all the data of organizer'events from EB API
+    def _get_events(self):
+        # Dictionary for events
+        events = {}
+        # Get all active events from DB
+        events_own = Event.objects.filter(
+            organizer=self.request.user).filter(is_active=True)
+        for event in events_own:
+            """ Add event to dictionary with the id as key
+            and event from API as value """
+            events[event.id] = get_event_eb_api(
+                get_auth_token(self.request.user),
+                event.event_id,
+            )
+            # Add local_date format
+            events[event.id]['local_date'] = get_local_date(
+                events[event.id]
+            )
+        return events
+
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
-        context['events'] = Event.objects.filter(
-            organizer=self.request.user).filter(is_active=True)
+        context['events'] = self._get_events()
+
         return context
 
 
 @method_decorator(login_required, name='dispatch')
 class SelectEvents(TemplateView, LoginRequiredMixin):
 
-    """ This is the index view. Here we display all the banners that the user
-    has created """
+    """ This is the select events view. Here we display all the events
+    of the organizer from EB
+     """
 
     template_name = 'organizer/select_events.html'
 
     def _get_event(self):
-        eventbrite = Eventbrite(
-            get_auth_token(self.request.user),
+        return get_events_user_eb_api(
+            get_auth_token(self.request.user)
         )
-        return [
-            event
-            # Status : live, draft, canceled, started, ended, all
-            for event in eventbrite.get(
-                '/users/me/owned_events/?status=live'
-            )['events']
-        ]
 
     def post(self, *args, **kwargs):
         events = self._get_event()
@@ -68,25 +87,17 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
         for event_in_api in events:
             # If the event id is an event of organizer
             if event_in_api['id'] in events_id:
-                logo_dict = event_in_api['logo']
-                logo = ""
-                if logo_dict:
-                    logo = event_in_api['logo']['url']
                 # Verify if this event already exist
                 if not Event.objects.filter(event_id=event_in_api['id']).exists():
                     Event.objects.create(
                         event_id=event_in_api['id'],
-                        name=event_in_api['name']['text'],
-                        logo=logo,
                         organizer=self.request.user,
                         is_active=True,
                     )
                 else:
                     Event.objects.filter(event_id=event_in_api['id']).update(
                         event_id=event_in_api['id'],
-                        name=event_in_api['name']['text'],
                         organizer=self.request.user,
-                        logo=logo,
                         is_active=True,
                     )
         return HttpResponseRedirect(reverse('index'))
@@ -104,31 +115,8 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
         # Bring live events of user
         context['events'] = self._get_event()
         for event in context['events']:
-            event['local_date'] = self.get_local_date(event)
+            event['local_date'] = get_local_date(event)
         return context
-
-    def get_local_date(self, event):
-        for value in event['start'].values():
-            date_complete = value
-        date_complete = date_complete.split('-')
-        day = date_complete[2].split('T')[0]
-        months = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
-        ]
-        month = months[int(date_complete[1]) - 1]
-        year = date_complete[0]
-        return '{} {}, {}'.format(month, day, year)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -141,10 +129,16 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super(EventDiscountsView, self).get_context_data(**kwargs)
+        # Get event by id in kwargs
         context['event'] = get_object_or_404(
             Event,
-            event_id=self.kwargs['event_id'],
+            id=self.kwargs['event_id'],
         )
+        # Get event name in EB API
+        context['event_name'] = get_event_eb_api(
+            get_auth_token(self.request.user),
+            context['event'].event_id,
+        )['name']['text']
         # Get Discounts of the Event
         context['discounts'] = Discount.objects.filter(
             event=self.kwargs['event_id']
@@ -159,7 +153,7 @@ class CreateDiscount(TemplateView, LoginRequiredMixin):
     def _get_event(self):
         return get_object_or_404(
             Event,
-            event_id=self.kwargs['event_id'],
+            id=self.kwargs['event_id'],
         )
 
     def _get_event_discount(self):
@@ -185,7 +179,7 @@ class CreateDiscount(TemplateView, LoginRequiredMixin):
             return HttpResponseRedirect(
                 reverse(
                     'events_discount',
-                    kwargs={'event_id': self._get_event().event_id},
+                    kwargs={'event_id': self._get_event().id},
                 )
             )
 

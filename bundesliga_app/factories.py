@@ -52,10 +52,8 @@ class EventFactory(DjangoModelFactory):
         model = models.Event
 
     event_id = Sequence(lambda n: n)  # 0,1,2,3 ...
-    name = Sequence(lambda n: u'Event %d' % n)  # Event0, Event1 ...
     organizer = SubFactory(OrganizerFactory)
     is_active = Faker('boolean')
-    logo = 'http://logo.com'
 
 
 class DiscountFactory(DjangoModelFactory):

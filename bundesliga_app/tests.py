@@ -99,7 +99,10 @@ MOCK_EVENTS_API = {
 class BundesligaAppConfigTest(TestCase):
     def test_apps(self):
         self.assertEqual(BundesligaAppConfig.name, 'bundesliga_app')
-        self.assertEqual(apps.get_app_config('bundesliga_app').name, 'bundesliga_app')
+        self.assertEqual(
+            apps.get_app_config('bundesliga_app').name,
+            'bundesliga_app',
+        )
 
 
 class TestBase(TestCase):
@@ -114,6 +117,7 @@ class TestBase(TestCase):
             password='12345',
         )
         return login
+
 
 class AuthTokenTest(TestBase):
     def setUp(self):
@@ -133,6 +137,7 @@ class AuthTokenTest(TestBase):
         )
 
 
+@patch('bundesliga_app.views.get_event_eb_api', return_value=MOCK_EVENTS_API)
 class HomeViewTest(TestBase):
     def setUp(self):
         super(HomeViewTest, self).setUp()
@@ -153,31 +158,35 @@ class HomeViewTest(TestBase):
             organizer=OrganizerFactory(),  # Random organizer
             is_active=True,
         )
-        self.response = self.client.get('/')
 
-    def test_homepage(self):
+    def test_homepage(self, mock_get_event_eb_api):
+        self.response = self.client.get('/')
         self.assertEqual(self.response.status_code, 200)
 
-    def test_home_url_has_index_template(self):
+    def test_home_url_has_index_template(self, mock_get_event_eb_api):
+        self.response = self.client.get('/')
         self.assertEqual(
             self.response.context_data['view'].template_name,
             'index.html',
         )
 
-    def test_events_organizer(self):
+    def test_events_organizer(self, mock_get_event_eb_api):
+        self.response = self.client.get('/')
         for event in self.events:
             self.assertContains(
                 self.response,
-                event,
+                event.id,
             )
 
-    def test_events_organizer_not_active(self):
+    def test_events_organizer_not_active(self, mock_get_event_eb_api):
+        self.response = self.client.get('/')
         self.assertNotContains(
             self.response,
             self.no_active_events,
         )
 
-    def test_events_another_organizer(self):
+    def test_events_another_organizer(self, mock_get_event_eb_api):
+        self.response = self.client.get('/')
         for event in self.events_another_organizer:
             self.assertNotContains(
                 self.response,
@@ -185,6 +194,7 @@ class HomeViewTest(TestBase):
             )
 
 
+@patch('bundesliga_app.views.get_event_eb_api', return_value=MOCK_EVENTS_API)
 class EventDiscountsViewTest(TestBase):
     def setUp(self):
         super(EventDiscountsViewTest, self).setUp()
@@ -195,31 +205,47 @@ class EventDiscountsViewTest(TestBase):
         self.events_discount = DiscountFactory(
             event=self.event,
         )
-        self.response = self.client.get(
-            '/events_discount/{}/'.format(self.event.event_id)
-        )
 
-    def test_event_discounts(self):
+    def test_event_discounts(self, mock_get_event_eb_api):
+        self.response = self.client.get(
+            '/events_discount/{}/'.format(self.event.id)
+        )
         self.assertEqual(self.response.status_code, 200)
 
-    def test_event_discounts_url_has_correct_template(self):
+    def test_event_discounts_url_has_correct_template(self, mock_get_event_eb_api):
+        self.response = self.client.get(
+            '/events_discount/{}/'.format(self.event.id)
+        )
         self.assertEqual(
             self.response.context_data['view'].template_name,
             'organizer/event_discounts.html',
         )
 
-    def test_event_in_response(self):
-        self.assertContains(self.response, self.event)
+    def test_event_in_response(self, mock_get_event_eb_api):
+        self.response = self.client.get(
+            '/events_discount/{}/'.format(self.event.id)
+        )
+        self.assertContains(
+            self.response,
+            self.event.id,
+        )
+        self.assertEqual(
+            self.response.context_data['event'],
+            self.event,
+        )
 
-    def test_events_discounts_in_response(self):
+    def test_events_discounts_in_response(self, mock_get_event_eb_api):
+        self.response = self.client.get(
+            '/events_discount/{}/'.format(self.event.id)
+        )
         self.assertContains(
             self.response,
             self.events_discount,
         )
         # The event of the discount is the same of the event in response
         self.assertEqual(
-            self.response.context_data['event'].name,
-            self.events_discount.event.name
+            self.response.context_data['event'].id,
+            self.events_discount.event.id
         )
 
 
@@ -232,7 +258,7 @@ class CreateDiscountViewTest(TestBase):
         )
 
         self.response = self.client.get(
-            '/create_discount/{}/'.format(self.event.event_id)
+            '/create_discount/{}/'.format(self.event.id)
         )
 
     def test_create_event_discount(self):
@@ -246,8 +272,8 @@ class CreateDiscountViewTest(TestBase):
 
     def test_event_in_response(self):
         self.assertEqual(
-            int(self.response.context_data['event'].event_id),
-            self.event.event_id,
+            self.response.context_data['event'].id,
+            self.event.id,
         )
 
 
