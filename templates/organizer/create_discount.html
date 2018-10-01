@@ -5,7 +5,7 @@
 	<script type="text/javascript" src="{% static 'js/create_discount_logic.js' %}"></script>
 </head>
 <body>
-	<div>
+	<div class="mt-5">
 		<h1 class="row">Create Discount</h1>
 		<hr>
 	</div>
@@ -18,7 +18,7 @@
 		{% csrf_token %}
 		<div class="container">
 			<label class="font-weight-bold">Name</label>
-			<div class="input-group input-group-lg">
+			<div  class="input-group input-group-lg">
   				<input type="text" class="form-control" aria-label="Large" name="discount_name" placeholder="Discount Name" required>
 			</div>
 		</div>
