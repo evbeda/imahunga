@@ -137,6 +137,16 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin):
 
     template_name = 'organizer/event_discounts.html'
 
+    def get(self, request, *args, **kwargs):
+        # import ipdb;ipdb.set_trace()
+        if len(self.get_context_data()['event']) == 0:
+            return HttpResponseRedirect(
+                reverse(
+                    'invalid_access'
+                )
+            )
+        return super(EventDiscountsView, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(EventDiscountsView, self).get_context_data(**kwargs)
         # Get event by id in kwargs
@@ -145,9 +155,7 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin):
         ).filter(
             organizer=self.request.user
         )
-        context['event_valid'] = False
         if len(context['event']) > 0:
-            context['event_valid'] = True
             # Get event name in EB API
             context['id'] = self.kwargs['event_id']
             context['discounts'] = Discount.objects.filter(
@@ -157,7 +165,8 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin):
                 get_auth_token(self.request.user),
                 context['event'].get().event_id,
             )['name']['text']
-        # Get Discounts of the Event
+            # Get Discounts of the Event
+
         return context
 
 
@@ -240,3 +249,8 @@ class ManageDiscount(FormView, LoginRequiredMixin):
                 id=self.kwargs['discount_id'],
             )
         return context
+
+
+@method_decorator(login_required, name='dispatch')
+class Error401(TemplateView, LoginRequiredMixin):
+    template_name = 'shared/401.html'
