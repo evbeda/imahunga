@@ -15,6 +15,9 @@ from .utils import (
     get_event_eb_api,
     get_events_user_eb_api,
 )
+from .forms import DiscountForm
+from django.views.generic.edit import FormView
+from django.forms.utils import ErrorList
 
 
 @method_decorator(login_required, name='dispatch')
@@ -159,7 +162,9 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin):
 
 
 @method_decorator(login_required, name='dispatch')
-class CreateDiscount(TemplateView, LoginRequiredMixin):
+class ManageDiscount(FormView, LoginRequiredMixin):
+
+    form_class = DiscountForm
     template_name = 'organizer/create_discount.html'
 
     def _get_event(self):
@@ -168,34 +173,70 @@ class CreateDiscount(TemplateView, LoginRequiredMixin):
             id=self.kwargs['event_id'],
         )
 
-    def _get_event_discount(self):
+    def get_form_kwargs(self):
+        kwargs = super(ManageDiscount, self).get_form_kwargs()
+        if 'discount_id' in self.kwargs:
+            discount = Discount.objects.get(
+                id=self.kwargs['discount_id'],
+            )
+            if discount:
+                kwargs['initial']['discount_name'] = discount.name
+                kwargs['initial']['discount_type']= discount.value_type
+                kwargs['initial']['discount_value'] = discount.value
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        form = DiscountForm(
+            request.POST
+        )
+
+        if not ('discount_id' in self.kwargs):
+            self._verify_event_discount(form)
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        self.add_discount(form, self._get_event())
+        return HttpResponseRedirect(
+            reverse(
+                'events_discount',
+                kwargs={'event_id': self._get_event().id},
+            )
+        )
+
+    def add_discount(self, form, event):
+        if not ('discount_id' in self.kwargs):
+            Discount.objects.create(
+                name=form['discount_name'].value(),
+                event=event,
+                value=form['discount_value'].value(),
+                value_type=form['discount_type'].value(),
+            )
+        else:
+            discount = Discount.objects.filter(pk=self.kwargs['discount_id']).update(
+                name=form['discount_name'].value(),
+                event=event,
+                value=form['discount_value'].value(),
+                value_type=form['discount_type'].value(),
+            )
+
+    def _verify_event_discount(self, form):
         discount = Discount.objects.filter(
             event=self._get_event().id
         )
-        return discount
-
-    def post(self, *args, **kwargs):
-        discounts = self._get_event_discount()
-        if len(discounts) != 0:
-            messages.error(self.request, 'You already have a discount for this event')
-            return self.render_to_response(self.get_context_data())
-        else:
-            discount_type = self.request.POST['discount_type']
-            discount_value = float(self.request.POST['discount_' + discount_type])
-            Discount.objects.create(
-                name=self.request.POST['discount_name'],
-                event=self._get_event(),
-                value=discount_value,
-                value_type=discount_type,
-            )
-            return HttpResponseRedirect(
-                reverse(
-                    'events_discount',
-                    kwargs={'event_id': self._get_event().id},
-                )
-            )
+        if len(discount) > 0:
+            error = form.errors.setdefault('__all__', ErrorList())
+            error.append(u'You already have a discount for this event')
 
     def get_context_data(self, **kwargs):
-        context = super(CreateDiscount, self).get_context_data(**kwargs)
+        context = super(ManageDiscount, self).get_context_data(**kwargs)
         context['event'] = self._get_event()
+        if 'discount_id' in self.kwargs:
+            context['discount'] = get_object_or_404(
+                Discount,
+                id=self.kwargs['discount_id'],
+            )
         return context

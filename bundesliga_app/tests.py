@@ -7,7 +7,7 @@ from .factories import (
     OrganizerFactory,
 )
 from .views import (
-    CreateDiscount,
+    ManageDiscount,
     SelectEvents,
 )
 from mock import patch
@@ -249,16 +249,16 @@ class EventDiscountsViewTest(TestBase):
         )
 
 
-class CreateDiscountViewTest(TestBase):
+class ManageDiscountViewTest(TestBase):
     def setUp(self):
-        super(CreateDiscountViewTest, self).setUp()
+        super(ManageDiscountViewTest, self).setUp()
         self.event = EventFactory(
             organizer=self.organizer,
             is_active=True,
         )
 
         self.response = self.client.get(
-            '/create_discount/{}/'.format(self.event.id)
+            '/events_discount/{}/new/'.format(self.event.id)
         )
 
     def test_create_event_discount(self):

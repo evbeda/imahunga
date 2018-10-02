@@ -21,10 +21,12 @@
 								<span class="card-text">%</span>
 							{% endif %}
 						</div>
-						<h5 class="card-title mt-3"><a href="">
-							<img style="height:15px"; src="{% static 'images/settings.png' %}">
-							<small class="text-muted">Manage Discount</small>
-						</a></h5>
+						<h5 class="card-title mt-3">
+							<a href="{% url 'modify_discount' id discount.id %}">
+								<img style="height:15px"; src="{% static 'images/settings.png' %}">
+								<small class="text-muted">Manage Discount</small>
+							</a>
+						</h5>
 					</div>
 				</div>
 			{% endfor %}
