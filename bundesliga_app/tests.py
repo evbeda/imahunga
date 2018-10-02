@@ -230,7 +230,7 @@ class EventDiscountsViewTest(TestBase):
             self.event.id,
         )
         self.assertEqual(
-            self.response.context_data['event'],
+            self.response.context_data['event'].get(),
             self.event,
         )
 
@@ -244,7 +244,7 @@ class EventDiscountsViewTest(TestBase):
         )
         # The event of the discount is the same of the event in response
         self.assertEqual(
-            self.response.context_data['event'].id,
+            self.response.context_data['event'].get().id,
             self.events_discount.event.id
         )
 

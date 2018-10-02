@@ -15,13 +15,27 @@
 					</div>
 					<div class="card-body">
 						<h5 class="card-title">{{event.name.text}}</h5>
-						<p class="card-text">{{event.local_date}}</p>
-						<h5 class="card-title">
-							<a href="{% url 'events_discount' id %}">
-								<img style="height:15px"; src="{% static 'images/settings.png' %}">
-								<small class="text-muted">Manage Discounts</small>
-							</a>
-						</h5>
+						<p class="card-text text-secondary">{{event.local_date}}</p>
+						<div class="row">
+						<div class="col-9">
+							<h5 class="card-title">
+								<a href="{% url 'events_discount' id %}">
+									<img style="height:15px"; src="{% static 'images/settings.png' %}">
+									<small class="text-muted">Manage Discounts</small>
+								</a>
+							</h5>
+						</div>
+						{% if event.discount %}
+						<div class="float-right">
+							<small class="text-muted">It has {% if event.discount_type == "fixed" %}
+								$ {{ event.discount }}
+							{% else %}
+								% {{ event.discount }}
+							{% endif %} of discount</small>
+
+						</div>
+						{% endif %}
+						</div>
 					</div>
 				</div>
 			</div>
