@@ -158,7 +158,7 @@ class CreateDiscount(TemplateView, LoginRequiredMixin):
 
     def _get_event_discount(self):
         discount = Discount.objects.filter(
-            event=self._get_event().event_id
+            event=self._get_event().id
         )
         return discount
 
