@@ -130,19 +130,24 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super(EventDiscountsView, self).get_context_data(**kwargs)
         # Get event by id in kwargs
-        context['event'] = get_object_or_404(
-            Event,
-            id=self.kwargs['event_id'],
+        #import pdb; pdb.set_trace()
+        context['event'] = Event.objects.filter(
+            id=self.kwargs['event_id']
+        ).filter(
+            organizer=self.request.user
         )
-        # Get event name in EB API
-        context['event_name'] = get_event_eb_api(
-            get_auth_token(self.request.user),
-            context['event'].event_id,
-        )['name']['text']
-        # Get Discounts of the Event
-        context['discounts'] = Discount.objects.filter(
-            event=self.kwargs['event_id']
-        )
+        context['event_valid'] = False
+        if len(context['event']) > 0:
+            context['event_valid'] = True
+            # Get event name in EB API
+            context['event_name'] = get_event_eb_api(
+                get_auth_token(self.request.user),
+                context['event'].get().event_id,
+            )['name']['text']
+            # Get Discounts of the Event
+            context['discounts'] = Discount.objects.filter(
+                event=self.kwargs['event_id']
+            )
         return context
 
 
