@@ -6,7 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect
-from django.contrib import messages
 from eventbrite import Eventbrite
 from .models import Discount
 from .utils import (
@@ -144,16 +143,24 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
     def get_context_data(self, **kwargs):
         context = super(EventDiscountsView, self).get_context_data(**kwargs)
         # Get event by id in kwargs
-        context['event'] = self.get_event()
-        # Get event name in EB API
-        context['id'] = self.kwargs['event_id']
-        context['discounts'] = Discount.objects.filter(
-            event=context['event']
+        context['event'] = Event.objects.filter(
+            id=self.kwargs['event_id']
+        ).filter(
+            organizer=self.request.user
         )
-        context['event_name'] = get_event_eb_api(
-            get_auth_token(self.request.user),
-            context['event'].event_id,
-        )['name']['text']
+        context['event_valid'] = False
+        if len(context['event']) > 0:
+            context['event_valid'] = True
+            # Get event name in EB API
+            context['id'] = self.kwargs['event_id']
+            context['discounts'] = Discount.objects.filter(
+                event=context['event']
+            )
+            context['event_name'] = get_event_eb_api(
+                get_auth_token(self.request.user),
+                context['event'].get().event_id,
+            )['name']['text']
+        # Get Discounts of the Event
         return context
 
 
@@ -193,7 +200,9 @@ class ManageDiscount(FormView, LoginRequiredMixin, EventAccessMixin):
         return HttpResponseRedirect(
             reverse(
                 'events_discount',
-                kwargs={'event_id': self.get_event().id},
+                kwargs={
+                    'event_id': self.get_event().id
+                },
             )
         )
 
@@ -206,7 +215,7 @@ class ManageDiscount(FormView, LoginRequiredMixin, EventAccessMixin):
                 value_type=form['discount_type'].value(),
             )
         else:
-            discount = Discount.objects.filter(pk=self.kwargs['discount_id']).update(
+            Discount.objects.filter(pk=self.kwargs['discount_id']).update(
                 name=form['discount_name'].value(),
                 event=event,
                 value=form['discount_value'].value(),

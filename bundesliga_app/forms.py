@@ -32,10 +32,3 @@ class DiscountForm(forms.Form):
                 MinValueValidator(0),
                 MaxValueValidator(100)
             ]
-
-    def verify_selected_type(self, discount_type):
-        print("Selected Type")
-        if discount_type == CHOICES[0][0]:
-            self.fields['discount_type'] = discount_type
-        elif discount_type == CHOICES[1][0]:
-            self.fields['discount_type'] = discount_type
