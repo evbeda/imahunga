@@ -14,6 +14,9 @@ from mock import patch
 from django.apps import apps
 from bundesliga_app.apps import BundesligaAppConfig
 from bundesliga_app.utils import get_auth_token
+from .models import (
+    Discount,
+)
 
 
 # Create your tests here.
@@ -230,7 +233,7 @@ class EventDiscountsViewTest(TestBase):
             self.event.id,
         )
         self.assertEqual(
-            self.response.context_data['event'],
+            self.response.context_data['event'].get(),
             self.event,
         )
 
@@ -244,14 +247,14 @@ class EventDiscountsViewTest(TestBase):
         )
         # The event of the discount is the same of the event in response
         self.assertEqual(
-            self.response.context_data['event'].id,
-            self.events_discount.event.id
+            int(self.response.context_data['id']),
+            self.events_discount.event.id,
         )
 
 
-class ManageDiscountViewTest(TestBase):
+class CreateDiscountViewTest(TestBase):
     def setUp(self):
-        super(ManageDiscountViewTest, self).setUp()
+        super(CreateDiscountViewTest, self).setUp()
         self.event = EventFactory(
             organizer=self.organizer,
             is_active=True,
@@ -276,7 +279,229 @@ class ManageDiscountViewTest(TestBase):
             self.event.id,
         )
 
+    def test_create_discount_correct_fixed_value(self):
+        self.response = self.client.post(
+            '/events_discount/{}/new/'.format(self.event.id),
+            {
+                'discount_name': 'descuento',
+                'discount_type': 'fixed',
+                'discount_value': 100.0,
+            },
+        )
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            1,
+        )
 
+    def test_create_discount_wrong_fixed_value(self):
+        self.response = self.client.post(
+            '/events_discount/{}/new/'.format(self.event.id),
+            {
+                'discount_name': 'descuento',
+                'discount_type': 'fixed',
+                'discount_value': -50,
+            },
+        )
+        self.assertEqual(self.response.status_code, 200)
+        self.assertContains(
+            self.response,
+            'Ensure this value is greater than or equal to 0.'
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            0,
+        )
+
+    def test_create_discount_wrong_percentage_value_negative(self):
+        self.response = self.client.post(
+            '/events_discount/{}/new/'.format(self.event.id),
+            {
+                'discount_name': 'descuento',
+                'discount_type': 'percentage',
+                'discount_value': -50,
+            },
+        )
+        self.assertEqual(self.response.status_code, 200)
+        self.assertContains(
+            self.response,
+            'Ensure this value is greater than or equal to 0.'
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            0,
+        )
+
+    def test_create_discount_wrong_percentage_value_too_high(self):
+        self.response = self.client.post(
+            '/events_discount/{}/new/'.format(self.event.id),
+            {
+                'discount_name': 'descuento',
+                'discount_type': 'percentage',
+                'discount_value': 200,
+            },
+        )
+        self.assertContains(
+            self.response,
+            'Ensure this value is less than or equal to 100.'
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            0,
+        )
+
+
+class ModifyDiscountViewTest(TestBase):
+    def setUp(self):
+        super(ModifyDiscountViewTest, self).setUp()
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+
+        self.discount = DiscountFactory(
+            event=self.event,
+            value=100.0,
+            value_type="fixed",
+        )
+
+        self.response = self.client.get(
+            '/events_discount/{}/{}/'.format(
+                self.event.id,
+                self.discount.id,
+            )
+        )
+
+    def test_modify_event_discount(self):
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_modify_event_discount_url_has_correct_template(self):
+        self.assertEqual(
+            self.response.context_data['view'].template_name,
+            'organizer/create_discount.html',
+        )
+
+    def test_event_in_response(self):
+        self.assertEqual(
+            self.response.context_data['event'].id,
+            self.event.id,
+        )
+
+    def test_discount_in_response(self):
+        self.assertEqual(
+            self.response.context_data['discount'].id,
+            self.discount.id,
+        )
+
+    def test_modify_discount_correct_fixed_value(self):
+        self.response = self.client.post(
+            '/events_discount/{}/{}/'.format(
+                self.event.id,
+                self.discount.id,
+            ),
+            {
+                'discount_name': self.discount.name,
+                'discount_type': self.discount.value_type,
+                'discount_value': 150.0,
+            },
+        )
+        updated_discount = Discount.objects.get(id=self.discount.id)
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(updated_discount.value, 150.0)
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            1,
+        )
+
+    def test_modify_discount_wrong_fixed_value(self):
+        self.response = self.client.post(
+            '/events_discount/{}/{}/'.format(
+                self.event.id,
+                self.discount.id,
+            ),
+            {
+                'discount_name': self.discount.name,
+                'discount_type': self.discount.value_type,
+                'discount_value': -10,
+            },
+        )
+
+        self.assertEqual(self.response.status_code, 200)
+        self.assertContains(
+            self.response,
+            'Ensure this value is greater than or equal to 0.'
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            1,
+        )
+
+    def test_modify_discount_correct_percentage_value(self):
+        self.response = self.client.post(
+            '/events_discount/{}/{}/'.format(
+                self.event.id,
+                self.discount.id,
+            ),
+            {
+                'discount_name': self.discount.name,
+                'discount_type': 'percentage',
+                'discount_value': 20.0,
+            },
+        )
+        updated_discount = Discount.objects.get(id=self.discount.id)
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(updated_discount.value_type, 'percentage')
+        self.assertEqual(updated_discount.value, 20.0)
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            1,
+        )
+
+    def test_modify_discount_low_percentage_value(self):
+
+        self.response = self.client.post(
+            '/events_discount/{}/{}/'.format(
+                self.event.id,
+                self.discount.id,
+            ),
+            {
+                'discount_name': self.discount.name,
+                'discount_type': 'percentage',
+                'discount_value': -10,
+            },
+        )
+        self.assertEqual(self.response.status_code, 200)
+        self.assertContains(
+            self.response,
+            'Ensure this value is greater than or equal to 0.'
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            1,
+        )
+
+    def test_modify_discount_too_high_percentage_value(self):
+
+        self.response = self.client.post(
+            '/events_discount/{}/{}/'.format(
+                self.event.id,
+                self.discount.id,
+            ),
+            {
+                'discount_name': self.discount.name,
+                'discount_type': 'percentage',
+                'discount_value': 150,
+            },
+        )
+        self.assertEqual(self.response.status_code, 200)
+        self.assertContains(
+            self.response,
+            'Ensure this value is less than or equal to 100.'
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            1,
+        )
 
 # @patch('bundesliga_app.utils.get_auth_token', return_value=123456)
 # @patch('bundesliga_app.views.SelectEvents._get_event', return_value=MOCK_EVENTS_API)
@@ -319,6 +544,6 @@ class SelectEventsViewTest(TestBase):
     def test_date_conversor(self):
         self.response.context_data['events'] = MOCK_EVENTS_API
         self.assertEqual(
-             self.response.context_data['view'].get_local_date(MOCK_EVENTS_API),
+            self.response.context_data['view'].get_local_date(MOCK_EVENTS_API),
             'November 03, 2018'
         )
