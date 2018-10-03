@@ -10,6 +10,7 @@ from .views import (
     ManageDiscount,
     SelectEvents,
 )
+from django.urls import reverse, reverse_lazy
 from mock import patch
 from django.apps import apps
 from bundesliga_app.apps import BundesligaAppConfig
@@ -22,6 +23,7 @@ from bundesliga_app.mocks import (
     MOCK_EVENT_API,
     MOCK_USER_API,
     MOCK_LIST_EVENTS_API,
+    get_mock_events_api,
 )
 
 # Create your tests here.
@@ -68,7 +70,8 @@ class AuthTokenTest(TestBase):
         )
 
 
-@patch('bundesliga_app.views.get_event_eb_api', return_value=MOCK_EVENT_API)
+
+@patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
 class HomeViewTest(TestBase):
     def setUp(self):
         super(HomeViewTest, self).setUp()
@@ -124,8 +127,21 @@ class HomeViewTest(TestBase):
                 event,
             )
 
+    def test_get_discount_if_exists(self, mock_get_event_eb_api):
+        discount = DiscountFactory(
+            event=self.events[0],
+            value=100.0,
+            value_type="fixed",
+        )
+        self.response = self.client.get('/')
+        self.assertEqual(
+            self.response.context['events'][self.events[0].id]['discount'],
+            discount.value,
+        )
 
-@patch('bundesliga_app.views.get_event_eb_api', return_value=MOCK_EVENT_API)
+
+
+@patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
 class EventDiscountsViewTest(TestBase):
     def setUp(self):
         super(EventDiscountsViewTest, self).setUp()
@@ -274,6 +290,24 @@ class CreateDiscountViewTest(TestBase):
             len(Discount.objects.filter(event=self.event)),
             0,
         )
+
+    def test_create_second_discount(self):
+        self.discount = DiscountFactory(
+            event=self.event,
+            value=100.0,
+            value_type="fixed",
+        )
+        self.response = self.client.post(
+            '/events_discount/{}/new/'.format(self.event.id),
+            {
+                'discount_name': 'descuento',
+                'discount_type': 'percentage',
+                'discount_value': 50,
+            },
+        )
+        self.assertContains(
+            self.response,
+            'You already have a discount for this event')
 
 
 class ModifyDiscountViewTest(TestBase):
@@ -426,6 +460,75 @@ class ModifyDiscountViewTest(TestBase):
         self.assertEqual(
             len(Discount.objects.filter(event=self.event)),
             1,
+        )
+
+
+class DeleteDiscountViewTest(TestBase):
+    def setUp(self):
+        super(DeleteDiscountViewTest, self).setUp()
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+
+        self.discount = DiscountFactory(
+            event=self.event,
+            value=100.0,
+            value_type="fixed",
+        )
+
+        self.response = self.client.get(
+            '/events_discount/{}/{}/delete/'.format(
+                self.event.id,
+                self.discount.id,
+            )
+        )
+
+    def test_delete_event_discount(self):
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_delete_event_discount_url_has_correct_template(self):
+        self.assertEqual(
+            self.response.context_data['view'].template_name,
+            'organizer/delete_discount.html',
+        )
+
+    def test_event_in_response(self):
+        self.assertEqual(
+            self.response.context_data['event'].id,
+            self.event.id,
+        )
+
+    def test_discount_in_response(self):
+        self.assertEqual(
+            self.response.context_data['discount'].id,
+            self.discount.id,
+        )
+
+    def test_press_delete_discount(self):
+        self.response = self.client.get(
+            '/events_discount/{}/{}/delete/'.format(
+                self.event.id,
+                self.discount.id,
+            ),
+            follow=True,
+        )
+
+        self.assertContains(
+            self.response, 'Are you sure you want to delete the discount')
+
+    def test_confirm_delete_discount(self):
+        self.response = self.client.post(
+            '/events_discount/{}/{}/delete/'.format(
+                self.event.id,
+                self.discount.id,
+            ),
+        )
+
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            0,
         )
 
 
