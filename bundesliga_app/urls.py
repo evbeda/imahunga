@@ -4,6 +4,7 @@ from .views import (
     HomeView,
     SelectEvents,
     EventDiscountsView,
+    DeleteDiscountView,
 )
 
 urlpatterns = [
@@ -11,5 +12,6 @@ urlpatterns = [
     url(r'^select_events/$', SelectEvents.as_view(), name='select_events'),
     url(r'^events_discount/(?P<event_id>[0-9]+)/$', EventDiscountsView.as_view(), name='events_discount'),
     url(r'^events_discount/(?P<event_id>[0-9]+)/new/$', ManageDiscount.as_view(), name='create_discount'),
+    url(r'^events_discount/(?P<event_id>[0-9]+)/(?P<discount_id>[0-9]+)/delete/$', DeleteDiscountView.as_view(), name='delete_discount'),
     url(r'^events_discount/(?P<event_id>[0-9]+)/(?P<discount_id>[0-9]+)/$', ManageDiscount.as_view(), name='modify_discount'),
 ]

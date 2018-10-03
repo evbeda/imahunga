@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect
 from django.contrib import messages
@@ -189,11 +189,11 @@ class ManageDiscount(FormView, LoginRequiredMixin, EventAccessMixin):
             return self.form_invalid(form)
 
     def form_valid(self, form):
-        self.add_discount(form, self._get_event())
+        self.add_discount(form, self.get_event())
         return HttpResponseRedirect(
             reverse(
                 'events_discount',
-                kwargs={'event_id': self._get_event().id},
+                kwargs={'event_id': self.get_event().id},
             )
         )
 
@@ -215,7 +215,7 @@ class ManageDiscount(FormView, LoginRequiredMixin, EventAccessMixin):
 
     def _verify_event_discount(self, form):
         discount = Discount.objects.filter(
-            event=self._get_event().id
+            event=self.get_event().id
         )
         if len(discount) > 0:
             error = form.errors.setdefault('__all__', ErrorList())
@@ -229,4 +229,30 @@ class ManageDiscount(FormView, LoginRequiredMixin, EventAccessMixin):
                 Discount,
                 id=self.kwargs['discount_id'],
             )
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteDiscountView(DeleteView, LoginRequiredMixin, EventAccessMixin):
+    """ This is the delete discount view """
+
+    model = Discount
+    template_name = 'organizer/delete_discount.html'
+    # success_message = 'Your Discount has been deleted successfully.'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'events_discount',
+            kwargs={'event_id': self.kwargs['event_id']},
+        )
+
+    def get_object(self):
+        return get_object_or_404(
+            Discount,
+            id=self.kwargs['discount_id'],
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(DeleteDiscountView, self).get_context_data(**kwargs)
+        context['event'] = self.get_event()
         return context

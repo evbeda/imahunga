@@ -1,0 +1,23 @@
+{% extends '../shared/base.html' %}
+{% block content %}
+	<div class="container">
+		<form action="" method="post">
+			{% csrf_token %}
+			<br>
+			<div class="border border-danger rounded">
+				<div class="row d-flex justify-content-center" >
+					<p><h1> Are you sure you want to delete the discount "{{ discount.name }}"?</h1></p>
+				</div>
+				<div class="row" >
+					<div class="col d-flex justify-content-end">
+						<input type="submit" value="Confirm" class="btn btn-danger" />
+					</div>
+					<div class="col d-flex justify-content-start">
+					<a href="{% url 'events_discount' event.id %}" class="btn btn-dark ">Cancel</a>
+					</div>
+				</div>
+				<br>
+			</div>
+		</form>
+	</div>
+{% endblock %}
