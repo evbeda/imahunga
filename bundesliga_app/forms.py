@@ -19,7 +19,7 @@ class DiscountForm(forms.Form):
     ))
     discount_value = forms.FloatField(required=True, widget=forms.NumberInput(
         attrs={
-            'class': 'form-control row'
+            'class': 'form-control'
         }
     ))
 
