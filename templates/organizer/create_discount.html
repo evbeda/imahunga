@@ -49,14 +49,16 @@
 				<label class="font-italic">Insert your discount</label>
 			</div>
 
-			<div id="fixed_symbol" class="input-group-prepend">
-            	<span class="input-group-text">$</span>
-        	</div>
+			<div class="input-group mb-3">
 
-        	{{form.discount_value}}
+				<div id="fixed_symbol" class="input-group-prepend">
+	            	<span class="input-group-text">$</span>
+	        	</div>
+	        	{{form.discount_value}}
 
-       		<div id="percentage_symbol" class="input-group-append">
-                <span class="input-group-text">%</span>
+	       		<div id="percentage_symbol" class="input-group-append">
+	                <span class="input-group-text">%</span>
+	       		</div>
        		</div>
 
 			<div class="float-right mt-5 col-2">
