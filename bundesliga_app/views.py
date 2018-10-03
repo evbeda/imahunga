@@ -13,7 +13,9 @@ from .utils import (
     get_local_date,
     get_event_eb_api,
     get_events_user_eb_api,
+    get_user_eb_api,
     EventAccessMixin,
+    DiscountAccessMixin,
 )
 from .forms import DiscountForm
 from django.views.generic.edit import (
@@ -118,12 +120,12 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super(SelectEvents, self).get_context_data(**kwargs)
         context['user'] = self.request.user
-        eventbrite = Eventbrite(
-            get_auth_token(self.request.user),
+        context['me'] = get_user_eb_api(
+            get_auth_token(self.request.user)
         )
-        context['me'] = eventbrite.get('/users/me/')
         context['already_selected_id'] = []
-        for event in Event.objects.filter(organizer=self.request.user).filter(is_active=True):
+        for event in Event.objects.filter(
+                organizer=self.request.user).filter(is_active=True):
             context['already_selected_id'].append(event.event_id)
         # Bring live events of user
         context['events'] = self._get_event()
@@ -143,29 +145,21 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
     def get_context_data(self, **kwargs):
         context = super(EventDiscountsView, self).get_context_data(**kwargs)
         # Get event by id in kwargs
-        context['event'] = Event.objects.filter(
-            id=self.kwargs['event_id']
-        ).filter(
-            organizer=self.request.user
+        context['event'] = self.get_event()
+        # Get event name in EB API
+        context['id'] = self.kwargs['event_id']
+        context['discounts'] = Discount.objects.filter(
+            event=context['event']
         )
-        context['event_valid'] = False
-        if len(context['event']) > 0:
-            context['event_valid'] = True
-            # Get event name in EB API
-            context['id'] = self.kwargs['event_id']
-            context['discounts'] = Discount.objects.filter(
-                event=context['event']
-            )
-            context['event_name'] = get_event_eb_api(
-                get_auth_token(self.request.user),
-                context['event'].get().event_id,
-            )['name']['text']
-        # Get Discounts of the Event
+        context['event_name'] = get_event_eb_api(
+            get_auth_token(self.request.user),
+            context['event'].event_id,
+        )['name']['text']
         return context
 
 
 @method_decorator(login_required, name='dispatch')
-class ManageDiscount(FormView, LoginRequiredMixin, EventAccessMixin):
+class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
 
     form_class = DiscountForm
     template_name = 'organizer/create_discount.html'
@@ -173,12 +167,10 @@ class ManageDiscount(FormView, LoginRequiredMixin, EventAccessMixin):
     def get_form_kwargs(self):
         kwargs = super(ManageDiscount, self).get_form_kwargs()
         if 'discount_id' in self.kwargs:
-            discount = Discount.objects.get(
-                id=self.kwargs['discount_id'],
-            )
+            discount = self.get_discount()
             if discount:
                 kwargs['initial']['discount_name'] = discount.name
-                kwargs['initial']['discount_type']= discount.value_type
+                kwargs['initial']['discount_type'] = discount.value_type
                 kwargs['initial']['discount_value'] = discount.value
         return kwargs
 
@@ -233,6 +225,7 @@ class ManageDiscount(FormView, LoginRequiredMixin, EventAccessMixin):
     def get_context_data(self, **kwargs):
         context = super(ManageDiscount, self).get_context_data(**kwargs)
         context['event'] = self.get_event()
+        # import ipdb;ipdb.set_trace()
         if 'discount_id' in self.kwargs:
             context['discount'] = get_object_or_404(
                 Discount,
@@ -242,7 +235,7 @@ class ManageDiscount(FormView, LoginRequiredMixin, EventAccessMixin):
 
 
 @method_decorator(login_required, name='dispatch')
-class DeleteDiscountView(DeleteView, LoginRequiredMixin, EventAccessMixin):
+class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
     """ This is the delete discount view """
 
     model = Discount
@@ -256,10 +249,7 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, EventAccessMixin):
         )
 
     def get_object(self):
-        return get_object_or_404(
-            Discount,
-            id=self.kwargs['discount_id'],
-        )
+        return self.get_discount()
 
     def get_context_data(self, **kwargs):
         context = super(DeleteDiscountView, self).get_context_data(**kwargs)

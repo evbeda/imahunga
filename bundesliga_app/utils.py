@@ -1,7 +1,10 @@
 """ This are the methods that supports the behaviour of the views """
 from social_django.models import UserSocialAuth
 from eventbrite import Eventbrite
-from .models import Event
+from .models import (
+    Event,
+    Discount,
+)
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 
@@ -21,6 +24,22 @@ class EventAccessMixin(object):
         return event
 
 
+class DiscountAccessMixin(EventAccessMixin):
+    """
+    This mixin deny the access to a discount
+    if the logged user is not the owner of the discount
+    also the access to the event is prohibited
+    """
+    def get_discount(self):
+        discount = get_object_or_404(
+            Discount,
+            id=self.kwargs['discount_id'],
+        )
+        if discount.event.organizer != self.request.user:
+            raise PermissionDenied("You don't have access to this page")
+        return discount
+
+
 def get_auth_token(user):
 
     """
@@ -34,6 +53,11 @@ def get_auth_token(user):
     except UserSocialAuth.DoesNotExist:
         return 'UserSocialAuth does not exists!'
     return token
+
+
+def get_user_eb_api(token):
+    eventbrite = Eventbrite(token)
+    return eventbrite.get('/users/me/')
 
 
 def get_events_user_eb_api(token):
