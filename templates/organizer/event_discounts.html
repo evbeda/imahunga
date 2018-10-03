@@ -25,6 +25,11 @@
 						<img style="height:15px"; src="{% static 'images/settings.png' %}">
 						<small class="text-muted">Manage Discount</small>
 					</a>
+					<br>
+					<a href="{% url 'delete_discount' id discount.id %}">
+						<img style="height:15px"; src="{% static 'images/garbage.png' %}">
+						<small class="text-danger">Delete Discount</small>
+					</a>
 					</h5>
 				</div>
 			</div>
