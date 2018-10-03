@@ -16,87 +16,15 @@ from bundesliga_app.apps import BundesligaAppConfig
 from bundesliga_app.utils import get_auth_token
 from .models import (
     Discount,
+    Event,
+)
+from bundesliga_app.mocks import (
+    MOCK_EVENT_API,
+    MOCK_USER_API,
+    MOCK_LIST_EVENTS_API,
 )
 
-
 # Create your tests here.
-MOCK_EVENTS_API = {
-    'name': {
-        'text': 'EventoCualquiera',
-        'html': 'EventoCualquiera'
-    },
-    'description': {
-        'text': None,
-        'html': None
-    },
-    'id': '50607739110',
-    'url': 'https://www.eventbrite.com.ar/e/eventocualquiera-tickets-50607739110',
-    'start': {
-          'timezone': 'America/Caracas',
-          'local': '2018-11-03T19:00:00',
-        'utc': '2018-11-03T23:00:00Z'
-    },
-    'end': {
-        'timezone': 'America/Caracas',
-        'local': '2018-11-03T22:00:00',
-        'utc': '2018-11-04T02:00:00Z'
-    },
-    'organization_id': '226660633266',
-    'created': '2018-09-24T17:32:37Z',
-    'changed': '2018-09-26T17:07:55Z',
-    'capacity': 10,
-    'capacity_is_custom': False,
-    'status': 'live',
-    'currency': 'ARS',
-    'listed': False,
-    'shareable': True,
-    'invite_only': False,
-    'online_event': False,
-    'show_remaining': False,
-    'tx_time_limit': 480,
-    'hide_start_date': False,
-    'hide_end_date': False,
-    'locale': 'es_AR',
-    'is_locked': False,
-    'privacy_setting': 'unlocked',
-    'is_series': False,
-    'is_series_parent': False,
-    'is_reserved_seating': False,
-    'show_pick_a_seat': False,
-    'show_seatmap_thumbnail': False,
-    'show_colors_in_seatmap_thumbnail': False,
-    'source': 'create_2.0',
-    'is_free': True,
-    'version': '3.0.0',
-    'logo_id': '50285339',
-    'organizer_id': '17688321548',
-    'venue_id': None,
-    'category_id': None,
-    'subcategory_id': None,
-    'format_id': None,
-    'resource_uri': 'https://www.eventbriteapi.com/v3/events/50607739110/',
-    'is_externally_ticketed': False,
-    'logo': {
-        'crop_mask': {
-              'top_left': {
-                'x': 0,
-                'y': 43
-              },
-            'width': 524,
-            'height': 262
-        },
-        'original': {
-            'url': 'https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F50285339%2F226660633266%2F1%2Foriginal.jpg?auto=compress&s=76bcc2208a37ed4a6cf52ec9d204fe1c',
-            'width': 525,
-            'height': 350
-        },
-        'id': '50285339',
-        'url': 'https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F50285339%2F226660633266%2F1%2Foriginal.jpg?h=200&w=450&auto=compress&rect=0%2C43%2C524%2C262&s=393615fb1d44a82eb37a2cb2fafa9ac7',
-        'aspect_ratio': '2',
-        'edge_color': '#6b7384',
-        'edge_color_set': True
-    }
-}
 
 
 class BundesligaAppConfigTest(TestCase):
@@ -140,7 +68,7 @@ class AuthTokenTest(TestBase):
         )
 
 
-@patch('bundesliga_app.views.get_event_eb_api', return_value=MOCK_EVENTS_API)
+@patch('bundesliga_app.views.get_event_eb_api', return_value=MOCK_EVENT_API)
 class HomeViewTest(TestBase):
     def setUp(self):
         super(HomeViewTest, self).setUp()
@@ -197,7 +125,7 @@ class HomeViewTest(TestBase):
             )
 
 
-@patch('bundesliga_app.views.get_event_eb_api', return_value=MOCK_EVENTS_API)
+@patch('bundesliga_app.views.get_event_eb_api', return_value=MOCK_EVENT_API)
 class EventDiscountsViewTest(TestBase):
     def setUp(self):
         super(EventDiscountsViewTest, self).setUp()
@@ -233,7 +161,7 @@ class EventDiscountsViewTest(TestBase):
             self.event.id,
         )
         self.assertEqual(
-            self.response.context_data['event'].get(),
+            self.response.context_data['event'],
             self.event,
         )
 
@@ -303,11 +231,8 @@ class CreateDiscountViewTest(TestBase):
                 'discount_value': -50,
             },
         )
-        self.assertEqual(self.response.status_code, 200)
-        self.assertContains(
-            self.response,
-            'Ensure this value is greater than or equal to 0.'
-        )
+
+
         self.assertEqual(
             len(Discount.objects.filter(event=self.event)),
             0,
@@ -503,47 +428,90 @@ class ModifyDiscountViewTest(TestBase):
             1,
         )
 
-# @patch('bundesliga_app.utils.get_auth_token', return_value=123456)
-# @patch('bundesliga_app.views.SelectEvents._get_event', return_value=MOCK_EVENTS_API)
+
+@patch('bundesliga_app.views.get_user_eb_api', return_value=MOCK_USER_API)
+@patch('bundesliga_app.views.get_events_user_eb_api',
+       return_value=MOCK_LIST_EVENTS_API,
+       )
 class SelectEventsViewTest(TestBase):
     def setUp(self):
         super(SelectEventsViewTest, self).setUp()
-        # Mock user access token
-        self.get_auth_token_patcher = patch(
-            'bundesliga_app.utils.get_auth_token',
-            return_value=123456,
-        )
-        self.mock_get_auth_token = self.get_auth_token_patcher.start()
 
-        self.get_events_api_patcher = patch(
-            'bundesliga_app.views.SelectEvents._get_event',
-            return_value=123456,
-        )
-        self.mock_get_events_api = self.get_events_api_patcher.start()
+    def test_select_events(self,
+                           mock_get_events_user_eb_api,
+                           mock_get_user_eb_api,
+                           ):
         self.response = self.client.get('/select_events/')
-
-    @skip("Mock for API does not works yet")
-    def test_select_events(self):
         self.assertEqual(self.response.status_code, 200)
 
-    @skip("Mock for API does not works yet")
-    def test_select_events_url_has_the_correct_template(self):
+    def test_select_events_correct_template(self,
+                                            mock_get_events_user_eb_api,
+                                            mock_get_user_eb_api,
+                                            ):
+        self.response = self.client.get('/select_events/')
         self.assertEqual(
             self.response.context_data['view'].template_name,
             'organizer/select_events.html',
         )
 
-    @skip("Mock for API does not works yet")
-    def test_organizer_in_context(self):
-        self.assertContains(
-            self.response,
+    def test_organizer_in_context(self,
+                                  mock_get_events_user_eb_api,
+                                  mock_get_user_eb_api,
+                                  ):
+        self.response = self.client.get('/select_events/')
+        self.assertEqual(
+            self.response.context_data['user'],
             self.organizer,
         )
 
-    @skip("Mock for API does not works yet")
-    def test_date_conversor(self):
-        self.response.context_data['events'] = MOCK_EVENTS_API
-        self.assertEqual(
-            self.response.context_data['view'].get_local_date(MOCK_EVENTS_API),
-            'November 03, 2018'
+    def test_date_conversor(self,
+                            mock_get_events_user_eb_api,
+                            mock_get_user_eb_api,
+                            ):
+        self.response = self.client.get('/select_events/')
+        for event in self.response.context_data['events']:
+            self.assertEqual(
+                event['local_date'],
+                'November 03, 2018',
+            )
+
+    def test_selected_events(self,
+                             mock_get_events_user_eb_api,
+                             mock_get_user_eb_api,
+                             ):
+        # One event for the organizer, a "selected" event
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
         )
+        self.response = self.client.get('/select_events/')
+        selected_events = Event.objects.filter(
+            organizer=self.organizer
+        ).filter(is_active=True)
+        for selected_event in selected_events:
+            self.assertIn(
+                selected_event.event_id,
+                self.response.context_data['already_selected_id'],
+            )
+
+    # def test_post_events(self,
+    #                      mock_get_events_user_eb_api,
+    #                      mock_get_user_eb_api,
+    #                      ):
+    #     event1 = mock_get_events_user_eb_api.return_value[0]
+    #     self.response = self.client.post(
+    #         '/select_events/',
+    #         {
+    #             'event_' + event1['id']: 'on',
+    #         }
+    #     )
+        # import ipdb;ipdb.set_trace()
+        # self.assertEqual(self.response.status_code, 302)
+        # # self.assertContains(
+        # #     self.response,
+        # #     event1['id'],
+        # # )
+        # self.assertEqual(
+        #     len(Event.objects.filter(event_id=event1['id'])),
+        #     1,
+        # )
