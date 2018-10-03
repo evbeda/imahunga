@@ -1,6 +1,13 @@
 # Put the mocks for tests here
+import copy
+
+
+def get_mock_events_api(*args, **kwargs):
+    return copy.deepcopy(MOCK_EVENT_API)
 
 # A random event return value of EB API '/events/:id/'
+
+
 MOCK_EVENT_API = {
     'name': {
         'text': 'EventoCualquiera',
