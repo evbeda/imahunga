@@ -1,0 +1,9 @@
+{% extends './shared/base.html' %}
+{% load static %}
+{% block content %}
+<div class="alert alert-danger mt-5" role="alert">
+    <strong>Error!</strong>
+    <br>
+    <p>{{ exception }}</p>
+</div>
+{% endblock %}
