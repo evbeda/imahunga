@@ -1,41 +1,35 @@
 {% extends '../shared/base.html' %}
 {% load static %}
 {% block content %}
-	{% if event_valid %}
 	<div>
 		<h1 class="mt-2">{{event_name}}'s Discounts</h1>
 		<hr>
 	</div>
-		{% if discounts %}
-			{% for discount in discounts %}
-				<div class="card mb-3">
-					<div class="card-body">
-						<h5 class="card-title">{{discount.name}}</h5>
-						<div class="container row">
-							<label class="card-text mr-4">Discount value: </label>
-							{% if discount.value_type == "fixed" %}
-								<span class="card-text">$</span>
-								<p class="card-text">{{discount.value}}</p>
-							{% else %}
-								<p class="card-text">{{discount.value}}</p>
-								<span class="card-text">%</span>
-							{% endif %}
-						</div>
-						<h5 class="card-title mt-3">
-							<a href="{% url 'modify_discount' id discount.id %}">
-								<img style="height:15px"; src="{% static 'images/settings.png' %}">
-								<small class="text-muted">Manage Discount</small>
-							</a>
-						</h5>
+	{% if discounts %}
+		{% for discount in discounts %}
+			<div class="card mb-3">
+				<div class="card-body">
+					<h5 class="card-title">{{discount.name}}</h5>
+					<div class="container row">
+						<label class="card-text mr-4">Discount value: </label>
+						{% if discount.value_type == "fixed" %}
+							<span class="card-text">$</span>
+							<p class="card-text">{{discount.value}}</p>
+						{% else %}
+							<p class="card-text">{{discount.value}}</p>
+							<span class="card-text">%</span>
+						{% endif %}
 					</div>
+					<h5 class="card-title mt-3">
+					<a href="{% url 'modify_discount' id discount.id %}">
+						<img style="height:15px"; src="{% static 'images/settings.png' %}">
+						<small class="text-muted">Manage Discount</small>
+					</a>
+					</h5>
 				</div>
-			{% endfor %}
-		{% else %}
-			<a id="add_discount_button" href="{% url 'create_discount' id %}" class="btn btn-success float-right">Add Discount</a>
-		{% endif %}
+			</div>
+		{% endfor %}
 	{% else %}
-		<div class="alert alert-danger mt-5" role="alert">
-  			<strong>Error!</strong> You are trying to access to an wrong event.
-		</div>
+		<a id="add_discount_button" href="{% url 'create_discount' id %}" class="btn btn-success float-right">Add Discount</a>
 	{% endif %}
 {% endblock %}

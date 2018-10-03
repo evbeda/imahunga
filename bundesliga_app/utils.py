@@ -1,6 +1,24 @@
 """ This are the methods that supports the behaviour of the views """
 from social_django.models import UserSocialAuth
 from eventbrite import Eventbrite
+from .models import Event
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
+
+
+class EventAccessMixin(object):
+    """
+    This mixin deny the access to the event
+    if the logged user is not the owner of the event
+    """
+    def get_event(self):
+        event = get_object_or_404(
+            Event,
+            id=self.kwargs['event_id'],
+        )
+        if event.organizer != self.request.user:
+            raise PermissionDenied("You don't have access to this page")
+        return event
 
 
 def get_auth_token(user):

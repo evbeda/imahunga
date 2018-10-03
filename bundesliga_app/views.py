@@ -14,9 +14,13 @@ from .utils import (
     get_local_date,
     get_event_eb_api,
     get_events_user_eb_api,
+    EventAccessMixin,
 )
 from .forms import DiscountForm
-from django.views.generic.edit import FormView
+from django.views.generic.edit import (
+    FormView,
+    DeleteView,
+)
 from django.forms.utils import ErrorList
 
 
@@ -130,7 +134,7 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
 
 
 @method_decorator(login_required, name='dispatch')
-class EventDiscountsView(TemplateView, LoginRequiredMixin):
+class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
 
     """ This is the the Event Discounts view,
     here the organizer can manage the discounts of the event"""
@@ -140,38 +144,24 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super(EventDiscountsView, self).get_context_data(**kwargs)
         # Get event by id in kwargs
-        context['event'] = Event.objects.filter(
-            id=self.kwargs['event_id']
-        ).filter(
-            organizer=self.request.user
+        context['event'] = self.get_event()
+        # Get event name in EB API
+        context['id'] = self.kwargs['event_id']
+        context['discounts'] = Discount.objects.filter(
+            event=context['event']
         )
-        context['event_valid'] = False
-        if len(context['event']) > 0:
-            context['event_valid'] = True
-            # Get event name in EB API
-            context['id'] = self.kwargs['event_id']
-            context['discounts'] = Discount.objects.filter(
-                event=context['event']
-            )
-            context['event_name'] = get_event_eb_api(
-                get_auth_token(self.request.user),
-                context['event'].get().event_id,
-            )['name']['text']
-        # Get Discounts of the Event
+        context['event_name'] = get_event_eb_api(
+            get_auth_token(self.request.user),
+            context['event'].event_id,
+        )['name']['text']
         return context
 
 
 @method_decorator(login_required, name='dispatch')
-class ManageDiscount(FormView, LoginRequiredMixin):
+class ManageDiscount(FormView, LoginRequiredMixin, EventAccessMixin):
 
     form_class = DiscountForm
     template_name = 'organizer/create_discount.html'
-
-    def _get_event(self):
-        return get_object_or_404(
-            Event,
-            id=self.kwargs['event_id'],
-        )
 
     def get_form_kwargs(self):
         kwargs = super(ManageDiscount, self).get_form_kwargs()
@@ -233,7 +223,7 @@ class ManageDiscount(FormView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ManageDiscount, self).get_context_data(**kwargs)
-        context['event'] = self._get_event()
+        context['event'] = self.get_event()
         if 'discount_id' in self.kwargs:
             context['discount'] = get_object_or_404(
                 Discount,
