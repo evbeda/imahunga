@@ -106,6 +106,6 @@ MOCK_USER_API = {
 # A random list of events return value of EB API '/users/me/owned_events/?status=live'
 # In this case, the mock has the same event two times
 MOCK_LIST_EVENTS_API = [
-    MOCK_EVENT_API,
-    MOCK_EVENT_API,
+    get_mock_events_api(),
+    get_mock_events_api(),
 ]
