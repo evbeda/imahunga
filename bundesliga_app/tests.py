@@ -13,6 +13,7 @@ from .views import (
 from django.urls import reverse, reverse_lazy
 from mock import patch
 from django.apps import apps
+from urllib.parse import urlencode
 from bundesliga_app.apps import BundesligaAppConfig
 from bundesliga_app.utils import get_auth_token
 from .models import (
@@ -68,7 +69,6 @@ class AuthTokenTest(TestBase):
             get_auth_token(no_log_organizer),
             'UserSocialAuth does not exists!'
         )
-
 
 
 @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
@@ -138,7 +138,6 @@ class HomeViewTest(TestBase):
             self.response.context['events'][self.events[0].id]['discount'],
             discount.value,
         )
-
 
 
 @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
@@ -247,7 +246,6 @@ class CreateDiscountViewTest(TestBase):
                 'discount_value': -50,
             },
         )
-
 
         self.assertEqual(
             len(Discount.objects.filter(event=self.event)),
@@ -597,24 +595,70 @@ class SelectEventsViewTest(TestBase):
                 self.response.context_data['already_selected_id'],
             )
 
-    # def test_post_events(self,
-    #                      mock_get_events_user_eb_api,
-    #                      mock_get_user_eb_api,
-    #                      ):
-    #     event1 = mock_get_events_user_eb_api.return_value[0]
-    #     self.response = self.client.post(
-    #         '/select_events/',
-    #         {
-    #             'event_' + event1['id']: 'on',
-    #         }
-    #     )
-        # import ipdb;ipdb.set_trace()
-        # self.assertEqual(self.response.status_code, 302)
-        # # self.assertContains(
-        # #     self.response,
-        # #     event1['id'],
-        # # )
-        # self.assertEqual(
-        #     len(Event.objects.filter(event_id=event1['id'])),
-        #     1,
-        # )
+    def test_post_event_new(self,
+                            mock_get_events_user_eb_api,
+                            mock_get_user_eb_api,
+                            ):
+        event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
+        self.response = self.client.post(
+            path='/select_events/',
+            data=urlencode({
+                'event_' + event_mock_api_eb['id']: 'on',
+            }),
+            content_type='application/x-www-form-urlencoded'
+        )
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(Event.objects.filter(event_id=event_mock_api_eb['id'])),
+            1,
+        )
+
+    def test_post_event_update(self,
+                               mock_get_events_user_eb_api,
+                               mock_get_user_eb_api,
+                               ):
+        """ One event for the organizer, a "selected" event
+        with the same event_id of the mocked event api eb """
+        event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+            event_id=event_mock_api_eb['id'],
+        )
+        self.response = self.client.post(
+            path='/select_events/',
+            data=urlencode({
+                'event_' + event_mock_api_eb['id']: 'on',
+            }),
+            content_type='application/x-www-form-urlencoded'
+        )
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(Event.objects.filter(event_id=event_mock_api_eb['id'])),
+            1,
+        )
+
+    def test_post_event_update_unselect(self,
+                                        mock_get_events_user_eb_api,
+                                        mock_get_user_eb_api,
+                                        ):
+        """ One event for the organizer, a "selected" event
+        with the same event_id of the mocked event api eb """
+        event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+            event_id=event_mock_api_eb['id'],
+        )
+        self.response = self.client.post(
+            path='/select_events/',
+        )
+        event_in_db = Event.objects.filter(event_id=event_mock_api_eb['id'])
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(event_in_db),
+            1,
+        )
+        self.assertFalse(
+            event_in_db.get().is_active
+        )
