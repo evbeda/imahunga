@@ -10,7 +10,8 @@ omit =
     bundesliga_site/wsgi.py
     */migrations/*,
     */urls.py,
-    */settings/*,
+    */middleware.py,
+    */settings.py,
     */wsgi.py,
     manage.py,
 
