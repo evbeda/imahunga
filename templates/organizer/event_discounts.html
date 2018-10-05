@@ -9,7 +9,10 @@
 		{% for discount in discounts %}
 			<div class="card mb-3">
 				<div class="card-body">
-					<h5 class="card-title">{{discount.name}}</h5>
+					<h5 class="card-title float-left">{{discount.name}}</h5>
+					<a class="float-right" href="{% url 'delete_discount' id discount.id %}">
+						<img style="height:20px"; src="{% static 'images/garbage.png' %}">
+					</a>
 					<div class="container row">
 						<label class="card-text mr-4">Discount value: </label>
 						{% if discount.value_type == "fixed" %}
@@ -26,10 +29,6 @@
 						<small class="text-muted">Manage Discount</small>
 					</a>
 					<br>
-					<a href="{% url 'delete_discount' id discount.id %}">
-						<img style="height:15px"; src="{% static 'images/garbage.png' %}">
-						<small class="text-danger">Delete Discount</small>
-					</a>
 					</h5>
 				</div>
 			</div>
