@@ -1,11 +1,11 @@
 	$(document).ready(function(){
 		$('#fixed_symbol').hide()
 		$('#percentage_symbol').hide()
-		if ('#id_discount_type'.value == 'fixed'){
+		if ($('#id_discount_type').find(":selected")[0].value == 'fixed'){
 				$('#fixed_symbol').show()
 				$('#percentage_symbol').hide()
 			} else{
-				if('#id_discount_type'.value == 'percentage'){
+				if($('#id_discount_type').find(":selected")[0].value == 'percentage'){
 					$('#percentage_symbol').show()
 					$('#fixed_symbol').hide()
 				}

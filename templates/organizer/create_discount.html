@@ -1,6 +1,6 @@
 {% extends '../shared/base.html' %}
-{%load static%}
-{%block content%}
+{% load static %}
+{% block content %}
 <head>
 	<script type="text/javascript" src="{% static 'js/create_discount_logic.js' %}"></script>
 </head>
@@ -62,7 +62,7 @@
        		</div>
 
 			<div class="float-right mt-5 col-2">
-				<button class="btn btn-success col-12">Save</button>
+				<button class="btn btn-success col-12" onclick="this.disabled=true; this.form.submit();">Save</button>
 			</div>
 		</form>
 	</div>
