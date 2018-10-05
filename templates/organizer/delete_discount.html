@@ -1,7 +1,11 @@
 {% extends '../shared/base.html' %}
+{% load static %}
 {% block content %}
+  <head>
+    <script type="text/javascript" src="{% static 'js/double_click.js' %}"></script>
+  </head>
 	<div class="container mt-3">
-		<form action="" method="post">
+		<form id="discount_form" action="" method="post">
 			{% csrf_token %}
 			<br>
 				<div class="row d-flex justify-content-center">
@@ -9,7 +13,7 @@
 				</div>
 				<div class="row" >
 					<div class="col d-flex justify-content-end">
-						<input type="submit" value="Confirm" class="btn btn-danger" />
+						<input id="submit_btn"type="submit" value="Confirm" class="btn btn-danger" />
 					</div>
 					<div class="col d-flex justify-content-start">
 					<a href="{% url 'events_discount' event.id %}" class="btn btn-dark ">Cancel</a>
