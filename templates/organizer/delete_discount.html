@@ -1,12 +1,11 @@
 {% extends '../shared/base.html' %}
 {% block content %}
-	<div class="container">
+	<div class="container mt-3">
 		<form action="" method="post">
 			{% csrf_token %}
 			<br>
-			<div class="border border-danger rounded">
-				<div class="row d-flex justify-content-center" >
-					<p><h1> Are you sure you want to delete the discount "{{ discount.name }}"?</h1></p>
+				<div class="row d-flex justify-content-center">
+					<p><h4 class="font-italic"> Are you sure you want to delete the discount "{{ discount.name }}"?</h4></p>
 				</div>
 				<div class="row" >
 					<div class="col d-flex justify-content-end">
@@ -17,7 +16,6 @@
 					</div>
 				</div>
 				<br>
-			</div>
 		</form>
 	</div>
 {% endblock %}
