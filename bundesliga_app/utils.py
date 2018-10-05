@@ -20,7 +20,7 @@ class EventAccessMixin(object):
             id=self.kwargs['event_id'],
         )
         if event.organizer != self.request.user:
-            raise PermissionDenied("You don't have access to this page")
+            raise PermissionDenied("You don't have access to this event")
         return event
 
 
@@ -36,7 +36,7 @@ class DiscountAccessMixin(EventAccessMixin):
             id=self.kwargs['discount_id'],
         )
         if discount.event.organizer != self.request.user:
-            raise PermissionDenied("You don't have access to this page")
+            raise PermissionDenied("You don't have access to this discount")
         return discount
 
 
@@ -86,7 +86,6 @@ def get_local_date(event):
     This method will receive an event and
     returns a format date
     """
-
     for value in event['start'].values():
         date_complete = value
     date_complete = date_complete.split('-')

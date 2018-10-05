@@ -1,4 +1,7 @@
-from django.test import TestCase
+from django.test import (
+    TestCase,
+    RequestFactory,
+)
 from unittest import skip
 from .factories import (
     AuthFactory,
@@ -11,11 +14,17 @@ from .views import (
     SelectEvents,
 )
 from django.urls import reverse, reverse_lazy
+from django.views.generic.base import TemplateView
 from mock import patch
 from django.apps import apps
 from urllib.parse import urlencode
 from bundesliga_app.apps import BundesligaAppConfig
-from bundesliga_app.utils import get_auth_token
+from bundesliga_app.utils import (
+    get_auth_token,
+    EventAccessMixin,
+    DiscountAccessMixin,
+    get_local_date
+)
 from .models import (
     Discount,
     Event,
@@ -26,6 +35,8 @@ from bundesliga_app.mocks import (
     MOCK_LIST_EVENTS_API,
     get_mock_events_api,
 )
+from django.http import Http404
+from django.core.exceptions import PermissionDenied
 
 # Create your tests here.
 
@@ -662,3 +673,124 @@ class SelectEventsViewTest(TestBase):
         self.assertFalse(
             event_in_db.get().is_active
         )
+
+class EventAccessMixinTest(TestBase):
+    class DummyView(TemplateView, EventAccessMixin):
+        template_name = 'any_template.html'  # TemplateView requires this attribute
+        kwargs = ''
+        request = RequestFactory()
+        request.user = ''
+
+    def setUp(self):
+        super(EventAccessMixinTest, self).setUp()
+        self.view = self.DummyView()
+
+    def test_rise_exception_permission_denied(self):
+        self.organizer_2 = OrganizerFactory()
+        event = EventFactory(
+            organizer=self.organizer_2,
+            is_active=True,
+        )
+        # Setup request and view.
+        self.view.kwargs = {'event_id': event.id}
+        # the logged user is user 0 and the organizer of the event is user 1
+        self.view.request.user = self.organizer
+        self.view.response = '/events_discount/{}/new/'.format(event.id)
+
+        with self.assertRaises(PermissionDenied) as permission_denied:
+                self.view.get_event()
+        self.assertEqual(permission_denied.exception.args[0], "You don't have access to this event")
+
+    def test_valid_event_owner(self):
+        event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        # Setup request and view.
+        self.view.kwargs = {'event_id': event.id}
+        # the logged user is user 0 and the organizer of the event is user 1
+        self.view.request.user = self.organizer
+        self.view.response = '/events_discount/{}/new/'.format(event.id)
+        self.assertEqual(self.view.get_event(), event)
+
+    def test_rise_exception_404(self):
+        # Setup request and view.
+        self.view.kwargs = {'event_id': 4}
+        # the logged user is user 0 and the organizer of the event is user 1
+        self.view.request.user = self.organizer
+        self.view.response = '/events_discount/{}/new/'.format(4)
+
+        with self.assertRaises(Http404):
+                self.view.get_event()
+
+
+class DiscountAccessMixinTest(TestBase):
+    class DummyView(TemplateView, DiscountAccessMixin):
+        template_name = 'any_template.html'  # TemplateView requires this attribute
+        kwargs = ''
+        request = RequestFactory()
+        request.user = ''
+
+    def setUp(self):
+        super(DiscountAccessMixinTest, self).setUp()
+        self.view = self.DummyView()
+
+    def test_rise_exception_permission_denied(self):
+        event = EventFactory(
+            organizer=OrganizerFactory(),
+            is_active=True,
+        )
+        event2 = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        discount = DiscountFactory(
+            event=event,
+        )
+        # Setup request and view.
+        self.view.kwargs = {
+            'event_id': event2.id,
+            'discount_id': discount.id,
+        }
+        # the logged user is user 0 and the organizer of the event is user 1
+        self.view.request.user = self.organizer
+        self.view.response = 'events_discount/{}/{}/'.format(event2.id, discount.id)
+
+        with self.assertRaises(PermissionDenied) as permission_denied:
+                self.view.get_discount()
+        self.assertEqual(permission_denied.exception.args[0], "You don't have access to this discount")
+
+    def test_valid_discount_owner(self):
+        event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        discount = DiscountFactory(
+            event=event,
+        )
+        # Setup request and view.
+        self.view.kwargs = {
+            'event_id': event.id,
+            'discount_id': discount.id,
+        }
+        # the logged user is user 0 and the organizer of the event is user 1
+        self.view.request.user = self.organizer
+        self.view.response = 'events_discount/{}/{}/'.format(event.id, discount.id)
+        self.assertEqual(self.view.get_discount(), discount)
+
+    def test_rise_exception_404(self):
+        event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        # Setup request and view.
+        self.view.kwargs = {
+            'event_id': event.id,
+            'discount_id': 8,
+        }
+        # the logged user is user 0 and the organizer of the event is user 1
+        self.view.request.user = self.organizer
+        self.view.response = 'events_discount/{}/{}/'.format(event.id, 8)
+
+        with self.assertRaises(Http404):
+                self.view.get_discount()
