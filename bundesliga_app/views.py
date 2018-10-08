@@ -204,14 +204,14 @@ class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
                 name=form['discount_name'].value(),
                 event=event,
                 value=form['discount_value'].value(),
-                value_type=form['discount_type'].value(),
+                value_type='percentage',
             )
         else:
             Discount.objects.filter(pk=self.kwargs['discount_id']).update(
                 name=form['discount_name'].value(),
                 event=event,
                 value=form['discount_value'].value(),
-                value_type=form['discount_type'].value(),
+                value_type='percentage',
             )
 
     def _verify_event_discount(self, form):

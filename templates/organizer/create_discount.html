@@ -1,9 +1,6 @@
 {% extends '../shared/base.html' %}
 {% load static %}
 {% block content %}
-<head>
-	<script type="text/javascript" src="{% static 'js/create_discount_logic.js' %}"></script>
-</head>
 <body>
 	<div class="container">
 		<div class="mt-5">
@@ -41,8 +38,6 @@
 
 			<div class="form-group mt-3">
 				<label class="font-weight-bold">Discount amount</label>
-				<label class="font-italic row container">Select Discount Type</label>
-				{{form.discount_type}}
 			</div>
 
 			<div class="mt-3 form-group" id="insert_discount_title">
@@ -50,10 +45,6 @@
 			</div>
 
 			<div class="input-group mb-3">
-
-				<div id="fixed_symbol" class="input-group-prepend">
-	            	<span class="input-group-text">$</span>
-	        	</div>
 	        	{{form.discount_value}}
 
 	       		<div id="percentage_symbol" class="input-group-append">

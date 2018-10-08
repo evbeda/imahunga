@@ -142,7 +142,7 @@ class HomeViewTest(TestBase):
         discount = DiscountFactory(
             event=self.events[0],
             value=100.0,
-            value_type="fixed",
+            value_type="percentage",
         )
         self.response = self.client.get('/')
         self.assertEqual(
@@ -233,36 +233,6 @@ class CreateDiscountViewTest(TestBase):
             self.event.id,
         )
 
-    def test_create_discount_correct_fixed_value(self):
-        self.response = self.client.post(
-            '/events_discount/{}/new/'.format(self.event.id),
-            {
-                'discount_name': 'descuento',
-                'discount_type': 'fixed',
-                'discount_value': 100.0,
-            },
-        )
-        self.assertEqual(self.response.status_code, 302)
-        self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
-            1,
-        )
-
-    def test_create_discount_wrong_fixed_value(self):
-        self.response = self.client.post(
-            '/events_discount/{}/new/'.format(self.event.id),
-            {
-                'discount_name': 'descuento',
-                'discount_type': 'fixed',
-                'discount_value': -50,
-            },
-        )
-
-        self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
-            0,
-        )
-
     def test_create_discount_wrong_percentage_value_negative(self):
         self.response = self.client.post(
             '/events_discount/{}/new/'.format(self.event.id),
@@ -304,7 +274,7 @@ class CreateDiscountViewTest(TestBase):
         self.discount = DiscountFactory(
             event=self.event,
             value=100.0,
-            value_type="fixed",
+            value_type="percentage",
         )
         self.response = self.client.post(
             '/events_discount/{}/new/'.format(self.event.id),
@@ -330,7 +300,7 @@ class ModifyDiscountViewTest(TestBase):
         self.discount = DiscountFactory(
             event=self.event,
             value=100.0,
-            value_type="fixed",
+            value_type="percentage",
         )
 
         self.response = self.client.get(
@@ -361,49 +331,6 @@ class ModifyDiscountViewTest(TestBase):
             self.discount.id,
         )
 
-    def test_modify_discount_correct_fixed_value(self):
-        self.response = self.client.post(
-            '/events_discount/{}/{}/'.format(
-                self.event.id,
-                self.discount.id,
-            ),
-            {
-                'discount_name': self.discount.name,
-                'discount_type': self.discount.value_type,
-                'discount_value': 150.0,
-            },
-        )
-        updated_discount = Discount.objects.get(id=self.discount.id)
-        self.assertEqual(self.response.status_code, 302)
-        self.assertEqual(updated_discount.value, 150.0)
-        self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
-            1,
-        )
-
-    def test_modify_discount_wrong_fixed_value(self):
-        self.response = self.client.post(
-            '/events_discount/{}/{}/'.format(
-                self.event.id,
-                self.discount.id,
-            ),
-            {
-                'discount_name': self.discount.name,
-                'discount_type': self.discount.value_type,
-                'discount_value': -10,
-            },
-        )
-
-        self.assertEqual(self.response.status_code, 200)
-        self.assertContains(
-            self.response,
-            'Ensure this value is greater than or equal to 0.'
-        )
-        self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
-            1,
-        )
-
     def test_modify_discount_correct_percentage_value(self):
         self.response = self.client.post(
             '/events_discount/{}/{}/'.format(
@@ -413,7 +340,7 @@ class ModifyDiscountViewTest(TestBase):
             {
                 'discount_name': self.discount.name,
                 'discount_type': 'percentage',
-                'discount_value': 20.0,
+                'discount_value': 20,
             },
         )
         updated_discount = Discount.objects.get(id=self.discount.id)
@@ -483,7 +410,7 @@ class DeleteDiscountViewTest(TestBase):
         self.discount = DiscountFactory(
             event=self.event,
             value=100.0,
-            value_type="fixed",
+            value_type="percentage",
         )
 
         self.response = self.client.get(
