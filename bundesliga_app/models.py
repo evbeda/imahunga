@@ -16,7 +16,7 @@ class Event(models.Model):
 class Discount(models.Model):
     name = models.CharField(max_length=200)
     event = models.ForeignKey(Event)
-    value = models.FloatField()
+    value = models.IntegerField()
     value_type = models.CharField(max_length=200)
 
     def __str__(self):
