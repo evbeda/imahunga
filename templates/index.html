@@ -17,6 +17,7 @@
 						<h5 class="card-title">{{event.name.text}}</h5>
 						<p class="card-text text-secondary">{{event.local_date}}</p>
 						<div class="row">
+						{% if not event.is_free %}
 						<div class="col-9">
 							<h5 class="card-title">
 								<a href="{% url 'events_discount' id %}">
@@ -25,6 +26,14 @@
 								</a>
 							</h5>
 						</div>
+						{% else %}
+						<div class="col-9">
+							<small class="text-danger">The event must have at least one paid ticket in order to add a discount</small>
+						</div>
+						<div class="float-right">
+							<small class="text-success">FREE!</small>
+						</div>
+						{% endif %}
 						{% if event.discount %}
 						<div class="float-right">
 							<small class="text-muted">It has {% if event.discount_type == "fixed" %}
