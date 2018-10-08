@@ -1,58 +1,59 @@
 {% extends './shared/base.html' %}
 {% block content %}
-{% load static %}
-<div class="container mt-5">
-	{% for id, event in events.items %}
-		<div class="card mb-3">
-			<div class="container-fluid">
-				<div class="row" style="height: 150px;">
-					<div class="input-group-prepend">
-						{% if event.logo %}
-	                        <img class="card-img mh-100 img-fluid" src={{event.logo.url}} style="width: 300px">
-	                    {% else %}
-	                        <img class="card-img mh-100 img-fluid" src="{% static 'images/default-img.png' %}" style="width: 300px" alt="img por defecto">
-	                    {% endif %}
-					</div>
-					<div class="card-body">
-						<h5 class="card-title">{{event.name.text}}</h5>
-						<p class="card-text text-secondary">{{event.local_date}}</p>
-						<div class="row">
-						{% if not event.is_free %}
-						<div class="col-9">
-							<h5 class="card-title">
-								<a href="{% url 'events_discount' id %}">
-									<img style="height:15px"; src="{% static 'images/settings.png' %}">
-									<small class="text-muted">Manage Discounts</small>
-								</a>
-							</h5>
-						</div>
-						{% else %}
-						<div class="col-9">
-							<small class="text-danger">The event must have at least one paid ticket in order to add a discount</small>
-						</div>
-						<div class="float-right">
-							<small class="text-success">FREE!</small>
-						</div>
-						{% endif %}
-						{% if event.discount %}
-						<div class="float-right">
-							<small class="text-muted">It has {% if event.discount_type == "fixed" %}
-								$ {{ event.discount }}
+	{% load static %}
+	<div class="container mt-5">
+		<div>
+			<a class="btn btn-primary" href="{% url 'landing_page_buyer' organizer.id %}">
+				<img style="height:15px"; src="{% static 'images/link.png' %}">
+				Share Landing Page
+			</a>
+		</div>
+		{% for id, event in events.items %}
+			<div class="card mb-3">
+				<div class="container-fluid">
+					<div class="row" style="height: 150px;">
+						<div class="input-group-prepend">
+							{% if event.logo %}
+								<img class="card-img mh-100 img-fluid" src={{event.logo.url}} style="width: 300px">
 							{% else %}
-								{{ event.discount }} %
-							{% endif %} of discount</small>
-
+								<img class="card-img mh-100 img-fluid" src="{% static 'images/default-img.png' %}" style="width: 300px" alt="img por defecto">
+							{% endif %}
 						</div>
-						{% endif %}
+						<div class="card-body">
+							<h5 class="card-title">{{event.name.text}}</h5>
+							<p class="card-text text-secondary">{{event.local_date}}</p>
+							<div class="row">
+								{% if not event.is_free %}
+									<div class="col-9">
+										<h5 class="card-title">
+										<a href="{% url 'events_discount' id %}">
+											<img style="height:15px"; src="{% static 'images/settings.png' %}">
+											<small class="text-muted">Manage Discounts</small>
+										</a>
+										</h5>
+									</div>
+								{% else %}
+									<div class="col-9">
+										<small class="text-danger">The event must have at least one paid ticket in order to add a discount</small>
+									</div>
+									<div class="float-right">
+										<small class="text-success">FREE!</small>
+									</div>
+								{% endif %}
+								{% if event.discount %}
+									<div class="float-right">
+										<small class="text-muted">It has
+										{{ event.discount }} % of discount</small>
+									</div>
+								{% endif %}
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	{% endfor %}
-
-	<div class="row float-right col-2">
+		{% endfor %}
+		<div class="row float-right col-2">
 			<a class= "btn btn-success col-12" href="{% url 'select_events' %}">Add Event</a>
+		</div>
 	</div>
-</div>
 {% endblock %}

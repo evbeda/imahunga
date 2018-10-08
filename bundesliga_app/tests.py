@@ -601,6 +601,7 @@ class SelectEventsViewTest(TestBase):
             event_in_db.get().is_active
         )
 
+
 class EventAccessMixinTest(TestBase):
     class DummyView(TemplateView, EventAccessMixin):
         template_name = 'any_template.html'  # TemplateView requires this attribute
@@ -626,7 +627,10 @@ class EventAccessMixinTest(TestBase):
 
         with self.assertRaises(PermissionDenied) as permission_denied:
                 self.view.get_event()
-        self.assertEqual(permission_denied.exception.args[0], "You don't have access to this event")
+        self.assertEqual(
+            permission_denied.exception.args[0],
+            "You don't have access to this event",
+        )
 
     def test_valid_event_owner(self):
         event = EventFactory(
@@ -685,7 +689,10 @@ class DiscountAccessMixinTest(TestBase):
 
         with self.assertRaises(PermissionDenied) as permission_denied:
                 self.view.get_discount()
-        self.assertEqual(permission_denied.exception.args[0], "You don't have access to this discount")
+        self.assertEqual(
+            permission_denied.exception.args[0],
+            "You don't have access to this discount"
+        )
 
     def test_valid_discount_owner(self):
         event = EventFactory(
@@ -721,3 +728,82 @@ class DiscountAccessMixinTest(TestBase):
 
         with self.assertRaises(Http404):
                 self.view.get_discount()
+
+
+@patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+class LandingPageBuyerViewTest(TestCase):
+    def setUp(self):
+        self.organizer = OrganizerFactory()
+        # Create Active Event of organizer
+        self.events = EventFactory.create_batch(
+            4,
+            organizer=self.organizer,
+            is_active=True,
+        )
+        # Create inactive event of organizer
+        self.no_active_events = EventFactory(
+            organizer=self.organizer,
+            is_active=False,
+        )
+        # Create active event of another organizer
+        self.event_another_organizer = EventFactory(
+            organizer=OrganizerFactory(),  # Random organizer
+            is_active=True,
+        )
+
+    def test_landing_page_buyer(self, mock_get_event_eb_api):
+        self.response = self.client.get(
+            '/landing_page/{}/'.format(self.organizer.id)
+        )
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_home_url_has_index_template(self, mock_get_event_eb_api):
+        self.response = self.client.get(
+            '/landing_page/{}/'.format(self.organizer.id)
+        )
+        self.assertEqual(
+            self.response.context_data['view'].template_name,
+            'buyer/landing_page_buyer.html',
+        )
+
+    def test_events_landing_page(self, mock_get_event_eb_api):
+        self.response = self.client.get(
+            '/landing_page/{}/'.format(self.organizer.id)
+        )
+        for event in self.events:
+            self.assertIn(
+                event.id,
+                self.response.context_data['events'],
+            )
+
+    def test_events_landing_page_not_active(self, mock_get_event_eb_api):
+        self.response = self.client.get(
+            '/landing_page/{}/'.format(self.organizer.id)
+        )
+        self.assertNotIn(
+            self.no_active_events.id,
+            self.response.context_data['events'],
+        )
+
+    def test_events_another_organizer(self, mock_get_event_eb_api):
+        self.response = self.client.get(
+            '/landing_page/{}/'.format(self.organizer.id)
+        )
+        self.assertNotIn(
+            self.event_another_organizer.id,
+            self.response.context_data['events'],
+        )
+
+    def test_get_discount_if_exists(self, mock_get_event_eb_api):
+        discount = DiscountFactory(
+            event=self.events[0],
+            value=100.0,
+            value_type="percentage",
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/'.format(self.organizer.id)
+        )
+        self.assertEqual(
+            self.response.context['events'][self.events[0].id]['discount'],
+            discount.value,
+        )
