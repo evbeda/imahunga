@@ -18,6 +18,7 @@ class EventAccessMixin(object):
         event = get_object_or_404(
             Event,
             id=self.kwargs['event_id'],
+            is_active=True,
         )
         if event.organizer != self.request.user:
             raise PermissionDenied("You don't have access to this event")

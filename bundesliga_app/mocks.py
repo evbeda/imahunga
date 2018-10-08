@@ -54,7 +54,7 @@ MOCK_EVENT_API = {
     'show_seatmap_thumbnail': False,
     'show_colors_in_seatmap_thumbnail': False,
     'source': 'create_2.0',
-    'is_free': True,
+    'is_free': False,
     'version': '3.0.0',
     'logo_id': '50285339',
     'organizer_id': '17688321548',
