@@ -1,0 +1,37 @@
+{% extends '../shared/base.html' %}
+{% block content %}
+	{% load static %}
+	<div class="container mt-5">
+		<h1>
+		{{ organizer.first_name }} {{ organizer.last_name }}'s Landing Page
+		</h1>
+		{% for id, event in events.items %}
+			<div class="card mb-3">
+				<div class="container-fluid">
+					<div class="row" style="height: 150px;">
+						<div class="input-group-prepend">
+							{% if event.logo %}
+								<img class="card-img mh-100 img-fluid" src={{event.logo.url}} style="width: 300px">
+							{% else %}
+								<img class="card-img mh-100 img-fluid" src="{% static 'images/default-img.png' %}" style="width: 300px" alt="img por defecto">
+							{% endif %}
+						</div>
+						<div class="card-body">
+							<h5 class="card-title">{{event.name.text}}</h5>
+							<p class="card-text text-secondary">{{event.local_date}}</p>
+							{% if event.discount %}
+								<div class="float-right">
+									<small class="text-muted">It has {% if event.discount_type == "fixed" %}
+										$ {{ event.discount }}
+									{% else %}
+										{{ event.discount }} %
+									{% endif %} of discount</small>
+								</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}

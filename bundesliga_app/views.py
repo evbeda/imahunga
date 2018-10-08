@@ -63,6 +63,7 @@ class HomeView(TemplateView, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
         context['events'] = self._get_events()
+        context['organizer'] = self.request.user
 
         return context
 
@@ -240,7 +241,6 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
 
     model = Discount
     template_name = 'organizer/delete_discount.html'
-    # success_message = 'Your Discount has been deleted successfully.'
 
     def get_success_url(self):
         return reverse_lazy(
@@ -254,4 +254,52 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
     def get_context_data(self, **kwargs):
         context = super(DeleteDiscountView, self).get_context_data(**kwargs)
         context['event'] = self.get_event()
+        return context
+
+
+""" -- Buyer Views -- """
+
+
+from django.contrib.auth import get_user_model
+class LandingPageBuyerView(TemplateView):
+    """ This is the landing page of an organizer for the buyer """
+
+    template_name = 'buyer/landing_page_buyer.html'
+
+    def _get_events(self, organizer):
+        # Dictionary for events
+        events = {}
+        # Get all active events from DB
+        events_own = Event.objects.filter(
+            organizer=organizer,
+            is_active=True,
+        )
+        for event in events_own:
+            """ Add event to dictionary with the id as key
+            and event from API as value.
+            It uses the token of landing page's organizer """
+            events[event.id] = get_event_eb_api(
+                get_auth_token(organizer),
+                event.event_id,
+            )
+            # Add local_date format
+            events[event.id]['local_date'] = get_local_date(
+                events[event.id]
+            )
+            # Add discount of the event
+            discount = Discount.objects.filter(
+                event=event.id
+            )
+            if discount:
+                events[event.id]['discount'] = discount.get().value
+                events[event.id]['discount_type'] = discount.get().value_type
+        return events
+
+    def get_context_data(self, **kwargs):
+        context = super(LandingPageBuyerView, self).get_context_data(**kwargs)
+        context['organizer'] = get_user_model().objects.get(
+            id=self.kwargs['organizer_id'])
+        context['events'] = self._get_events(
+            context['organizer']
+        )
         return context
