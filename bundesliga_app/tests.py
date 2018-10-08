@@ -97,7 +97,7 @@ class HomeViewTest(TestBase):
             organizer=self.organizer,
             is_active=False,
         )
-        # Create inactive event of another organizer
+        # Create active event of another organizer
         self.events_another_organizer = EventFactory.create_batch(
             4,
             organizer=OrganizerFactory(),  # Random organizer
@@ -118,9 +118,9 @@ class HomeViewTest(TestBase):
     def test_events_organizer(self, mock_get_event_eb_api):
         self.response = self.client.get('/')
         for event in self.events:
-            self.assertContains(
-                self.response,
+            self.assertIn(
                 event.id,
+                self.response.context_data['events']
             )
 
     def test_events_organizer_not_active(self, mock_get_event_eb_api):
@@ -346,7 +346,7 @@ class ModifyDiscountViewTest(TestBase):
         updated_discount = Discount.objects.get(id=self.discount.id)
         self.assertEqual(self.response.status_code, 302)
         self.assertEqual(updated_discount.value_type, 'percentage')
-        self.assertEqual(updated_discount.value, 20.0)
+        self.assertEqual(updated_discount.value, 20)
         self.assertEqual(
             len(Discount.objects.filter(event=self.event)),
             1,
