@@ -56,8 +56,15 @@ class HomeView(TemplateView, LoginRequiredMixin):
                 event=event.id
             )
             if discount:
-                events[event.id]['discount'] = discount.get().value
-                events[event.id]['discount_type'] = discount.get().value_type
+                """ If the event is free at the moment to load the page it will
+                delete the discount in our database"""
+                if events[event.id]['is_free']:
+                    Discount.objects.filter(
+                        event=event.id
+                    ).delete()
+                else:
+                    events[event.id]['discount'] = discount.get().value
+                    events[event.id]['discount_type'] = discount.get().value_type
         return events
 
     def get_context_data(self, **kwargs):
@@ -184,7 +191,14 @@ class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
         form = DiscountForm(
             request.POST
         )
-
+        valid_free = get_event_eb_api(
+            get_auth_token(self.request.user),
+            self.get_event().event_id,
+        )['is_free']
+        if valid_free:
+            error = form.errors.setdefault('__all__', ErrorList())
+            error.append(u'You cant create a discount in a free event')
+            return self.form_invalid(form)
         if not ('discount_id' in self.kwargs):
             self._verify_event_discount(form)
 

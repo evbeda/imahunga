@@ -205,7 +205,7 @@ class EventDiscountsViewTest(TestBase):
             self.events_discount.event.id,
         )
 
-
+@patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
 class CreateDiscountViewTest(TestBase):
     def setUp(self):
         super(CreateDiscountViewTest, self).setUp()
@@ -218,22 +218,22 @@ class CreateDiscountViewTest(TestBase):
             '/events_discount/{}/new/'.format(self.event.id)
         )
 
-    def test_create_event_discount(self):
+    def test_create_event_discount(self, mock_get_event_eb_api):
         self.assertEqual(self.response.status_code, 200)
 
-    def test_create_event_discount_url_has_correct_template(self):
+    def test_create_event_discount_url_has_correct_template(self, mock_get_event_eb_api):
         self.assertEqual(
             self.response.context_data['view'].template_name,
             'organizer/create_discount.html',
         )
 
-    def test_event_in_response(self):
+    def test_event_in_response(self, mock_get_event_eb_api):
         self.assertEqual(
             self.response.context_data['event'].id,
             self.event.id,
         )
 
-    def test_create_discount_wrong_percentage_value_negative(self):
+    def test_create_discount_wrong_percentage_value_negative(self, mock_get_event_eb_api):
         self.response = self.client.post(
             '/events_discount/{}/new/'.format(self.event.id),
             {
@@ -252,7 +252,7 @@ class CreateDiscountViewTest(TestBase):
             0,
         )
 
-    def test_create_discount_wrong_percentage_value_too_high(self):
+    def test_create_discount_wrong_percentage_value_too_high(self, mock_get_event_eb_api):
         self.response = self.client.post(
             '/events_discount/{}/new/'.format(self.event.id),
             {
@@ -270,7 +270,7 @@ class CreateDiscountViewTest(TestBase):
             0,
         )
 
-    def test_create_second_discount(self):
+    def test_create_second_discount(self, mock_get_event_eb_api):
         self.discount = DiscountFactory(
             event=self.event,
             value=100.0,
@@ -288,7 +288,7 @@ class CreateDiscountViewTest(TestBase):
             self.response,
             'You already have a discount for this event')
 
-
+@patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
 class ModifyDiscountViewTest(TestBase):
     def setUp(self):
         super(ModifyDiscountViewTest, self).setUp()
@@ -310,28 +310,28 @@ class ModifyDiscountViewTest(TestBase):
             )
         )
 
-    def test_modify_event_discount(self):
+    def test_modify_event_discount(self, mock_get_event_eb_api):
         self.assertEqual(self.response.status_code, 200)
 
-    def test_modify_event_discount_url_has_correct_template(self):
+    def test_modify_event_discount_url_has_correct_template(self, mock_get_event_eb_api):
         self.assertEqual(
             self.response.context_data['view'].template_name,
             'organizer/create_discount.html',
         )
 
-    def test_event_in_response(self):
+    def test_event_in_response(self, mock_get_event_eb_api):
         self.assertEqual(
             self.response.context_data['event'].id,
             self.event.id,
         )
 
-    def test_discount_in_response(self):
+    def test_discount_in_response(self, mock_get_event_eb_api):
         self.assertEqual(
             self.response.context_data['discount'].id,
             self.discount.id,
         )
 
-    def test_modify_discount_correct_percentage_value(self):
+    def test_modify_discount_correct_percentage_value(self, mock_get_event_eb_api):
         self.response = self.client.post(
             '/events_discount/{}/{}/'.format(
                 self.event.id,
@@ -352,7 +352,7 @@ class ModifyDiscountViewTest(TestBase):
             1,
         )
 
-    def test_modify_discount_low_percentage_value(self):
+    def test_modify_discount_low_percentage_value(self, mock_get_event_eb_api):
 
         self.response = self.client.post(
             '/events_discount/{}/{}/'.format(
@@ -375,7 +375,7 @@ class ModifyDiscountViewTest(TestBase):
             1,
         )
 
-    def test_modify_discount_too_high_percentage_value(self):
+    def test_modify_discount_too_high_percentage_value(self, mock_get_event_eb_api):
 
         self.response = self.client.post(
             '/events_discount/{}/{}/'.format(
