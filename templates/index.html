@@ -1,13 +1,32 @@
 {% extends './shared/base.html' %}
 {% block content %}
-	{% load static %}
+{% load static %}
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover({
+    	placement : 'bottom',
+        html : true,
+        content : '<input id="link" value={{ attendee_url }}></input> <button onclick="copy_text()"> <img style="height:15px"; src="{% static "images/icon.png" %}"> </button> <a href="{% url "landing_page_buyer" organizer.id %}" target=”_blank”> Go </a>'
+    });
+
+});
+
+function copy_text(){
+	$("#link").select();
+  	document.execCommand("copy");
+
+}
+</script>
+
 	<div class="container mt-5">
+		{% if events%}
 		<div>
-			<a class="btn btn-primary" href="{% url 'landing_page_buyer' organizer.id %}">
+			<a id=""href="#" title="Shareable link" data-toggle="popover" data-placement="bottom" data-img="{% static 'images/icon.png' %}">
 				<img style="height:15px"; src="{% static 'images/link.png' %}">
 				Share Landing Page
 			</a>
 		</div>
+		{% endif %}
 		{% for id, event in events.items %}
 			<div class="card mb-3">
 				<div class="container-fluid">
