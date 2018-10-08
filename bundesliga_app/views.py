@@ -64,6 +64,11 @@ class HomeView(TemplateView, LoginRequiredMixin):
         context = super(HomeView, self).get_context_data(**kwargs)
         context['events'] = self._get_events()
         context['organizer'] = self.request.user
+        context['attendee_url'] = self.request.get_host() + reverse(
+            'landing_page_buyer',
+            kwargs={
+                'organizer_id': context['organizer'].id
+            },)
 
         return context
 
@@ -261,6 +266,8 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
 
 
 from django.contrib.auth import get_user_model
+
+
 class LandingPageBuyerView(TemplateView):
     """ This is the landing page of an organizer for the buyer """
 
