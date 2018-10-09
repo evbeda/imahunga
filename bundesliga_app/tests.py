@@ -23,7 +23,10 @@ from bundesliga_app.utils import (
     get_auth_token,
     EventAccessMixin,
     DiscountAccessMixin,
-    get_local_date
+    get_local_date,
+    get_user_eb_api,
+    get_events_user_eb_api,
+    get_event_eb_api,
 )
 from .models import (
     Discount,
@@ -79,6 +82,34 @@ class AuthTokenTest(TestBase):
         self.assertEqual(
             get_auth_token(no_log_organizer),
             'UserSocialAuth does not exists!'
+        )
+
+
+@patch('bundesliga_app.utils.Eventbrite.get')
+class UtilsApiEBTest(TestCase):
+
+    def test_get_user_eb_api(self, mock_api_call):
+        get_user_eb_api('TEST')
+        mock_api_call.assert_called_once()
+        self.assertEquals(
+            mock_api_call.call_args_list[0][0][0],
+            '/users/me/',
+        )
+
+    def test_get_events_user_eb_api(self, mock_api_call):
+        get_events_user_eb_api('TEST')
+        mock_api_call.assert_called_once()
+        self.assertEquals(
+            mock_api_call.call_args_list[0][0][0],
+            '/users/me/owned_events/?status=live',
+        )
+
+    def test_get_event_eb_api(self, mock_api_call):
+        get_event_eb_api('TEST', '1')
+        mock_api_call.assert_called_once()
+        self.assertEquals(
+            mock_api_call.call_args_list[0][0][0],
+            '/events/1/',
         )
 
 
