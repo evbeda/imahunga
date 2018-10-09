@@ -1,0 +1,14 @@
+{% extends '../shared/base.html' %}
+{% block content %}
+	{% load static %}
+	<div class="container mt-5">
+		{{ event }}
+		<br>
+		<br>
+		<br>
+		<br>
+		{% if venue %}
+			{{ venue }}
+		{% endif %}
+	</div>
+{% endblock %}
