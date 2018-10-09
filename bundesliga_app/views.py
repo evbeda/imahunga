@@ -14,8 +14,11 @@ from .utils import (
     get_event_eb_api,
     get_events_user_eb_api,
     get_user_eb_api,
+    get_venue_eb_api,
     EventAccessMixin,
     DiscountAccessMixin,
+    reduce_month,
+    reduce_day,
 )
 from .forms import DiscountForm
 from django.views.generic.edit import (
@@ -303,9 +306,22 @@ class LandingPageBuyerView(TemplateView):
                 get_auth_token(organizer),
                 event.event_id,
             )
+
+            # Get event venue
+            events[event.id]['venue'] = get_venue_eb_api(
+                get_auth_token(organizer),
+                events[event.id]['venue_id'],
+            )
+
             # Add local_date format
             events[event.id]['local_date'] = get_local_date(
                 events[event.id]
+            )
+            events[event.id]['reduce_month'] = reduce_month(
+                events[event.id]['local_date']
+            )
+            events[event.id]['reduce_day'] = reduce_day(
+                events[event.id]['local_date']
             )
             # Add discount of the event
             discount = Discount.objects.filter(

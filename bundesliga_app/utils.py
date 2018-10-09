@@ -82,6 +82,11 @@ def get_event_eb_api(token, event_id):
     return eventbrite.get('/events/{}/'.format(event_id))
 
 
+def get_venue_eb_api(token, venue_id):
+    eventbrite = Eventbrite(token)
+    return eventbrite.get('/venues/{}/'.format(venue_id))
+
+
 def get_local_date(event):
     """
     This method will receive an event and
@@ -108,3 +113,11 @@ def get_local_date(event):
     month = months[int(date_complete[1]) - 1]
     year = date_complete[0]
     return '{} {}, {}'.format(month, day, year)
+
+
+def reduce_month(local_date):
+    return local_date[:3].upper()
+
+
+def reduce_day(local_date):
+    return local_date.split()[1][:2]
