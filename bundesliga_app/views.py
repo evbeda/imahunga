@@ -26,6 +26,7 @@ from django.views.generic.edit import (
     DeleteView,
 )
 from django.forms.utils import ErrorList
+from django.contrib.auth import get_user_model
 
 
 @method_decorator(login_required, name='dispatch')
@@ -282,9 +283,6 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
 """ -- Buyer Views -- """
 
 
-from django.contrib.auth import get_user_model
-
-
 class LandingPageBuyerView(TemplateView):
     """ This is the landing page of an organizer for the buyer """
 
@@ -338,5 +336,56 @@ class LandingPageBuyerView(TemplateView):
             id=self.kwargs['organizer_id'])
         context['events'] = self._get_events(
             context['organizer']
+        )
+        return context
+
+
+class ListingPageEventView(TemplateView):
+    """ This view visualize the info of an event """
+
+    template_name = 'buyer/listing_page_event.html'
+
+    def _get_events(self, organizer):
+        # Get Event by the id and organizer
+        event_in_db = get_object_or_404(
+            Event,
+            id=self.kwargs['event_id'],
+            organizer=organizer,
+        )
+        """ Get the event from API EB.
+            It uses the token of landing page's organizer """
+        event = get_event_eb_api(
+            get_auth_token(organizer),
+            event_in_db.event_id,
+        )
+        # Add local_date format
+        event['local_date'] = get_local_date(
+            event
+        )
+        return event
+
+    def _get_venue(self, organizer, venue_id):
+        # Return none if venue does not exist
+        if venue_id is None:
+            return None
+        """ Get the venue from API EB.
+            It uses the token of landing page's organizer """
+        venue = get_venue_eb_api(
+            get_auth_token(organizer),
+            venue_id,
+        )
+        return venue
+
+    def get_context_data(self, **kwargs):
+        context = super(ListingPageEventView, self).get_context_data(**kwargs)
+        context['organizer'] = get_user_model().objects.get(
+            id=self.kwargs['organizer_id'])
+        context['event_id'] = self.kwargs['event_id']
+        context['event'] = self._get_events(
+            context['organizer'],
+        )
+        context['venue'] = self._get_venue(
+            context['organizer'],
+            context['event']['venue_id'],
         )
         return context

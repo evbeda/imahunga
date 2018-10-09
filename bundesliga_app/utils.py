@@ -57,11 +57,19 @@ def get_auth_token(user):
 
 
 def get_user_eb_api(token):
+    """
+    This method will receive a valid token for user of EB,
+    and returns the user of EB
+    """
     eventbrite = Eventbrite(token)
     return eventbrite.get('/users/me/')
 
 
 def get_events_user_eb_api(token):
+    """
+    This method will receive a valid token for user of EB,
+    and returns a list of events with specific state
+    """
     eventbrite = Eventbrite(token)
     return [
         event
@@ -83,6 +91,11 @@ def get_event_eb_api(token, event_id):
 
 
 def get_venue_eb_api(token, venue_id):
+    """
+    This method will receive a venue id and token from logged user
+    and returns an venue
+    """
+
     eventbrite = Eventbrite(token)
     return eventbrite.get('/venues/{}/'.format(venue_id))
 

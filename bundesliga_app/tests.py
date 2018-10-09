@@ -27,6 +27,7 @@ from bundesliga_app.utils import (
     get_user_eb_api,
     get_events_user_eb_api,
     get_event_eb_api,
+    get_venue_eb_api,
 )
 from .models import (
     Discount,
@@ -36,7 +37,9 @@ from bundesliga_app.mocks import (
     MOCK_EVENT_API,
     MOCK_USER_API,
     MOCK_LIST_EVENTS_API,
+    MOCK_VENUE_API,
     get_mock_events_api,
+    get_mock_event_api_without_venue,
 )
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
@@ -110,6 +113,14 @@ class UtilsApiEBTest(TestCase):
         self.assertEquals(
             mock_api_call.call_args_list[0][0][0],
             '/events/1/',
+        )
+
+    def test_get_venue_eb_api(self, mock_api_call):
+        get_venue_eb_api('TEST', '1')
+        mock_api_call.assert_called_once()
+        self.assertEquals(
+            mock_api_call.call_args_list[0][0][0],
+            '/venues/1/',
         )
 
 
@@ -236,6 +247,7 @@ class EventDiscountsViewTest(TestBase):
             self.events_discount.event.id,
         )
 
+
 @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
 class CreateDiscountViewTest(TestBase):
     def setUp(self):
@@ -318,6 +330,7 @@ class CreateDiscountViewTest(TestBase):
         self.assertContains(
             self.response,
             'You already have a discount for this event')
+
 
 @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
 class ModifyDiscountViewTest(TestBase):
@@ -657,7 +670,7 @@ class EventAccessMixinTest(TestBase):
         self.view.response = '/events_discount/{}/new/'.format(event.id)
 
         with self.assertRaises(PermissionDenied) as permission_denied:
-                self.view.get_event()
+            self.view.get_event()
         self.assertEqual(
             permission_denied.exception.args[0],
             "You don't have access to this event",
@@ -683,7 +696,7 @@ class EventAccessMixinTest(TestBase):
         self.view.response = '/events_discount/{}/new/'.format(4)
 
         with self.assertRaises(Http404):
-                self.view.get_event()
+            self.view.get_event()
 
 
 class DiscountAccessMixinTest(TestBase):
@@ -716,10 +729,11 @@ class DiscountAccessMixinTest(TestBase):
         }
         # the logged user is user 0 and the organizer of the event is user 1
         self.view.request.user = self.organizer
-        self.view.response = 'events_discount/{}/{}/'.format(event2.id, discount.id)
+        self.view.response = 'events_discount/{}/{}/'.format(
+            event2.id, discount.id)
 
         with self.assertRaises(PermissionDenied) as permission_denied:
-                self.view.get_discount()
+            self.view.get_discount()
         self.assertEqual(
             permission_denied.exception.args[0],
             "You don't have access to this discount"
@@ -740,7 +754,8 @@ class DiscountAccessMixinTest(TestBase):
         }
         # the logged user is user 0 and the organizer of the event is user 1
         self.view.request.user = self.organizer
-        self.view.response = 'events_discount/{}/{}/'.format(event.id, discount.id)
+        self.view.response = 'events_discount/{}/{}/'.format(
+            event.id, discount.id)
         self.assertEqual(self.view.get_discount(), discount)
 
     def test_rise_exception_404(self):
@@ -758,7 +773,7 @@ class DiscountAccessMixinTest(TestBase):
         self.view.response = 'events_discount/{}/{}/'.format(event.id, 8)
 
         with self.assertRaises(Http404):
-                self.view.get_discount()
+            self.view.get_discount()
 
 
 @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
@@ -788,7 +803,7 @@ class LandingPageBuyerViewTest(TestCase):
         )
         self.assertEqual(self.response.status_code, 200)
 
-    def test_home_url_has_index_template(self, mock_get_event_eb_api):
+    def test_landing_page_url_has_index_template(self, mock_get_event_eb_api):
         self.response = self.client.get(
             '/landing_page/{}/'.format(self.organizer.id)
         )
@@ -837,4 +852,101 @@ class LandingPageBuyerViewTest(TestCase):
         self.assertEqual(
             self.response.context['events'][self.events[0].id]['discount'],
             discount.value,
+        )
+
+
+@patch('bundesliga_app.views.get_venue_eb_api', return_value=MOCK_VENUE_API)
+class ListingPageEventViewTest(TestCase):
+    def setUp(self):
+        self.organizer = OrganizerFactory()
+        # Create active event of organizer
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    def test_listing_page_event(self,
+                                mock_get_venue_eb_api,
+                                mock_get_event_eb_api,
+                                ):
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.assertEqual(self.response.status_code, 200)
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    def test_listing_page_url_has_index_template(self,
+                                                 mock_get_venue_eb_api,
+                                                 mock_get_event_eb_api,
+                                                 ):
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.assertEqual(
+            self.response.context_data['view'].template_name,
+            'buyer/listing_page_event.html',
+        )
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    def test_listing_page_event_has_organizer(self,
+                                              mock_get_venue_eb_api,
+                                              mock_get_event_eb_api,
+                                              ):
+
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.assertEqual(
+            self.response.context['organizer'],
+            self.organizer,
+        )
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    def test_listing_page_event_has_event(self,
+                                          mock_get_venue_eb_api,
+                                          mock_get_event_eb_api,
+                                          ):
+
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.assertEqual(
+            int(self.response.context['event_id']),
+            self.event.id,
+        )
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    def test_listing_page_event_has_venue(self,
+                                          mock_get_venue_eb_api,
+                                          mock_get_event_eb_api,
+                                          ):
+
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.assertEqual(
+            self.response.context['venue'],
+            MOCK_VENUE_API
+        )
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_event_api_without_venue)
+    def test_listing_page_event_has_not_venue(self,
+                                              mock_get_venue_eb_api,
+                                              mock_get_event_eb_api,
+                                              ):
+
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        # import ipdb;ipdb.set_trace()
+        self.assertEqual(
+            self.response.context['venue'],
+            None
         )

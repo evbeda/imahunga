@@ -5,6 +5,11 @@ import copy
 def get_mock_events_api(*args, **kwargs):
     return copy.deepcopy(MOCK_EVENT_API)
 
+def get_mock_event_api_without_venue(*args, **kwargs):
+    MOCK_EVENT_API_COPY = copy.deepcopy(MOCK_EVENT_API)
+    MOCK_EVENT_API_COPY['venue_id'] = None
+    return MOCK_EVENT_API_COPY
+
 # A random event return value of EB API '/events/:id/'
 
 
@@ -58,7 +63,7 @@ MOCK_EVENT_API = {
     'version': '3.0.0',
     'logo_id': '50285339',
     'organizer_id': '17688321548',
-    'venue_id': None,
+    'venue_id': '123',
     'category_id': None,
     'subcategory_id': None,
     'format_id': None,
@@ -109,3 +114,29 @@ MOCK_LIST_EVENTS_API = [
     get_mock_events_api(),
     get_mock_events_api(),
 ]
+
+MOCK_VENUE_API = {
+    'address': {
+        'address_1': 'Test Adress',
+        'address_2': None,
+        'city': 'Test City',
+        'region': 'Test Region',
+        'postal_code': 'M5501',
+        'country': 'AR',
+        'latitude': '-1.0000',
+        'longitude': '-1.0000',
+        'localized_address_display': 'Test Adress',
+        'localized_area_display': 'Test, Area',
+        'localized_multi_line_address_display': [
+            'Test',
+            'Test, Test'
+        ]
+    },
+    'resource_uri': 'https://test.com/',
+    'id': '1',
+    'age_restriction': None,
+    'capacity': None,
+    'name': 'Test',
+    'latitude': '-1.0000',
+    'longitude': '-1.0000'
+}

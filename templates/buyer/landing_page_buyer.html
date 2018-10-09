@@ -10,7 +10,7 @@
 
 	<div class="row">
         {% for id, event in events.items %}
-        <div class="col-4">
+        <div class="col-4" onclick="location.href='{% url 'listing_page_event' organizer.id id %}'">
         	<div class="eds-card eds-card--neutral" role="presentation">
         		<section class="eds-l-pad-all-6 eds-media-card-content eds-media-card-content--grid eds-media-card-content--standard eds-media-card-content--fixed" role="presentation">
         			<aside class="eds-media-card-content__image-container">
