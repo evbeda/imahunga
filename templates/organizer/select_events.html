@@ -3,32 +3,35 @@
 {% block content %}
     <form class="mt-5" action="" method="POST">
     {% csrf_token %}
-    {% for event in events %}
-        <div class="card mb-3">
-            <div class="container-fluid">
-                <div class="row" style="height: 150px;">
+    <div class="row">
+        {% for event in events %}
+        <div class="col-4">
+            <div class="container card" style="width: 20rem;">
+                <div class="card-body">
                     <div>
-                        {% if event.logo %}
-                            <img class="card-img mh-100 img-fluid" src={{event.logo.url}} style="width: 300px">
-                        {% else %}
-                            <img class="card-img mh-100 img-fluid" src="{% static 'images/default-img.png' %}" style="width: 300px" alt="img por defecto">
-                        {% endif %}
-                    </div>
-                    <div class="card-body col-8">
-                        <h5 class="card-title">{{ event.name.text }}</h5>
-                        <p class="card-text"><small class="text-secondary small">{{ event.local_date }}</small></p>
-                        <div class="float-right" style="width: 20px; height: 20px;">
-                            {% if event.id in already_selected_id %}
-                                <input type="checkbox" class="form-control-lg" name="event_{{ event.id }}" checked>
-                            {% else %}
-                                <input type="checkbox" class="form-control-lg" name="event_{{ event.id }}">
-                            {% endif %}
+                        <div class="text-left">
+                            <h5 class="card-title">{{event.name.text}}</h5>
+                            <div class="text-right" >
+                                {% if event.id in already_selected_id %}
+                                    <input type="checkbox" class="form-control-lg" name="event_{{ event.id }}" checked>
+                                {% else %}
+                                    <input type="checkbox" class="form-control-lg" name="event_{{ event.id }}">
+                                {% endif %}
+                            </div>
+                            <i>
+                            <p class="card-text" style="margin-top: -6px;">
+                                {{event.local_date}}
+                            </p>
+                            </i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    {% endfor %}
-        <input type="submit" class="btn btn-success float-right" value="Select Event/s"></input>
+        {% endfor %}
+    </div>
+        <div class="row justify-content-end">
+            <input type="submit" class="btn btn-success text-right" value="Select Event/s"></input>
+        </div>
     </form>
 {% endblock %}

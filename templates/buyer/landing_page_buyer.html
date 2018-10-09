@@ -1,37 +1,90 @@
 {% extends '../shared/base.html' %}
 {% block content %}
-	{% load static %}
-	<div class="container mt-5">
+{% load static %}
+<body style="background-color: #ffffff">
+<div class="container mt-5 mb-3 justify-content-center">
 		<h1>
-		{{ organizer.first_name }} {{ organizer.last_name }}'s Landing Page
+		{{ organizer.first_name }} {{ organizer.last_name }}'s Events
 		</h1>
-		{% for id, event in events.items %}
-			<div class="card mb-3">
-				<div class="container-fluid">
-					<div class="row" style="height: 150px;">
-						<div class="input-group-prepend">
-							{% if event.logo %}
-								<img class="card-img mh-100 img-fluid" src={{event.logo.url}} style="width: 300px">
-							{% else %}
-								<img class="card-img mh-100 img-fluid" src="{% static 'images/default-img.png' %}" style="width: 300px" alt="img por defecto">
-							{% endif %}
-						</div>
-						<div class="card-body">
-							<h5 class="card-title">{{event.name.text}}</h5>
-							<p class="card-text text-secondary">{{event.local_date}}</p>
-							{% if event.discount %}
-								<div class="float-right">
-									<small class="text-muted">It has {% if event.discount_type == "fixed" %}
-										$ {{ event.discount }}
-									{% else %}
-										{{ event.discount }} %
-									{% endif %} of discount</small>
-								</div>
-							{% endif %}
-						</div>
-					</div>
-				</div>
-			</div>
-		{% endfor %}
-	</div>
+		<hr>
+
+	<div class="row">
+        {% for id, event in events.items %}
+        <div class="col-4">
+        	<div class="eds-card eds-card--neutral" role="presentation">
+        		<section class="eds-l-pad-all-6 eds-media-card-content eds-media-card-content--grid eds-media-card-content--standard eds-media-card-content--fixed" role="presentation">
+        			<aside class="eds-media-card-content__image-container">
+        				<div class="eds-media-card-content__image-wrapper eds-media-card-content__image-wrapper--with-width">
+        					<div class="eds-media-card-content__image-content">
+        						<div class="eds-media-card-content__image-placeholder" style="background-color:#EEEDF2;">
+
+        						</div>
+        						{% if event.logo %}
+        							<img class="eds-media-card-content__image eds-max-img" src={{event.logo.url}} alt="Event image"/>
+        						{% else %}
+        							<img class="eds-media-card-content__image eds-max-img" src="{% static 'images/default-img.png' %}" alt="Event image"/>
+        						{% endif %}
+        					</div>
+        				</div>
+        				{% if event.is_free %}
+	        				<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
+	    						<span class="eds-text-color--grey-700">Free
+	    						</span>
+	        				</div>
+	        			{% endif %}
+	        			{% if event.discount %}
+	        				<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
+	    						<span class="eds-text-color--grey-700">{{ event.discount }} %
+	    						</span>
+	        				</div>
+	        			{% endif %}
+        			</aside>
+        			<main class="eds-media-card-content__content-container">
+        				<div class="eds-media-card-content__content">
+                            <div class="eds-media-card-content__extra-content eds-l-pad-right-4">
+                                <div class="eds-media-card-content__extra-content eds-l-pad-right-4">
+                                    <div class="date-thumbnail eds-text--center eds-l-mar-top-1">
+                                        <p class="date-thumbnail__month eds-text-color--ui-orange eds-text-bs">
+                                            {{ event.reduce_month }}
+                                        </p>
+                                        <p class="date-thumbnail__day eds-text-bl eds-text-color--grey-600">
+                                            {{ event.reduce_day }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+        					<div class="eds-media-card-content__content__principal">
+                                <div class="eds-media-card-content__primary-content">
+        						    <div class="eds-text-bs eds-text-color--grey-600">
+        						  </div>
+        						  <h3 class="eds-media-card-content__title eds-text-color--grey-800 eds-text-bl">{{event.name.text}}
+        						  </h3>
+        					    </div>
+
+                            <div class="eds-media-card-content__sub-content">
+        						<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">{{event.local_date}}
+        						</div>
+        						<div class="eds-media-card-content__sub-content-cropped">
+        							<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
+        								{% if event.venue.name %}
+        									{{event.venue.name}}, {{event.venue.address.city}}
+        								{% else %}
+        									{{event.venue.address.city}}
+        								{% endif 	%}
+        							</div>
+        							<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
+        							</div>
+        						</div>
+        					</div>
+        				</div>
+        			</div>
+				</main>
+			</section>
+		</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
 {% endblock %}
+
