@@ -27,6 +27,7 @@ from django.views.generic.edit import (
 )
 from django.forms.utils import ErrorList
 from django.contrib.auth import get_user_model
+from dateutil import parser
 
 
 @method_decorator(login_required, name='dispatch')
@@ -359,9 +360,15 @@ class ListingPageEventView(TemplateView):
             event_in_db.event_id,
         )
         # Add local_date format
-        event['local_date'] = get_local_date(
-            event
+        event['start_date'] = parser.parse(event['start']['local'])
+        event['end_date'] = parser.parse(event['end']['local'])
+        # Add discount of the event
+        discount = Discount.objects.filter(
+            event=event_in_db.id
         )
+        if discount:
+            event['discount'] = discount.get().value
+            event['discount_type'] = discount.get().value_type
         return event
 
     def _get_venue(self, organizer, venue_id):
