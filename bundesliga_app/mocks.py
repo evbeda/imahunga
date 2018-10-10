@@ -10,6 +10,10 @@ def get_mock_event_api_without_venue(*args, **kwargs):
     MOCK_EVENT_API_COPY['venue_id'] = None
     return MOCK_EVENT_API_COPY
 
+def get_mock_event_api_free(*args, **kwargs):
+    MOCK_EVENT_API_COPY = copy.deepcopy(MOCK_EVENT_API)
+    MOCK_EVENT_API_COPY['is_free'] = True
+    return MOCK_EVENT_API_COPY
 # A random event return value of EB API '/events/:id/'
 
 

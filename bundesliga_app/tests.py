@@ -40,6 +40,7 @@ from bundesliga_app.mocks import (
     MOCK_VENUE_API,
     get_mock_events_api,
     get_mock_event_api_without_venue,
+    get_mock_event_api_free,
 )
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
@@ -124,7 +125,7 @@ class UtilsApiEBTest(TestCase):
         )
 
 
-@patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+
 class HomeViewTest(TestBase):
     def setUp(self):
         super(HomeViewTest, self).setUp()
@@ -146,10 +147,14 @@ class HomeViewTest(TestBase):
             is_active=True,
         )
 
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_homepage(self, mock_get_event_eb_api):
         self.response = self.client.get('/')
         self.assertEqual(self.response.status_code, 200)
 
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_home_url_has_index_template(self, mock_get_event_eb_api):
         self.response = self.client.get('/')
         self.assertEqual(
@@ -157,6 +162,8 @@ class HomeViewTest(TestBase):
             'index.html',
         )
 
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_events_organizer(self, mock_get_event_eb_api):
         self.response = self.client.get('/')
         for event in self.events:
@@ -165,6 +172,8 @@ class HomeViewTest(TestBase):
                 self.response.context_data['events']
             )
 
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_events_organizer_not_active(self, mock_get_event_eb_api):
         self.response = self.client.get('/')
         self.assertNotContains(
@@ -172,6 +181,8 @@ class HomeViewTest(TestBase):
             self.no_active_events,
         )
 
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_events_another_organizer(self, mock_get_event_eb_api):
         self.response = self.client.get('/')
         for event in self.events_another_organizer:
@@ -180,6 +191,8 @@ class HomeViewTest(TestBase):
                 event,
             )
 
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_get_discount_if_exists(self, mock_get_event_eb_api):
         discount = DiscountFactory(
             event=self.events[0],
@@ -191,6 +204,30 @@ class HomeViewTest(TestBase):
             self.response.context['events'][self.events[0].id]['discount'],
             discount.value,
         )
+
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_event_api_free)
+    def test_if_event_is_free_delete_discount(self, mock_get_event_eb_api):
+        event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+
+        discount = DiscountFactory(
+            event=event,
+            value=100.0,
+            value_type="percentage",
+        )
+        self.response = self.client.get('/')
+        self.assertEqual(
+            len(Discount.objects.filter(event=event)),
+            0,
+        )
+        self.assertContains(
+            self.response,
+            "The event must have at least one paid ticket in order to add a discount",
+        )
+
 
 
 @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
@@ -248,7 +285,6 @@ class EventDiscountsViewTest(TestBase):
         )
 
 
-@patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
 class CreateDiscountViewTest(TestBase):
     def setUp(self):
         super(CreateDiscountViewTest, self).setUp()
@@ -261,21 +297,29 @@ class CreateDiscountViewTest(TestBase):
             '/events_discount/{}/new/'.format(self.event.id)
         )
 
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_event_discount(self, mock_get_event_eb_api):
         self.assertEqual(self.response.status_code, 200)
 
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_event_discount_url_has_correct_template(self, mock_get_event_eb_api):
         self.assertEqual(
             self.response.context_data['view'].template_name,
             'organizer/create_discount.html',
         )
 
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_event_in_response(self, mock_get_event_eb_api):
         self.assertEqual(
             self.response.context_data['event'].id,
             self.event.id,
         )
 
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_discount_wrong_percentage_value_negative(self, mock_get_event_eb_api):
         self.response = self.client.post(
             '/events_discount/{}/new/'.format(self.event.id),
@@ -295,6 +339,7 @@ class CreateDiscountViewTest(TestBase):
             0,
         )
 
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_discount_wrong_percentage_value_too_high(self, mock_get_event_eb_api):
         self.response = self.client.post(
             '/events_discount/{}/new/'.format(self.event.id),
@@ -313,6 +358,24 @@ class CreateDiscountViewTest(TestBase):
             0,
         )
 
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    def test_create_discount_correct(self, mock_get_event_eb_api):
+        self.response = self.client.post(
+            '/events_discount/{}/new/'.format(self.event.id),
+            {
+                'discount_name': 'descuento',
+                'discount_type': 'percentage',
+                'discount_value': 50,
+            },
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(event=self.event)),
+            1,
+        )
+        self.assertEqual(self.response.status_code, 302)
+
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_second_discount(self, mock_get_event_eb_api):
         self.discount = DiscountFactory(
             event=self.event,
@@ -330,6 +393,23 @@ class CreateDiscountViewTest(TestBase):
         self.assertContains(
             self.response,
             'You already have a discount for this event')
+
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_event_api_free)
+    def test_create_discount_on_free_event(self, mock_get_event_eb_api):
+        self.response = self.client.post(
+            '/events_discount/{}/new/'.format(self.event.id),
+            {
+                'discount_name': 'descuento',
+                'discount_type': 'percentage',
+                'discount_value': 50,
+            },
+        )
+
+        self.assertContains(
+            self.response,
+            'You cant create a discount in a free event'
+        )
 
 
 @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
