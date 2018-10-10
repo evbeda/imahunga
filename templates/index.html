@@ -2,70 +2,106 @@
 {% block content %}
 {% load static %}
 <script>
-$(document).ready(function(){
-    $('[data-toggle="popover"]').popover({
-    	placement : 'bottom',
-        html : true,
-        content : '<input id="link" value={{ attendee_url }}></input> <button onclick="copy_text()"> <img style="height:15px"; src="{% static "images/icon.png" %}"> </button> <a href="{% url "landing_page_buyer" organizer.id %}" target=”_blank”> Go </a>'
-    });
-
-});
-
-function copy_text(){
-	$("#link").select();
-  	document.execCommand("copy");
-
-}
+	$(document).ready(function(){
+		$('[data-toggle="popover"]').popover({
+			placement : 'bottom',
+			html : true,
+			content : '<input id="link" value={{ attendee_url }}></input> <button onclick="copy_text()"> <img style="height:15px"; src="{% static "images/icon.png" %}"> </button> <a href="{% url "landing_page_buyer" organizer.id %}" target=”_blank”> Go </a>'
+		});
+	});
+	function copy_text(){
+		$("#link").select();
+		document.execCommand("copy");
+	}
 </script>
-	<div class="container mt-5">
-		{% if events%}
-		<div class="mb-3">
-			<a id=""href="#" title="Shareable link" data-toggle="popover" data-placement="bottom" data-img="{% static 'images/icon.png' %}">
-				<img style="height:15px"; src="{% static 'images/link.png' %}">
-				Share This Page
-			</a>
-		</div>
-		{% endif %}
-		<div class="row mb-5">
-        {% for id, event in events.items %}
-        <div class="col-4">
-            <div class="container card" style="width: 20rem;">
-                <div class="card-body">
-            		<div class="text-right">
-            			{% if event.is_free %}
-							<small class="text-success">FREE!</small>
-						{% else %}
-							<a href="{% url 'events_discount' id %}">
-								<img style="height:20px"; src="{% static 'images/settings.png' %}">
-							</a>
+<div class="container mt-5 mb-5">
+	{% if events%}
+	<div class="mb-3">
+		<a id=""href="#" title="Shareable link" data-toggle="popover" data-placement="bottom" data-img="{% static 'images/icon.png' %}">
+			<img style="height:15px"; src="{% static 'images/link.png' %}">
+			Share This Page
+		</a>
+	</div>
+	{% endif %}
+	{% for id, event in events.items %}
+	<div class="row mb-1">
+		<div class="col-8">
+			{% if event.is_free %}
+			<div class="eds-ticket-card-content eds-ticket-edit-card-content" style="background-color: #FFFFFF; cursor: initial;">
+				<div class="eds-g-cell eds-g-cell-1-1 eds-ticket-card-content__details-wrapper">
+					<div class="eds-g-cell eds-g-cell-1-1 eds-ticket-card-content__details">
+						<div class="eds-l-pad-right-4 eds-l-pad-left-3 eds-g-cell eds-g-cell-8-12">
+							<h3 class="eds-text-bl--fixed eds-text-color--grey-700">{{event.name.text}}</h3>
+							<p class="text-secondary"><small>{{event.local_date}}</small></p>
+							<div class="eds-g-cell eds-text-bm--fixed eds-text-color--grey-600" data-spec="eds-ticket-card-content-status"><span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-red eds-l-mar-right-2"></span>
+								<p class="eds-g-cell eds-ticket-edit-card-content__status">
+									It doesn't have any paid ticket
+								</p>
+							</div>
+						</div>
+						<div class="eds-g-cell eds-g-cell-lw-2-12 eds-g-cell-lg-2-12 eds-g-cell-ln-2-12 eds-g-cell-mw-2-12 eds-g-cell-md-2-12 eds-g-cell-mn-2-12 eds-g-cell-4-12">
+							<p class="eds-text-bm--fixed eds-text-color--grey-700 eds-text--right">FREE EVENT!</p>
+						</div>
+			{% elif event.discount %}
+			<div class="eds-ticket-card-content eds-ticket-edit-card-content" style="background-color: #FFFFFF" onclick="location.href='{% url 'events_discount' id %}';">
+				<div class="eds-g-cell eds-g-cell-1-1 eds-ticket-card-content__details-wrapper">
+					<div class="eds-g-cell eds-g-cell-1-1 eds-ticket-card-content__details">
+						<div class="eds-l-pad-right-4 eds-l-pad-left-3 eds-g-cell eds-g-cell-8-12">
+							<h3 class="eds-text-bl--fixed eds-text-color--grey-700">{{event.name.text}}</h3>
+							<p class="text-secondary"><small>{{event.local_date}}</small></p>
+							<div class="eds-g-cell eds-text-bm--fixed eds-text-color--grey-600" data-spec="eds-ticket-card-content-status">
+								<span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-blue eds-l-mar-right-2"></span>
+								<p class="eds-g-cell eds-ticket-edit-card-content__status">
+									With discount!
+								</p>
+							</div>
+						</div>
+						<div class="eds-g-cell eds-g-cell-lw-2-12 eds-g-cell-lg-2-12 eds-g-cell-ln-2-12 eds-g-cell-mw-2-12 eds-g-cell-md-2-12 eds-g-cell-mn-2-12 eds-g-cell-4-12">
+							<p class="eds-text-bm--fixed eds-text-color--grey-700 eds-text--right">- {{ event.discount }} %</p>
+						</div>
+			{% else %}
+			<div class="eds-ticket-card-content eds-ticket-edit-card-content" style="background-color: #FFFFFF" onclick="location.href='{% url 'events_discount' id %}';">
+				<div class="eds-g-cell eds-g-cell-1-1 eds-ticket-card-content__details-wrapper">
+					<div class="eds-g-cell eds-g-cell-1-1 eds-ticket-card-content__details">
+						<div class="eds-l-pad-right-4 eds-l-pad-left-3 eds-g-cell eds-g-cell-8-12">
+							<h3 class="eds-text-bl--fixed eds-text-color--grey-700">{{event.name.text}}</h3>
+							<p class="text-secondary"><small>{{event.local_date}}</small></p>
+							<div class="eds-g-cell eds-text-bm--fixed eds-text-color--grey-600" data-spec="eds-ticket-card-content-status">
+								<span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--tropical-yellow-400 eds-l-mar-right-2"></span>
+								<p class="eds-g-cell eds-ticket-edit-card-content__status">
+									It doesn't have any discount yet!
+								</p>
+							</div>
+						</div>
+						<div class="eds-g-cell eds-g-cell-lw-2-12 eds-g-cell-lg-2-12 eds-g-cell-ln-2-12 eds-g-cell-mw-2-12 eds-g-cell-md-2-12 eds-g-cell-mn-2-12 eds-g-cell-4-12">
+							<p class="eds-text-bm--fixed eds-text-color--grey-700 eds-text--right">NO DISCOUNT</p>
+						</div>
 						{% endif %}
 					</div>
-                	<div>
-	                    <h5 class="card-title">{{event.name.text}}</h5>
-	                    <i>
-	                    <p class="card-text" style="margin-top: -6px;">
-	                        {{event.local_date}}
-	                    </p>
-	                    </i>
-                	</div>
-                	{% if event.is_free %}
-						<div>
-							<small class="text-danger">The event must have at least one paid ticket in order to add a discount</small>
+				</div>
+				<div class="eds-g-cell eds-g-cell-1-12 eds-g-cell--has-overflow">
+					{% if not event.is_free %}
+					<div class="eds-text--right">
+						<div class="eds-more-actions">
+							<span class="eds-icon-button eds-icon-button--dark">
+								<a href="{% url 'events_discount' id %}">
+									<img style="height:20px"; src="{% static 'images/settings.png' %}">
+								</a>
+							</span>
 						</div>
+					</div>
 					{% endif %}
-					{% if event.discount %}
-						<div class="text-right mt-3">
-							<small class="text-muted">It has
-							{{ event.discount }} % of discount</small>
-						</div>
-					{% endif %}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-		<div class="row justify-content-end mb-3">
-			<a class= "btn btn-success text-right" href="{% url 'select_events' %}">Add Event</a>
+				</div>
+			</div>
 		</div>
 	</div>
+	{% endfor %}
+	<div class="mb-3">
+		<div class="row d-flex justify-content-end">
+			<div class="col-2">
+				<a class= "btn btn-success col-12" href="{% url 'select_events' %}">Add Event</a>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock %}

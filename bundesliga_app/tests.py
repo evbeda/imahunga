@@ -225,7 +225,7 @@ class HomeViewTest(TestBase):
         )
         self.assertContains(
             self.response,
-            "The event must have at least one paid ticket in order to add a discount",
+            "It doesn't have any paid ticket",
         )
 
 

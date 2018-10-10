@@ -1,37 +1,52 @@
 {% extends '../shared/base.html' %}
 {% load static %}
 {% block content %}
-    <form class="mt-5" action="" method="POST">
+<form class="mt-5" action="" method="POST">
     {% csrf_token %}
-    <div class="row">
-        {% for event in events %}
-        <div class="col-4">
-            <div class="container card" style="width: 20rem;">
-                <div class="card-body">
-                    <div>
-                        <div class="text-left">
-                            <h5 class="card-title">{{event.name.text}}</h5>
-                            <div class="text-right" >
-                                {% if event.id in already_selected_id %}
-                                    <input type="checkbox" class="form-control-lg" name="event_{{ event.id }}" checked>
-                                {% else %}
-                                    <input type="checkbox" class="form-control-lg" name="event_{{ event.id }}">
-                                {% endif %}
+    {% for event in events %}
+    <div class="row mb-1">
+        <div class="col-7 ">
+            <div class="eds-ticket-card-content eds-ticket-edit-card-content" style="background-color: #FFFFFF; cursor: initial;">
+                <div class="eds-g-cell eds-g-cell-1-1 eds-ticket-card-content__details-wrapper">
+                    <div class="eds-g-cell eds-g-cell-1-1 eds-ticket-card-content__details">
+                        <div class="eds-l-pad-right-4 eds-l-pad-left-3 eds-g-cell eds-g-cell-8-12">
+                            <h3 class="eds-text-bl--fixed eds-text-color--grey-700">{{event.name.text}}</h3>
+                            <div class="eds-g-cell eds-text-bm--fixed eds-text-color--grey-600" data-spec="eds-ticket-card-content-status">
+                                <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-green eds-l-mar-right-2"></span>
+                                <p class="eds-g-cell eds-ticket-edit-card-content__status">{{event.local_date}}</p>
                             </div>
-                            <i>
-                            <p class="card-text" style="margin-top: -6px;">
-                                {{event.local_date}}
-                            </p>
-                            </i>
+                        </div>
+                        <div class="eds-text--right">
+                            {% if event.id in already_selected_id %}
+                            <div class="eds-toggle" data-spec="toggle">
+                                <input type="checkbox" id="event_{{ event.id }}" class="eds-toggle__input eds-is-hidden-accessible" name="event_{{ event.id }}" checked="" data-spec="toggle-input"/>
+                                <label class="eds-toggle__label eds-toggle__label--align-left" for="event_{{ event.id }}" data-spec="toggle-label">
+                                    <div class="eds-toggle__controls eds-align--center-vertical">
+                                        <div class="eds-toggle__slider"></div>
+                                        <div class="eds-toggle__delegate"></div>
+                                    </div>
+                                </label>
+                            </div>
+                            {% else %}
+                            <div class="eds-toggle" data-spec="toggle">
+                                <input type="checkbox" id="event_{{ event.id }}" class="eds-toggle__input eds-is-hidden-accessible" name="event_{{ event.id }}" data-spec="toggle-input"/>
+                                <label class="eds-toggle__label eds-toggle__label--align-left" for="event_{{ event.id }}" data-spec="toggle-label">
+                                    <div class="eds-toggle__controls eds-align--center-vertical">
+                                        <div class="eds-toggle__slider"></div>
+                                        <div class="eds-toggle__delegate"></div>
+                                    </div>
+                                </label>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
-        <div class="row justify-content-end">
-            <input type="submit" class="btn btn-success text-right" value="Select Event/s"></input>
-        </div>
-    </form>
+    {% endfor %}
+    <div class="row justify-content-end">
+        <input type="submit" class="btn btn-success text-right" value="Select Event/s"></input>
+    </div>
+</form>
 {% endblock %}
