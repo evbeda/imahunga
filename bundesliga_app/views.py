@@ -13,6 +13,7 @@ from .utils import (
     get_events_user_eb_api,
     get_user_eb_api,
     get_venue_eb_api,
+    get_event_tickets_eb_api,
     EventAccessMixin,
     DiscountAccessMixin,
 )
@@ -378,6 +379,50 @@ class ListingPageEventView(TemplateView):
         )
         return venue
 
+    def _get_tickets(self, organizer, event_id):
+        tickets = get_event_tickets_eb_api(
+            get_auth_token(organizer),
+            event_id,
+        )
+        ticket_values = {
+            'min_value': None,
+            'min_value_display': None,
+            'max_value': None,
+            'max_value_display': None,
+        }
+        for ticket in tickets:
+            # Free ticket, min value 0
+            if ticket['free']:
+                ticket_values['min_value'] = 0
+                ticket_values['min_value_display'] = "$0.00"
+            else:
+                # Get the value of the ticket
+                ticket_value = float(ticket['actual_cost']['major_value'])
+
+                """ If the max value is not setted yet (first paid ticket for example),
+                set max value with the ticket value """
+                if ticket_values['max_value'] is None:
+                    ticket_values['max_value'] = ticket_value
+                    ticket_values['max_value_display'] = ticket['actual_cost']['display']
+
+                """ If the min value is not setted yet (first paid ticket for example),
+                set min value with the ticket value """
+                if ticket_values['min_value'] is None:
+                    ticket_values['min_value'] = ticket_value
+                    ticket_values['min_value_display'] = ticket['actual_cost']['display']
+
+                # If the actual ticket value is bigger than the actual max value
+                if ticket_value > ticket_values['max_value']:
+                    ticket_values['max_value'] = ticket_value
+                    ticket_values['max_value_display'] = ticket['actual_cost']['display']
+
+                # If the actual ticket value is lower than the actual min value
+                if ticket_value < ticket_values['min_value']:
+                    ticket_values['min_value'] = ticket_value
+                    ticket_values['min_value_display'] = ticket['actual_cost']['display']
+
+        return ticket_values
+
     def get_context_data(self, **kwargs):
         context = super(ListingPageEventView, self).get_context_data(**kwargs)
         context['organizer'] = get_user_model().objects.get(
@@ -389,5 +434,9 @@ class ListingPageEventView(TemplateView):
         context['venue'] = self._get_venue(
             context['organizer'],
             context['event']['venue_id'],
+        )
+        context['tickets'] = self._get_tickets(
+            context['organizer'],
+            context['event']['id'],
         )
         return context

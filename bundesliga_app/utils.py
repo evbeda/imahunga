@@ -98,3 +98,18 @@ def get_venue_eb_api(token, venue_id):
 
     eventbrite = Eventbrite(token)
     return eventbrite.get('/venues/{}/'.format(venue_id))
+
+
+def get_event_tickets_eb_api(token, event_id):
+    """
+    This method will receive a event id and token from logged user
+    and returns a list of tickets
+    """
+
+    eventbrite = Eventbrite(token)
+    return [
+        ticket
+        for ticket in eventbrite.get(
+            '/events/{}/ticket_classes/'.format(event_id)
+        )['ticket_classes']
+    ]
