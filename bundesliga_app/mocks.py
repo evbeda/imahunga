@@ -5,17 +5,37 @@ import copy
 def get_mock_events_api(*args, **kwargs):
     return copy.deepcopy(MOCK_EVENT_API)
 
+
 def get_mock_event_api_without_venue(*args, **kwargs):
     MOCK_EVENT_API_COPY = copy.deepcopy(MOCK_EVENT_API)
     MOCK_EVENT_API_COPY['venue_id'] = None
     return MOCK_EVENT_API_COPY
 
+
 def get_mock_event_api_free(*args, **kwargs):
     MOCK_EVENT_API_COPY = copy.deepcopy(MOCK_EVENT_API)
     MOCK_EVENT_API_COPY['is_free'] = True
     return MOCK_EVENT_API_COPY
-# A random event return value of EB API '/events/:id/'
 
+
+def get_mock_event_tickets_api_free(*args, **kwargs):
+    return []
+
+
+def get_mock_event_tickets_api_paid(*args, **kwargs):
+    MOCK_EVENT_TICKETS_PAID = copy.deepcopy(MOCK_EVENT_TICKETS)
+    # Delete free ticket from MOCK TICKETS
+    del MOCK_EVENT_TICKETS_PAID[0][0]
+    return MOCK_EVENT_TICKETS_PAID[0]
+
+def get_mock_event_tickets_api_paid_inverse_position(*args, **kwargs):
+    MOCK_EVENT_TICKETS_PAID = copy.deepcopy(MOCK_EVENT_TICKETS)
+    # Delete free ticket from MOCK TICKETS
+    del MOCK_EVENT_TICKETS_PAID[0][0]
+    # new mock [ TICKET[1], TICKET[0]], so we inverse the order
+    return [MOCK_EVENT_TICKETS_PAID[0][1], MOCK_EVENT_TICKETS_PAID[0][0]]
+
+# A random event return value of EB API '/events/:id/'
 
 MOCK_EVENT_API = {
     'name': {
@@ -144,3 +164,168 @@ MOCK_VENUE_API = {
     'latitude': '-1.0000',
     'longitude': '-1.0000'
 }
+
+MOCK_EVENT_TICKETS = [[
+    {
+        "resource_uri": "https://www.eventbriteapi.com/v3/events/50607739110/ticket_classes/94870982/",
+        "variant_id": "T94870982",
+        "name": "FREE",
+        "description": None,
+        "donation": False,
+        "free": True,
+        "minimum_quantity": 1,
+        "maximum_quantity": None,
+        "maximum_quantity_per_order": 10,
+        "maximum_quantity_per_order_without_pending": 10,
+        "on_sale_status": "AVAILABLE",
+        "quantity_total": 10,
+        "quantity_sold": 0,
+        "sales_start": "2018-09-26T13:05:00Z",
+        "sales_end": "2018-11-03T21:00:00Z",
+        "hidden": False,
+        "include_fee": False,
+        "split_fee": False,
+        "hide_description": True,
+        "auto_hide": False,
+        "variants": [],
+        "has_pdf_ticket": True,
+        "sales_channels": [
+                "online",
+                "atd"
+        ],
+        "short_name": "FREE",
+        "delivery_methods": [
+            "electronic"
+        ],
+        "event_id": "50607739110",
+        "id": "94870982"
+    },
+    {
+        "actual_cost": {
+            "display": "$20.00",
+            "currency": "ARS",
+            "value": 2000,
+            "major_value": "20.00"
+        },
+        "actual_fee": {
+            "display": "$1.69",
+            "currency": "ARS",
+            "value": 169,
+            "major_value": "1.69"
+        },
+        "cost": {
+            "display": "$20.00",
+            "currency": "ARS",
+            "value": 2000,
+            "major_value": "20.00"
+        },
+        "fee": {
+            "display": "$1.69",
+            "currency": "ARS",
+            "value": 169,
+            "major_value": "1.69"
+        },
+        "tax": {
+            "display": "$0.00",
+            "currency": "ARS",
+            "value": 0,
+            "major_value": "0.00"
+        },
+        "resource_uri": "https://www.eventbriteapi.com/v3/events/50607739110/ticket_classes/95139203/",
+        "variant_id": "T95139203",
+        "name": "Socio",
+        "description": None,
+        "donation": False,
+        "free": False,
+        "minimum_quantity": 1,
+        "maximum_quantity": None,
+        "maximum_quantity_per_order": 9,
+        "maximum_quantity_per_order_without_pending": 9,
+        "on_sale_status": "AVAILABLE",
+        "quantity_total": 10,
+        "quantity_sold": 1,
+        "sales_start": "2018-10-01T08:30:00Z",
+        "sales_end": "2018-11-03T21:00:00Z",
+        "hidden": False,
+        "include_fee": False,
+        "split_fee": False,
+        "hide_description": True,
+        "auto_hide": False,
+        "variants": [],
+        "has_pdf_ticket": True,
+        "sales_channels": [
+                "online",
+                "atd"
+        ],
+        "short_name": "Socio",
+        "delivery_methods": [
+            "electronic"
+        ],
+        "event_id": "50607739110",
+        "id": "95139203"
+    },
+    {
+        "actual_cost": {
+            "display": "$300.00",
+            "currency": "ARS",
+            "value": 30000,
+            "major_value": "300.00"
+        },
+        "actual_fee": {
+            "display": "$25.37",
+            "currency": "ARS",
+            "value": 2537,
+            "major_value": "25.37"
+        },
+        "cost": {
+            "display": "$300.00",
+            "currency": "ARS",
+            "value": 30000,
+            "major_value": "300.00"
+        },
+        "fee": {
+            "display": "$25.37",
+            "currency": "ARS",
+            "value": 2537,
+            "major_value": "25.37"
+        },
+        "tax": {
+            "display": "$0.00",
+            "currency": "ARS",
+            "value": 0,
+            "major_value": "0.00"
+        },
+        "resource_uri": "https://www.eventbriteapi.com/v3/events/50607739110/ticket_classes/95845509/",
+        "variant_id": "T95845509",
+        "name": "VIP",
+        "description": None,
+        "donation": False,
+        "free": False,
+        "minimum_quantity": 1,
+        "maximum_quantity": None,
+        "maximum_quantity_per_order": 10,
+        "maximum_quantity_per_order_without_pending": 10,
+        "on_sale_status": "AVAILABLE",
+        "quantity_total": 10,
+        "quantity_sold": 0,
+        "sales_start": "2018-10-11T10:45:00Z",
+        "sales_end": "2018-11-03T21:00:00Z",
+        "hidden": False,
+        "include_fee": False,
+        "split_fee": False,
+        "hide_description": True,
+        "auto_hide": False,
+        "variants": [],
+        "has_pdf_ticket": True,
+        "sales_channels": [
+                "online",
+                "atd"
+        ],
+        "short_name": "VIP",
+        "delivery_methods": [
+            "electronic"
+        ],
+        "event_id": "50607739110",
+        "id": "95845509"
+    }
+]]
