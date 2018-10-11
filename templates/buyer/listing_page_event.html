@@ -1,10 +1,33 @@
 {% extends '../shared/base.html' %}
 {% block content %}
-	{% load static %}
+{% load static %}
+<head>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("#event_name_box").hide()
+			$("#event_name_box").css({'font-size':'1.3em'})
+		});
+		$(window).scroll(function(e){
+			  var $el = $('.fixedElement');
+			  var isPositionFixed = ($el.css('position') == 'fixed');
+			  if ($(this).scrollTop() > 200 && !isPositionFixed){
+			    $el.css({'position': 'fixed', 'top': '0px', 'width':'75%', 'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)','z-index':'100'});
+			    	$("#event_name_box").show()
+			  }
+			  if ($(this).scrollTop() < 200 && isPositionFixed){
+			    $el.css({'position': 'static', 'top': '0px','width':'100%', 'box-shadow':'none' });
+			    $("#event_name_box").hide()
+			  }
+		});
+	</script>
+</head>
+<body style=" background: linear-gradient(to bottom, #FFE6BE 55%, white 45%); background-repeat: no-repeat;">
+
+</body>
 	<div class="container mt-5 mb-3 justify-content-center">
-		<div>
+		<div >
 			<!-- Listing Header -->
-			<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--fixed" role="presentation">
+			<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--fixed" role="presentation" >
 				<aside class="eds-media-card-content__image-container">
 					<div tabindex="-1" class="eds-media-card-content__action-link">
 						<div class="eds-media-card-content__image-wrapper">
@@ -20,11 +43,11 @@
 						</div>
 					</div>
 				</aside>
-				<main class="eds-media-card-content__content-container">
-					<div class="eds-media-card-content__content">
+				<main class="eds-media-card-content__content-container" style="background-color:#ffffff;">
+					<div class="eds-media-card-content__content" >
 						<div class="eds-media-card-content__extra-content">
 							<div class="eds-media-card-content__extra-content">
-								<div class="date-thumbnail eds-text--left eds-l-mar-top-1" style="top: 0;position: absolute">
+								<div class="date-thumbnail eds-text--left eds-l-mar-top-1" style="top: 30; position: absolute">
 									<p class="date-thumbnail__month eds-text-color--ui-orange eds-text-bs">
 										{{ event.start_date | date:"M" | upper}}
 									</p>
@@ -59,7 +82,7 @@
 									{% endif %}
 									{% if event.discount %}
 										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
-											<span class="eds-text-color--grey-700">{{ event.discount }} %
+											<span class="eds-text-color--grey-700">{{ event.discount }} % discount available for members
 											</span>
 										</div>
 									{% endif %}
@@ -71,71 +94,86 @@
 			</section>
 		</div>
 		<!-- Listing Get Discount -->
+		<div class="fixedElement" style="background-color: #ffffff">
 		<hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
-		<div class="eds-l-pad-all-2">
-			<div class="eds-text--right">
-				<button class="eds-btn eds-btn--button eds-btn--fill" type="button">
-				Get Discount
-				</button>
-			</div>
-		</div>
-		<hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
-		<!-- Listing Body -->
-		<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--fixed eds-l-pad-top-10" role="presentation">
+		<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--absolute eds-l-pad-all-2" role="presentation" style="background-color: #ffffff">
 			<aside class="eds-media-card-content__image-container" >
-				<div class="eds-media-card-content__content" style="top: 0;position: absolute">
-					<div class="eds-media-card-content__content__principal">
-						<div class="eds-media-card-content__primary-content">
-							<div class="eds-text-hs">
-							<strong>Description</strong>
-							</div>
-						</div>
-						<div class="eds-media-card-content__sub-content">
-							<div class="eds-text-bs--fixed eds-l-mar-top-4">
-								{% if event.description.text %}
-									{{ event.description.text }}
-								{% else %}
-									This event does not have description
-								{% endif %}
-							</div>
-						</div>
-					</div>
+				<div id="event_name_box">
+					<p>{{event.name.text}}</p>
 				</div>
 			</aside>
 			<main class="eds-media-card-content__content-container">
 				<div class="eds-media-card-content__content">
 					<div class="eds-media-card-content__content__principal">
 						<div class="eds-media-card-content__primary-content">
-							<div class="eds-media-card-content__primary-content">
-							<div class="eds-text-hs">
-							<strong>Date and Time</strong>
+							<div id="get_discount_box" class="eds-media-card-content__primary-content">
+								<button class="eds-btn eds-btn--button eds-btn--fill" type="button" style="width: 100%">
+									Get Discount
+								</button>
 							</div>
 						</div>
-						</div>
-						<div class="eds-media-card-content__sub-content eds-l-mar-top-4">
-							<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
-								{{ event.start_date | date:"D, F d, Y"}}
-							</div>
-							<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
-								{{ event.start_date | date:"H:i A"}} - {{ event.end_date | date:"H:i A"}}
-							</div>
-						</div>
-						{% if event.venue_id %}
-						<div class="eds-media-card-content__sub-content eds-l-mar-top-4">
-							<div class="eds-text-hs">
-							<strong>Location</strong>
-							</div>
-							{% for data_address in venue.address.localized_multi_line_address_display %}
-							<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
-								{{ data_address }}
-							</div>
-							{% endfor %}
-						</div>
-						{% endif %}
-
 					</div>
 				</div>
 			</main>
 		</section>
+		<hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
+		</div>
+		 <!-- Listing Body -->
+        <section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--fixed eds-l-pad-top-10" role="presentation">
+            <aside class="eds-media-card-content__image-container" >
+                <div class="eds-media-card-content__content">
+                    <div class="eds-media-card-content__content__principal" style="top: 0; position: absolute">
+                        <div class="eds-media-card-content__primary-content">
+                            <div class="eds-field-styled__input" style="color:black;">
+                            <strong>DESCRIPTION</strong>
+                            </div>
+                        </div>
+                        <div class="eds-media-card-content__sub-content">
+                            <div class="eds-text-bs--fixed eds-l-mar-top-4" style="line-height: 200%">
+                                {% if event.description.text %}
+                                    {{ event.description.text }}
+                                {% else %}
+                                    This event does not have description
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            <main class="eds-media-card-content__content-container ">
+                <div class="eds-media-card-content__content">
+                    <div class="eds-media-card-content__content__principal" style="top: 40; position: absolute">
+                        <div class="eds-media-card-content__primary-content">
+                            <div class="eds-media-card-content__primary-content" >
+                            <div class="eds-field-styled__input" style="color:black">
+                            <strong >DATE AND TIME</strong>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="eds-media-card-content__sub-content eds-l-mar-top-4">
+                            <div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
+                                {{ event.start_date | date:"D, F d, Y"}}
+                            </div>
+                            <div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
+                                {{ event.start_date | date:"H:i A"}} - {{ event.end_date | date:"H:i A"}}
+                            </div>
+                        </div>
+                        {% if event.venue_id %}
+                        <div class="eds-media-card-content__sub-content eds-l-mar-top-4">
+                            <div class="eds-field-styled__input" style="color:black">
+                            <strong>LOCATION</strong>
+                            </div>
+                            {% for data_address in venue.address.localized_multi_line_address_display %}
+                            <div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
+                                {{ data_address }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </main>
+        </section>
 	</div>
 {% endblock %}
