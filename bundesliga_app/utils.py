@@ -98,39 +98,3 @@ def get_venue_eb_api(token, venue_id):
 
     eventbrite = Eventbrite(token)
     return eventbrite.get('/venues/{}/'.format(venue_id))
-
-
-def get_local_date(event):
-    """
-    This method will receive an event and
-    returns a format date
-    """
-    for value in event['start'].values():
-        date_complete = value
-    date_complete = date_complete.split('-')
-    day = date_complete[2].split('T')[0]
-    months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-    ]
-    month = months[int(date_complete[1]) - 1]
-    year = date_complete[0]
-    return '{} {}, {}'.format(month, day, year)
-
-
-def reduce_month(local_date):
-    return local_date[:3].upper()
-
-
-def reduce_day(local_date):
-    return local_date.split()[1][:2]

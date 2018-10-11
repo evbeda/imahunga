@@ -45,10 +45,10 @@
                                 <div class="eds-media-card-content__extra-content eds-l-pad-right-4">
                                     <div class="date-thumbnail eds-text--center eds-l-mar-top-1">
                                         <p class="date-thumbnail__month eds-text-color--ui-orange eds-text-bs">
-                                            {{ event.reduce_month }}
+                                            {{ event.start_date | date:"M" | upper}}
                                         </p>
                                         <p class="date-thumbnail__day eds-text-bl eds-text-color--grey-600">
-                                            {{ event.reduce_day }}
+                                            {{ event.start_date | date:"d"}}
                                         </p>
                                     </div>
                                 </div>
@@ -57,12 +57,12 @@
                                 <div class="eds-media-card-content__primary-content">
         						    <div class="eds-text-bs eds-text-color--grey-600">
         						  </div>
-        						  <h3 class="eds-media-card-content__title eds-text-color--grey-800 eds-text-bl">{{event.name.text}}
+        						  <h3 class="eds-media-card-content__title eds-text-color--grey-800 eds-text-bl">{{ event.name.text }}
         						  </h3>
         					    </div>
 
                             <div class="eds-media-card-content__sub-content">
-        						<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">{{event.local_date}}
+        						<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">{{ event.start_date | date:"F d, Y"}}
         						</div>
         						<div class="eds-media-card-content__sub-content-cropped">
         							<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">

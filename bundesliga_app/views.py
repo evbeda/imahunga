@@ -6,19 +6,15 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect
-from eventbrite import Eventbrite
 from .models import Discount
 from .utils import (
     get_auth_token,
-    get_local_date,
     get_event_eb_api,
     get_events_user_eb_api,
     get_user_eb_api,
     get_venue_eb_api,
     EventAccessMixin,
     DiscountAccessMixin,
-    reduce_month,
-    reduce_day,
 )
 from .forms import DiscountForm
 from django.views.generic.edit import (
@@ -53,9 +49,10 @@ class HomeView(TemplateView, LoginRequiredMixin):
                 event.event_id,
             )
             # Add local_date format
-            events[event.id]['local_date'] = get_local_date(
-                events[event.id]
-            )
+            events[event.id]['start_date'] = parser.parse(
+                events[event.id]['start']['local'])
+            events[event.id]['end_date'] = parser.parse(
+                events[event.id]['end']['local'])
             # Add discount of the event
             discount = Discount.objects.filter(
                 event=event.id
@@ -147,8 +144,12 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
             context['already_selected_id'].append(event.event_id)
         # Bring live events of user
         context['events'] = self._get_event()
+        # Add local_date format
         for event in context['events']:
-            event['local_date'] = get_local_date(event)
+            event['start_date'] = parser.parse(
+                event['start']['local'])
+            event['end_date'] = parser.parse(
+                event['end']['local'])
         return context
 
 
@@ -250,7 +251,6 @@ class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
     def get_context_data(self, **kwargs):
         context = super(ManageDiscount, self).get_context_data(**kwargs)
         context['event'] = self.get_event()
-        # import ipdb;ipdb.set_trace()
         if 'discount_id' in self.kwargs:
             context['discount'] = get_object_or_404(
                 Discount,
@@ -313,15 +313,10 @@ class LandingPageBuyerView(TemplateView):
             )
 
             # Add local_date format
-            events[event.id]['local_date'] = get_local_date(
-                events[event.id]
-            )
-            events[event.id]['reduce_month'] = reduce_month(
-                events[event.id]['local_date']
-            )
-            events[event.id]['reduce_day'] = reduce_day(
-                events[event.id]['local_date']
-            )
+            events[event.id]['start_date'] = parser.parse(
+                events[event.id]['start']['local'])
+            events[event.id]['end_date'] = parser.parse(
+                events[event.id]['end']['local'])
             # Add discount of the event
             discount = Discount.objects.filter(
                 event=event.id
