@@ -41,6 +41,22 @@
 </div>
 {% endfor %}
 {% else %}
-<a id="add_discount_button" href="{% url 'create_discount' event_id %}" class="btn btn-success float-right">Add Discount</a>
+<div class="eds-empty-state eds-align--center">
+    <div>
+        <div class="eds-empty-state__graphic eds-align--center">
+            <span class="eds-graphic--halo eds-graphic-halo--xsmall">
+                <i class="eds-vector-image eds-vector-image-size--reset eds-graphic--small eds-vector-image-size--reset eds-align--center eds-vector-image-halo-size-override" data-spec="icon" style="height:100px;width:100px;" aria-hidden="true"><svg id="money_Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 383 705.3"><path d="M0 689.2C576.5 577 407.4 22 0 16v673.2z" fill="#f8f7fa"/><g><g><defs><path id="money_SVGID_1_" d="M0 0h367.9v705.3H0z"/></defs><clipPath id="money_SVGID_2_"><use xlink:href="#money_SVGID_1_" overflow="visible"/></clipPath><g clip-path="url(#money_SVGID_2_)"><path fill="#324b8c" d="M145.4 190h152.5v303H145.4z"/><path d="M232.3 182.7c0-18.1 14.7-32.8 32.8-32.8s32.8 14.7 32.8 32.8V200h-65.7v-17.3h.1z" fill="#324b8c"/><path d="M238.8 197c-1.7-4.1-2.7-8.5-2.7-13.2 0-18.7 15.2-33.9 33.9-33.9H131.4c-18.7 0-33.9 15.2-33.9 33.9 0 4.7.9 9.2 2.7 13.2h138.6z" fill="#1e0a3c"/><circle cx="221.7" cy="296.2" r="48.3" fill="#1e0a3c"/></g></g><g><defs><path id="money_SVGID_3_" d="M0 0h367.9v705.3H0z"/></defs><clipPath id="money_SVGID_4_"><use xlink:href="#money_SVGID_3_" overflow="visible"/></clipPath><g clip-path="url(#money_SVGID_4_)"><path d="M141.9 512.6s6.2 9.4 10 6.4c3.7-3 46-33.5 46-33.5l3.7-21-41.3-13-18.4 61.1z" fill="#1e0a3c"/><path d="M80.7 393.4c4.9-12.3 42.6-74.4 55.7-83 13.1-8.7 75-36 79.4-25 7.4 18.5-55.2 35-66.6 51.9-12.5 18.6-21.6 41.5-21.6 41.5l-1.9 7.7c14.7.2 30.9 0 38.7-2.9 12.4-4.5 19.1 9.2 23.9 34.4 0 0 .9 1 1.9 1.3s2 .6 2.9.9c5.9 1.9 8 11.2 9 17.1.4 2.2 1.5 1.5 1.5 1.5 7 1.9 12.7 4.8 15.9 9.2 14.8 20.7-39.4 72.1-47 69.4-14.3-5.2 4.5-20.2 14.5-34.6 6.5-9.4 10.2-18.4 10.2-18.4-14.2 6-33.6 0-33.6 0s-35.1 92.1-39.6 102.5c-4.5 10.4-34.1 22.9-34.1 22.9L-17.7 779.6l-2.1-183.7 44-53s22.1-37.1 31.6-76.6c9.3-38.7 19.4-46.2 20.8-65.1 1.5-19.9 30.5-51.7 30.5-51.7" fill="#f05537"/><path d="M149.3 437.5s61.7-8.6 75.4 10.4m-95.6-39.5s39.1 2.2 69.1 11.7" fill="none" stroke="#1e0a3c" stroke-miterlimit="10"/></g></g></g><path fill="#4269f6" d="M25.4 705.3L62.3 652 0 562.4v142.9z"/></svg>
+                </i>
+            </span>
+        </div>
+        <h1 class="eds-empty-state__title eds-text--center eds-text-hs eds-text-color--grey-900 eds-l-sn-mar-top-6 eds-l-sm-mar-top-6 eds-l-sw-mar-top-6 eds-l-mn-mar-top-6 eds-l-md-mar-top-6 eds-l-md-mar-top-8 eds-l-mw-mar-top-8 eds-l-ln-mar-top-8 eds-l-lg-mar-top-8 eds-l-lw-mar-top-8">Any discount yet</h1>
+        <div class="eds-align--center">
+            <p class="eds-empty-state__description eds-text--center eds-text-bl eds-text-color--grey-600 eds-l-sn-mar-top-3 eds-l-sm-mar-top-3 eds-l-sw-mar-top-3 eds-l-mn-mar-top-3 eds-l-md-mar-top-3 eds-l-md-mar-top-1 eds-l-mw-mar-top-1 eds-l-ln-mar-top-1 eds-l-lg-mar-top-1 eds-l-lw-mar-top-1">Create one for the members!</p>
+        </div>
+        <div class="eds-empty-state__actions eds-align--center eds-l-sn-mar-top-4 eds-l-sm-mar-top-4 eds-l-sw-mar-top-4 eds-l-mn-mar-top-4 eds-l-md-mar-top-4 eds-l-md-mar-top-6 eds-l-mw-mar-top-6 eds-l-ln-mar-top-6 eds-l-lg-mar-top-6 eds-l-lw-mar-top-6">
+            <a data-spec="eds-empty-state__primary-button" class="eds-btn eds-btn--button eds-btn--fill" href="{% url 'create_discount' event_id %}">Add Discount</a>
+        </div>
+    </div>
+</div>
 {% endif %}
 {% endblock %}
