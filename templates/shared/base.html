@@ -1,42 +1,42 @@
 {% load static %}
 <html>
-  <head>
-    <title>Eventbrite Discounts</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <link rel="icon" href="{% static 'images/eventbrite_logo.png' %}">
-    <link rel="stylesheet" href="{% static 'css/cards_styles.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" type="text/css" href="https://cdn.evbstatic.com/s3-build/30226-rc2018-10-03_16.04-d2023ac/js/node_modules/eventbrite_design_system/css/eds.css">
-  </head>
-  <body>
-    <div class= "navbar-wrapper" style="background-color: #1E0A3C">
-      <nav class="navbar navbar-expand-lg" id="navbar_whole">
-        <div class="navbar-header">
-          <a href="{% url 'index' %}" class="navbar-brand">
-            <img style="height:35px; " src="{% static 'images/Eventbrite_wordmark_white.png' %}" />
-          </a>
-        </div>
-        {% if user.is_authenticated %}
-              <div class="nav navbar-nav ml-auto">
-                <a class="row" style="color: #FFFFFF" href="{% url 'logout' %}">
-                  <p class="mr-1">Logout</p>
-                  <img class="mr-5 ml-2 mt-1"style="width: 15px; height: 15px;"src="{% static 'images/logout.png'%}">
-                </a>
-              </div>
-        {% endif %}
-      </nav>
-    </div>
-    <div class="container" style="margin-bottom: 60px;">
-      {% block content %}
-      {% endblock %}
-    </div>
-    <footer class="eds-global-footer eds-g-grid l-mar-top-2">
+<head>
+  <title>Eventbrite Discounts</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  <link rel="icon" href="{% static 'images/eventbrite_logo.png' %}">
+  <link rel="stylesheet" href="{% static 'css/cards_styles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" type="text/css" href="https://cdn.evbstatic.com/s3-build/30226-rc2018-10-03_16.04-d2023ac/js/node_modules/eventbrite_design_system/css/eds.css">
+</head>
+<body>
+  <div class= "navbar-wrapper" style="background-color: #1E0A3C">
+    <nav class="navbar navbar-expand-lg" id="navbar_whole">
+      <div class="navbar-header">
+        <a href="{% url 'index' %}" class="navbar-brand">
+          <img style="height:35px; " src="{% static 'images/Eventbrite_wordmark_white.png' %}" />
+        </a>
+      </div>
+      {% if user.is_authenticated %}
+      <div class="nav navbar-nav ml-auto">
+        <a class="row" style="color: #FFFFFF" href="{% url 'logout' %}">
+          <p class="mr-1">Logout</p>
+          <img class="mr-5 ml-2 mt-1"style="width: 15px; height: 15px;"src="{% static 'images/logout.png'%}">
+        </a>
+      </div>
+      {% endif %}
+    </nav>
+  </div>
+  <div class="container" style="margin-bottom: 60px;">
+    {% block content %}
+    {% endblock %}
+  </div>
+  <footer class="eds-global-footer eds-g-grid l-mar-top-2" style="z-index: 99;">
     <h2 class="eds-is-hidden-accessible">Site Navigation</h2>
     <div class="eds-global-footer__base eds-g-grid eds-l-pad-hor-6">
-      <div class="eds-global-footer__copyright eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-vert-4">© 2018 Eventbrite</div>
+      <div class="eds-global-footer__copyright eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-vert-4">© 2018 Powered by Eventbrite EDA</div>
       <div class="eds-global-footer__general-links eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-8-12 eds-text--center" data-spec="global-footer-general-links">
         <ul class="eds-l-mar-all-0 eds-l-pad-hor-0">
           <li class="eds-global-footer__link-bullet eds-global-footer__horizontal-link-item" data-spec="global-footer-link-item">
@@ -56,37 +56,10 @@
             <div class="eds-text--left">
               <label class="eds-field-styled__label eds-is-hidden-accessible" data-spec="label-label">Locale</label>
             </div>
-            <div class="">
-              <div class="eds-select" data-spec="select-wrapper">
-                <label class="eds-select__value" data-spec="select-display" role="presentation">United States<span class="eds-select__icon"><i class="eds-vector-image eds-icon--small eds-vector-image--grey-600" data-spec="icon" aria-hidden="true"><svg id="eds-icon--chevron-down-chunky_svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-    <path id="eds-icon--chevron-down-chunky_base" fill-rule="evenodd" clip-rule="evenodd" d="M7 10.2l5 5 5-5-1.4-1.4-3.6 3.6-3.6-3.6z"/>
-</svg></i></span> </label>
-                <select class="eds-select__input" data-spec="select-input">
-                  <option value="es_AR" data-spec="select-option">Argentina</option>
-                  <option value="en_AU" data-spec="select-option">Australia</option>
-                  <option value="pt_BR" data-spec="select-option">Brasil</option>
-                  <option value="en_CA" data-spec="select-option">Canada (EN)</option>
-                  <option value="fr_CA" data-spec="select-option">Canada (FR)</option>
-                  <option value="de_DE" data-spec="select-option">Deutschland</option>
-                  <option value="es_ES" data-spec="select-option">España</option>
-                  <option value="fr_FR" data-spec="select-option">France</option>
-                  <option value="en_HK" data-spec="select-option">Hong Kong</option>
-                  <option value="en_IE" data-spec="select-option">Ireland</option>
-                  <option value="it_IT" data-spec="select-option">Italia</option>
-                  <option value="es_MX" data-spec="select-option">Mexico</option>
-                  <option value="nl_NL" data-spec="select-option">Nederland</option>
-                  <option value="en_NZ" data-spec="select-option">New Zealand</option>
-                  <option value="pt_PT" data-spec="select-option">Portugal</option>
-                  <option value="en_SG" data-spec="select-option">Singapore</option>
-                  <option value="en_GB" data-spec="select-option">United Kingdom</option>
-                  <option selected="" value="en_US" data-spec="select-option">United States</option>
-                </select>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
   </footer>
-  </body>
+</body>
 </html>
