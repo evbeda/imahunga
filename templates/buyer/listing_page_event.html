@@ -6,6 +6,7 @@
 		$(document).ready(function(){
 			$("#event_name_box").hide()
 			$("#event_name_box").css({'font-size':'1.3em'})
+			$("#event_tickets").hide()
 		});
 		$(window).scroll(function(e){
 			  var $el = $('.fixedElement');
@@ -13,15 +14,17 @@
 			  if ($(this).scrollTop() > 200 && !isPositionFixed){
 			    $el.css({'position': 'fixed', 'top': '0px', 'width':'75%', 'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)','z-index':'100'});
 			    	$("#event_name_box").show()
+			    	$("#event_tickets").show()
 			  }
 			  if ($(this).scrollTop() < 200 && isPositionFixed){
 			    $el.css({'position': 'static', 'top': '0px','width':'100%', 'box-shadow':'none' });
 			    $("#event_name_box").hide()
+			    $("#event_tickets").hide()
 			  }
 		});
 	</script>
 </head>
-<body style=" background: linear-gradient(to bottom, #FFE6BE 55%, white 45%); background-repeat: no-repeat;">
+<body style=" background: linear-gradient(to bottom,#EBDCE6 20%, #EEEDF2 80% ); background-repeat: no-repeat;">
 
 </body>
 	<div class="container mt-5 mb-3 justify-content-center">
@@ -75,14 +78,30 @@
 							<div class="eds-media-card-content__sub-content">
 								<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-bot-4" style="bottom: 0;position: absolute">
 									{% if event.is_free %}
-										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
-											<span class="eds-text-color--grey-700">Free
+										<div class="eds-media-card-content__flag eds-text-bs eds-text-color--grey-600">
+											<span class="eds-text-color--grey-700" style="color: green">Free
+											</span>
+										</div>
+									{% else %}
+										<div class="eds-media-card-content__flag eds-text-bs eds-text-color--grey-600">
+											<span class="eds-text-color--grey-700">
+												{% if tickets.min_value_display == tickets.max_value_display %}
+													{{ tickets.min_value_display}}
+												{% else %}
+													{{ tickets.min_value_display}} -
+													{{tickets.max_value_display}}
+												{% endif %}
 											</span>
 										</div>
 									{% endif %}
 									{% if event.discount %}
 										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
 											<span class="eds-text-color--grey-700">{{ event.discount }} % discount available for members
+											</span>
+										</div>
+									{% else %}
+										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
+											<span class="eds-text-color--grey-700">This event doesn't have any available discount
 											</span>
 										</div>
 									{% endif %}
@@ -98,8 +117,27 @@
 		<hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
 		<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--absolute eds-l-pad-all-2" role="presentation" style="background-color: #ffffff">
 			<aside class="eds-media-card-content__image-container" >
-				<div id="event_name_box">
+				<div id="event_name_box" >
 					<p>{{event.name.text}}</p>
+				</div>
+				<div id="event_tickets" style="margin-left: 30px" >
+					{% if event.is_free%}
+						<div> Free </div>
+					{% else %}
+						<div>
+
+							{% if tickets.min_value_display == tickets.max_value_display %}
+								{{ tickets.min_value_display}}
+							{% else %}
+								{{ tickets.min_value_display}} - {{tickets.max_value_display}}
+							{% endif %}
+						</div>
+						{% if event.discount %}
+							<div> {{ event.discount }} % discount available for members </div>
+						{% else %}
+							<div> This event doesn't have any available discount </div>
+						{% endif %}
+					{% endif %}
 				</div>
 			</aside>
 			<main class="eds-media-card-content__content-container">
@@ -119,17 +157,17 @@
 		<hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
 		</div>
 		 <!-- Listing Body -->
-        <section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--fixed eds-l-pad-top-10" role="presentation">
+        <section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--fixed eds-l-pad-top-10" role="presentation" style="background-color: #ffffff; padding-bottom:20px;">
             <aside class="eds-media-card-content__image-container" >
                 <div class="eds-media-card-content__content">
-                    <div class="eds-media-card-content__content__principal" style="top: 0; position: absolute">
+                    <div class="eds-media-card-content__content__principal" style="top: 0; padding-left: 20px ">
                         <div class="eds-media-card-content__primary-content">
                             <div class="eds-field-styled__input" style="color:black;">
                             <strong>DESCRIPTION</strong>
                             </div>
                         </div>
                         <div class="eds-media-card-content__sub-content">
-                            <div class="eds-text-bs--fixed eds-l-mar-top-4" style="line-height: 200%">
+                            <div class="eds-text-bs--fixed eds-l-mar-top-4" style="line-height: 200%;">
                                 {% if event.description.text %}
                                     {{ event.description.text }}
                                 {% else %}
@@ -140,9 +178,13 @@
                     </div>
                 </div>
             </aside>
-            <main class="eds-media-card-content__content-container ">
+            <main class="eds-media-card-content__content-container">
                 <div class="eds-media-card-content__content">
-                    <div class="eds-media-card-content__content__principal" style="top: 40; position: absolute">
+                	{% if event.description.text %}
+                    <div class="eds-media-card-content__content__principal" style="top: 40; position: absolute;">
+                    {% else %}
+                    <div class="eds-media-card-content__content__principal" style="top: 40; position: static;">
+                    {% endif %}
                         <div class="eds-media-card-content__primary-content">
                             <div class="eds-media-card-content__primary-content" >
                             <div class="eds-field-styled__input" style="color:black">
@@ -175,5 +217,24 @@
                 </div>
             </main>
         </section>
-	</div>
+        <hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
+        <!-- Listing details -->
+		<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--absolute eds-l-pad-all-2 eds-align--center " role="presentation" style="background-color: #ffffff">
+			<div style="text-align: center">
+				<strong>{{event.name.text}}</strong>
+				<br>
+				<p>By</p>
+				<strong>{{ organizer.first_name }} {{ organizer.last_name }}</strong>
+				{% if event.venue_id %}
+				 	<p>in</p>
+				 	{% if venue.name %}
+				 		<strong>{{venue.name}}</strong>
+				 	{% endif %}
+                        <div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
+                            {{ venue.address.localized_address_display}}
+                        </div>
+				{% endif %}
+			</div>
+		</section>
+    </div>
 {% endblock %}
