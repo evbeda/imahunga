@@ -6,7 +6,7 @@
 		$('[data-toggle="popover"]').popover({
 			placement : 'bottom',
 			html : true,
-			content : '<input id="link" value={{ attendee_url }}></input> <button onclick="copy_text()"> <img style="height:15px"; src="{% static "images/icon.png" %}"> </button> <a href="{% url "landing_page_buyer" organizer.id %}" target=”_blank”> Go </a>'
+			content : '<input id="link" value={{ attendee_url }}></input> <button onclick="copy_text()"> <img style="height:15px"; src="{% static "images/icon.png" %}"> </button> <a href="{% url "landing_page_buyer" organizer.id %}" target="_blank"> Go </a>'
 		});
 	});
 	function copy_text(){
