@@ -14,12 +14,14 @@
 <body>
   <div class= "navbar-wrapper" style="background-color: #1E0A3C">
     <nav class="navbar navbar-expand-lg" id="navbar_whole">
-      <div class="navbar-header">
-        <a href="{% url 'index' %}" class="navbar-brand">
-          <img style="height:35px; " src="{% static 'images/Eventbrite_wordmark_white.png' %}" />
-        </a>
+      <div class="navbar-header" style="height: 35px;">
       </div>
       {% if user.is_authenticated %}
+       <div class="navbar-header" style="height: 35px;">
+        <a href="{% url 'index' %}" class="navbar-brand">
+            <img class="mr-5 ml-2 mt-1"style="width: 25px; height: 25px;"src="{% static 'images/home-button.png'%}">
+        </a>
+      </div>
       <div class="nav navbar-nav ml-auto">
         <a class="row" style="color: #FFFFFF" href="{% url 'logout' %}">
           <p class="mr-1">Logout</p>
@@ -36,19 +38,9 @@
   <footer class="eds-global-footer eds-g-grid l-mar-top-2" style="z-index: 99;">
     <h2 class="eds-is-hidden-accessible">Site Navigation</h2>
     <div class="eds-global-footer__base eds-g-grid eds-l-pad-hor-6">
-      <div class="eds-global-footer__copyright eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-vert-4">© 2018 Powered by Eventbrite EDA</div>
+      <div class="eds-global-footer__copyright eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-vert-4"></div>
       <div class="eds-global-footer__general-links eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-8-12 eds-text--center" data-spec="global-footer-general-links">
-        <ul class="eds-l-mar-all-0 eds-l-pad-hor-0">
-          <li class="eds-global-footer__link-bullet eds-global-footer__horizontal-link-item" data-spec="global-footer-link-item">
-            <a href="https://www.eventbrite.com/tos" class="eds-global-footer__link">Terms</a>
-          </li>
-          <li class="eds-global-footer__link-bullet eds-global-footer__horizontal-link-item" data-spec="global-footer-link-item">
-            <a href="https://www.eventbrite.com/privacypolicy" class="eds-global-footer__link">Privacy</a>
-          </li>
-          <li class="eds-global-footer__horizontal-link-item" data-spec="global-footer-link-item">
-            <a href="https://www.eventbrite.com/cookies" class="eds-global-footer__link">Cookies</a>
-          </li>
-        </ul>
+          © 2018 Powered by Imahunga
       </div>
       <div class="eds-global-footer__region eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-top-4 eds-l-pad-bot-3">
         <div class="eds-global-footer__region-selector">
