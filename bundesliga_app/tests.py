@@ -1127,13 +1127,14 @@ class ListingPageEventViewTest(TestCase):
             ticket_values,
         )
 
+
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.views.get_event_tickets_eb_api', side_effect=get_mock_event_tickets_api_paid_inverse_position)
-    def test_get_tickets_paid_event(self,
-                                    mock_get_venue_eb_api,
-                                    mock_get_event_eb_api,
-                                    mock_get_event_tickets_eb_api,
-                                    ):
+    def test_get_tickets_paid_event_inverse_position(self,
+                                                     mock_get_venue_eb_api,
+                                                     mock_get_event_eb_api,
+                                                     mock_get_event_tickets_eb_api,
+                                                    ):
         self.response = self.client.get(
             '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
