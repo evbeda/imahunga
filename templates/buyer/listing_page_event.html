@@ -23,6 +23,7 @@
 			  }
 		});
 	</script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
 </head>
 <body style=" background: linear-gradient(to bottom,#EBDCE6 20%, #EEEDF2 80% ); background-repeat: no-repeat;">
 	<div class="container mt-5 mb-3 justify-content-center">
@@ -110,6 +111,10 @@
 				</main>
 			</section>
 		</div>
+		<!-- Modal Container -->
+		<div class="modal" id="modal">
+			HOLA MUNDO!!
+		</div>
 		<!-- Listing Get Discount -->
 		<div class="fixedElement" style="background-color: #ffffff">
 		<hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
@@ -143,8 +148,8 @@
 					<div class="eds-media-card-content__content__principal">
 						<div class="eds-media-card-content__primary-content">
 							<div id="get_discount_box" class="eds-media-card-content__primary-content">
-									{%if event.discount %}
-		                                <button class="eds-btn eds-btn--button eds-btn--fill" type="button" style="width: 100%">
+									{% if event.discount %}
+		                                <button data-toggle="modal" data-target="#modal" href="{% url 'get_discount' organizer.id event_id %}" class="eds-btn eds-btn--button eds-btn--fill" type="button" style="width: 100%">
 												Get Discount
 		                                </button>
                                     {% else %}
@@ -261,4 +266,17 @@
 		</section>
     </div>
 </body>
+<script>
+$('#modal').on('show.bs.modal', function (event) {
+    var modal = $('#modal')
+    $.ajax({
+        url: "{% url 'get_discount' organizer.id event_id %}",
+        context: document.body
+    }).done(function(response) {
+        modal.html(response);
+    });
+})
+</script>
+
 {% endblock %}
+

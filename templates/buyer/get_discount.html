@@ -1,0 +1,27 @@
+{% extends '../shared/base.html' %}
+{% block content %}
+	{% load static %}
+	<div class="modal-dialog" role="document">
+		<form action="" method="POST">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Get Discount</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label class="font-weight-bold">Enter your member number</label>
+						<div  class="input-group input-group-lg">
+							{{form.member_number}}
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<input type="submit" class="eds-btn eds-btn--button eds-btn--fill" value="OK" />
+				</div>
+			</div>
+		</form>
+	</div>
+{% endblock %}
