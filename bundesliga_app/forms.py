@@ -26,3 +26,15 @@ class DiscountForm(forms.Form):
 
     def __init__(self, data=None, *args, **kwargs):
         super(DiscountForm, self).__init__(data, *args, **kwargs)
+
+
+class GetDiscountForm(forms.Form):
+    member_number = forms.IntegerField(required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'form-control',
+            'placeholder': 'Insert your member number here'
+        }
+    ))
+
+    def __init__(self, data=None, *args, **kwargs):
+        super(GetDiscountForm, self).__init__(data, *args, **kwargs)

@@ -7,6 +7,7 @@ from .views import (
     DeleteDiscountView,
     LandingPageBuyerView,
     ListingPageEventView,
+    GetDiscountView,
 )
 
 urlpatterns = [
@@ -18,4 +19,5 @@ urlpatterns = [
     url(r'^events_discount/(?P<event_id>[0-9]+)/(?P<discount_id>[0-9]+)/$', ManageDiscount.as_view(), name='modify_discount'),
     url(r'^landing_page/(?P<organizer_id>[0-9]+)/$', LandingPageBuyerView.as_view(), name='landing_page_buyer'),
     url(r'^landing_page/(?P<organizer_id>[0-9]+)/event/(?P<event_id>[0-9]+)/$', ListingPageEventView.as_view(), name='listing_page_event'),
+    url(r'^landing_page/(?P<organizer_id>[0-9]+)/event/(?P<event_id>[0-9]+)/get_discount/$', GetDiscountView.as_view(), name='get_discount'),
 ]

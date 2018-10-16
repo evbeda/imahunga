@@ -17,7 +17,10 @@ from .utils import (
     EventAccessMixin,
     DiscountAccessMixin,
 )
-from .forms import DiscountForm
+from .forms import (
+    DiscountForm,
+    GetDiscountForm,
+)
 from django.views.generic.edit import (
     FormView,
     DeleteView,
@@ -440,4 +443,28 @@ class ListingPageEventView(TemplateView):
             context['organizer'],
             context['event']['id'],
         )
+        return context
+
+
+class GetDiscountView(FormView):
+    """ This view allows the user to get a discount """
+
+    template_name = 'buyer/get_discount.html'
+    form_class = GetDiscountForm
+
+    def post(self, request, *args, **kwargs):
+        form = GetDiscountForm(
+            request.POST
+        )
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(GetDiscountView, self).get_context_data(**kwargs)
+        context['organizer'] = get_user_model().objects.get(
+            id=self.kwargs['organizer_id'])
+        context['event_id'] = self.kwargs['event_id']
         return context
