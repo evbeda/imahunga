@@ -11,12 +11,12 @@
 		$(window).scroll(function(e){
 			  var $el = $('.fixedElement');
 			  var isPositionFixed = ($el.css('position') == 'fixed');
-			  if ($(this).scrollTop() > 400 && !isPositionFixed){
+			  if ($(this).scrollTop() > 450 && !isPositionFixed){
 			    $el.css({'position': 'fixed', 'top': '0px', 'width':'75%', 'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)','z-index':'100'});
 			    	$("#event_name_box").show()
 			    	$("#event_tickets").show()
 			  }
-			  if ($(this).scrollTop() < 400 && isPositionFixed){
+			  if ($(this).scrollTop() < 450 && isPositionFixed){
 			    $el.css({'position': 'static', 'top': '0px','width':'100%', 'box-shadow':'none' });
 			    $("#event_name_box").hide()
 			    $("#event_tickets").hide()
@@ -206,25 +206,44 @@
                                 {{ event.start_date | date:"H:i A"}} - {{ event.end_date | date:"H:i A"}}
                             </div>
                         </div>
-                        {% if event.venue_id %}
-                        <div class="eds-media-card-content__sub-content eds-l-mar-top-4">
-                            <div class="eds-field-styled__input" style="color:black">
-                            <strong>LOCATION</strong>
-                            </div>
-                            {% for data_address in venue.address.localized_multi_line_address_display %}
-                            <div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
-                                {{ data_address }}
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-
                     </div>
                 </div>
             </main>
         </section>
         <hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
+        <!-- Maps -->
+        {% if event.venue_id %}
+        <div style="background-color: #ffffff; padding-left: 20px; padding-top: 10px">
+	        <div class="eds-align--left">
+	            <div class="eds-media-card-content__sub-content">
+	                <div class="eds-field-styled__input" style="color:black;">
+	                <strong>LOCATION</strong>
+	                {% if venue.name %}
+	                    <div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
+	                        {{ venue.name}}
+	                    </div>
+	                {% endif %}
+	                </div>
+	                {% for data_address in venue.address.localized_multi_line_address_display %}
+	                <div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
+	                    {{ data_address }}
+	                </div>
+	                {% endfor %}
+	            </div>
+			</div>
+		</div>
+       		<div class="eds-align--center" style="background-color: #ffffff; padding-top: 10px; padding-bottom: 10px">
+	        	{% if venue.name %}
+	        		<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.name}},{{venue.address.city}},{{venue.address.country}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.name}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="Event's venue map" style="">
+	        	{% elif venue.address.localized_address_display %}
+					<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.address.localized_address_display}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.address.localized_address_display}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="Event's venue map" style="">
+	        	{% else %}
+	        		<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.address.city}},{{venue.address.country}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.address.city}},{{venue.address.country}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="Event's venue map" style="">
+	        	{% endif %}
+	        </div>
+        {% endif %}
         <!-- Listing details -->
+        <hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
 		<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--absolute eds-l-pad-all-2 eds-align--center " role="presentation" style="background-color: #ffffff">
 			<div style="text-align: center">
 				<strong>{{event.name.text}}</strong>
