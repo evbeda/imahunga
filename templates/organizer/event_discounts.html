@@ -25,12 +25,15 @@
 					<h5>{{discount.name}}</h5>
 					<p class="eds-text-bm--fixed eds-text-color--grey-700 ">{{discount.value}} % off</p>
 				</div>
+				<div class="modal" id="modal">
+
+				</div>
 				<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
 					<p>
 						<a href="{% url 'modify_discount' id discount.id %}">
 							<img style="height:25px"; src="{% static 'images/settings.png' %}">
 						</a>&nbsp;&nbsp;&nbsp;
-						<a href="{% url 'delete_discount' id discount.id %}">
+						<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' id discount.id %}">
 							<img style="height:25px"; src="{% static 'images/garbage.png' %}">
 						</a>
 					</p>
@@ -39,6 +42,17 @@
 		</div>
 	</div>
 </div>
+<script>
+		$('#modal').on('show.bs.modal', function (event) {
+		    var modal = $('#modal')
+		    $.ajax({
+		        url: "{% url 'delete_discount' id discount.id %}",
+		        context: document.body
+		    }).done(function(response) {
+		        modal.html(response);
+		    });
+		});
+</script>
 {% endfor %}
 {% else %}
 <div class="eds-empty-state eds-align--center">

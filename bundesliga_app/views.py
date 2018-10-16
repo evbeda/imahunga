@@ -266,9 +266,12 @@ class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
 @method_decorator(login_required, name='dispatch')
 class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
     """ This is the delete discount view """
-
     model = Discount
     template_name = 'organizer/delete_discount.html'
+
+    # def delete(self, *args, **kwargs):
+    #     import ipdb; ipdb
+    #     Discount.objects.get(id=self.kwargs['discount_id']).delete()
 
     def get_success_url(self):
         return reverse_lazy(
@@ -277,6 +280,7 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
         )
 
     def get_object(self):
+        # import ipdb;ipdb.set_trace()
         return self.get_discount()
 
     def get_context_data(self, **kwargs):
