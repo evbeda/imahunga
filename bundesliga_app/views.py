@@ -431,6 +431,7 @@ class ListingPageEventView(TemplateView):
         context['event'] = self._get_events(
             context['organizer'],
         )
+        context['event']['url'] = context['event']['url'] + '#tickets'
         context['venue'] = self._get_venue(
             context['organizer'],
             context['event']['venue_id'],

@@ -145,13 +145,15 @@
 					<div class="eds-media-card-content__content__principal">
 						<div class="eds-media-card-content__primary-content">
 							<div id="get_discount_box" class="eds-media-card-content__primary-content">
-								<button class="eds-btn eds-btn--button eds-btn--fill" type="button" style="width: 100%">
 									{%if event.discount %}
+                                <button class="eds-btn eds-btn--button eds-btn--fill" type="button" onclick="location.href='{{ event.url }}'" style="width: 100%">
 										Get Discount
-									{% else %}
-										Tickets
-									{% endif %}
-								</button>
+                                </button>
+                                    {% else %}
+                                <button class="eds-btn eds-btn--button eds-btn--fill" type="button" onclick="location.href='{{ event.url }}'" style="width: 100%">
+                                     Tickets
+                                </button>
+                                    {% endif %}
 							</div>
 						</div>
 					</div>
