@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     '.herokuapp.com',
+    'eventbrite.com',
 ]
 
 
@@ -156,6 +157,9 @@ def get_env_variable(var_name):
 SOCIAL_AUTH_EVENTBRITE_KEY = get_env_variable('SOCIAL_AUTH_EVENTBRITE_KEY')
 SOCIAL_AUTH_EVENTBRITE_SECRET = get_env_variable(
     'SOCIAL_AUTH_EVENTBRITE_SECRET',
+)
+API_KEY_DEUTSCHER_SPORTAUSWEIS = get_env_variable(
+    'API_KEY_DEUTSCHER_SPORTAUSWEIS'
 )
 
 LOGIN_REDIRECT_URL = '/'
