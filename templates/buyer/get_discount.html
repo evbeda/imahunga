@@ -2,7 +2,8 @@
 {% block content %}
 	{% load static %}
 	<div class="modal-dialog" role="document">
-		<form action="" method="POST">{% csrf_token %}
+		<form action="{% url 'get_discount' organizer.id event_id %}" method="post">
+			{% csrf_token %}
 			<div class="modal-content">
 				<div class="modal-header">
 					<h4 class="modal-title">Get Discount</h4>

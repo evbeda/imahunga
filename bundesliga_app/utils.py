@@ -113,3 +113,21 @@ def get_event_tickets_eb_api(token, event_id):
             '/events/{}/ticket_classes/'.format(event_id)
         )['ticket_classes']
     ]
+
+
+def post_discount_code_to_eb(token, event_id, discount_code, discount_value):
+    eventbrite = Eventbrite(token)
+    organization_id = get_user_eb_api(token)['id']
+    data = {
+        "discount": {
+            "code": discount_code,
+            "event_id": event_id,
+            "type": "coded",
+            "percent_off": discount_value,
+            "quantity_available": 1
+        }
+    }
+    return eventbrite.post(
+        '/organizations/{}/discounts/'.format(organization_id),
+        data
+    )

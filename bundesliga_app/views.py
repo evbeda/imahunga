@@ -4,8 +4,9 @@ from django.views.generic.base import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from .models import Discount
 from .utils import (
     get_auth_token,
@@ -16,6 +17,7 @@ from .utils import (
     get_event_tickets_eb_api,
     EventAccessMixin,
     DiscountAccessMixin,
+    post_discount_code_to_eb,
 )
 from .forms import (
     DiscountForm,
@@ -281,10 +283,6 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
     model = Discount
     template_name = 'organizer/delete_discount.html'
 
-    # def delete(self, *args, **kwargs):
-    #     import ipdb; ipdb
-    #     Discount.objects.get(id=self.kwargs['discount_id']).delete()
-
     def get_success_url(self):
         return reverse_lazy(
             'events_discount',
@@ -468,15 +466,33 @@ class GetDiscountView(FormView):
     template_name = 'buyer/get_discount.html'
     form_class = GetDiscountForm
 
+
     def post(self, request, *args, **kwargs):
         form = GetDiscountForm(
             request.POST
         )
 
         if form.is_valid():
+            self._generate_discount_code(1)
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+
+    def get_success_url(self):
+        return self.url
+
+    def _generate_discount_code(self, member_number):
+        event = Event.objects.get(
+            id=self.kwargs['event_id'])
+        organizer = self.get_context_data()['organizer']
+        discount_code = event.event_id + '605078100067547'
+        discount = Discount.objects.get(
+            event_id=event.id
+        )
+        eb_event = get_event_eb_api(get_auth_token(organizer), event.event_id)
+        created_discount= post_discount_code_to_eb(get_auth_token(organizer), event.event_id, discount_code, discount.value)
+        event_name = eb_event['name']['text'].replace(' ', '-').lower()
+        self.url = 'https://www.eventbrite.com/e/' + eb_event['id'] + '-tickets-' + event.event_id + '?discount=' + discount_code + '#tickets'
 
     def get_context_data(self, **kwargs):
         context = super(GetDiscountView, self).get_context_data(**kwargs)
