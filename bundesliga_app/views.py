@@ -109,14 +109,26 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
         for event_id in request_body_elements:
             event = event_id.split('=')
             events_id.append(event[0])
-        # See if had unselected any event active
+        """
+            See if had unselected any event active
+            and delete every discount that has associated
+        """
         db_selected_ids = []
         for event in Event.objects.filter(organizer=self.request.user).filter(is_active=True):
             db_selected_ids.append(event.event_id)
         for db_event_id in db_selected_ids:
             if db_event_id not in events_id:
-                Event.objects.filter(
-                    event_id=db_event_id).update(is_active=False)
+                event_in_db = Event.objects.filter(
+                    event_id=db_event_id)
+                event_in_db.update(is_active=False)
+                event_in_db = event_in_db.get()
+                event_discounts = Discount.objects.filter(
+                    event=event_in_db
+                )
+                if event_discounts:
+                    Discount.objects.filter(
+                            event=event_in_db
+                        ).delete()
         # For each event in the api, verify if the selected ones are corrects
         for event_in_api in events:
             # If the event id is an event of organizer

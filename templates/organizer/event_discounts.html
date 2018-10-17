@@ -1,6 +1,9 @@
 {% extends '../shared/base.html' %}
 {% load static %}
 {% block content %}
+<div class="mt-5 row">
+    <p><a href="{% url 'index' %}"> Home </a>&nbsp;&nbsp;>&nbsp;&nbsp;Event discounts</p>
+</div>
 <div>
 	<h1 class="mt-2">{{event_name}}'s Discounts</h1>
 	<hr>
@@ -33,8 +36,8 @@
 						<a href="{% url 'modify_discount' id discount.id %}">
 							<img style="height:25px"; src="{% static 'images/settings.png' %}">
 						</a>&nbsp;&nbsp;&nbsp;
-						<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' id discount.id %}">
-							<img style="height:25px"; src="{% static 'images/garbage.png' %}">
+						<a href="{% url 'delete_discount' id discount.id %}">
+							<img style="height:25px"; src="{% static 'images/garbage-can.png' %}">
 						</a>
 					</p>
 				</div>

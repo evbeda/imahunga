@@ -723,6 +723,39 @@ class SelectEventsViewTest(TestBase):
             event_in_db.get().is_active
         )
 
+    def test_post_event_update_unselect_with_discount(self,
+                                        mock_get_events_user_eb_api,
+                                        mock_get_user_eb_api,
+                                        ):
+        """ One event for the organizer, a "selected" event
+        with the same event_id of the mocked event api eb """
+        event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+            event_id=event_mock_api_eb['id'],
+        )
+        self.discount = DiscountFactory(
+            event=self.event,
+        )
+        self.response = self.client.post(
+            path='/select_events/',
+        )
+        event_in_db = Event.objects.filter(event_id=event_mock_api_eb['id'])
+        discount_in_db = Discount.objects.filter(event=self.event)
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(event_in_db),
+            1,
+        )
+        self.assertFalse(
+            event_in_db.get().is_active
+        )
+        self.assertEqual(
+            len(discount_in_db),
+            0,
+        )
+
 
 class EventAccessMixinTest(TestBase):
     class DummyView(TemplateView, EventAccessMixin):
