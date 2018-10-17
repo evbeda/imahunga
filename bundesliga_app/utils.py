@@ -7,6 +7,9 @@ from .models import (
 )
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
+from bundesliga_site.settings import API_KEY_DEUTSCHER_SPORTAUSWEIS
+from requests import request
+from json import loads
 
 
 class EventAccessMixin(object):
@@ -131,3 +134,33 @@ def post_discount_code_to_eb(token, event_id, discount_code, discount_value):
         '/organizations/{}/discounts/'.format(organization_id),
         data
     )
+
+
+def validate_member_number_ds(member_number):
+    """
+    This method will receive a possible member number of Deutscher Sportausweis
+    and return a json with the info
+    """
+    url = "https://admin.sportausweis.de/DSARestWs/RestController.php"
+
+    querystring = {
+        "request": "validateCard",
+        "CardId": member_number,
+    }
+
+    headers = {
+        'APIKEY': API_KEY_DEUTSCHER_SPORTAUSWEIS,
+        'Accept': "application/json",
+    }
+
+    response = request(
+        "GET",
+        url,
+        headers=headers,
+        params=querystring
+    )
+    if response.status_code == 200:
+        # Return the text of response as JSON
+        return loads(response.text)
+    else:
+        return 'Invalid Request'

@@ -2,8 +2,7 @@
 {% block content %}
 	{% load static %}
 	<div class="modal-dialog" role="document">
-		<form action="{% url 'get_discount' organizer.id event_id %}" method="post">
-			{% csrf_token %}
+		<form id="get_discount_form" action="{% url 'get_discount' organizer.id event_id %}" method="POST">{% csrf_token %}
 			<div class="modal-content">
 				<div class="modal-header">
 					<h4 class="modal-title">Get Discount</h4>
@@ -12,17 +11,46 @@
 					</button>
 				</div>
 				<div class="modal-body">
+					{% if form.errors %}
+						{% for field in form %}
+							{% for error in field.errors %}
+								<div class="alert alert-danger">
+									<strong>{{ error|escape }}</strong>
+								</div>
+							{% endfor %}
+						{% endfor %}
+						{% for error in form.non_field_errors %}
+							<div class="alert alert-danger">
+								<strong>{{ error|escape }}</strong>
+							</div>
+						{% endfor %}
+					{% endif %}
 					<div class="form-group">
 						<label class="font-weight-bold">Enter your member number</label>
 						<div  class="input-group input-group-lg">
-							{{form.member_number}}
+							{{ form.member_number }}
 						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
-					<input type="submit" class="eds-btn eds-btn--button eds-btn--fill" value="OK" />
+					{% if form.errors %}
+						<button class="eds-btn eds-btn--button eds-btn--fill" type="button" onclick="window.open('{{ event.url }}', '_blank')">
+						Continue without discount
+						</button>
+						<input type="submit" class="eds-btn eds-btn--button eds-btn--fill" value="Retry"/>
+					{% else %}
+						<input type="submit" class="eds-btn eds-btn--button eds-btn--fill" value="OK"/>
+					{% endif %}
 				</div>
 			</div>
 		</form>
 	</div>
+	 <!-- <script>
+        var form_options = {
+            target: '#modal',
+            success: function(response) {
+            }
+        }
+        $('#get_discount_form').ajaxForm(form_options);
+        </script> -->
 {% endblock %}
