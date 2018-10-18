@@ -56,6 +56,107 @@ MOCK_DS_API_INVALID_NUMBER._content = b'{"ERROR": -1}'
 MOCK_DS_API_INVALID_REQUEST = Response()
 MOCK_DS_API_INVALID_REQUEST.status_code = 400
 
+# Mock get discount code doesnt exists in EB
+MOCK_DISCOUNT_DOESNT_EXIST_IN_EB = {
+    "discounts": [],
+    "pagination": {
+        "object_count": 0,
+        "page_number": 1,
+        "page_size": 50,
+        "page_count": 1,
+        "has_more_items": False
+    }
+}
+
+# Mock response post discount code to EB
+MOCK_POST_DISCOUNT_CODE_TO_EB = {
+    "resource_uri": "https://www.eventbriteapi.com/v3/discounts/380502040/",
+    "amount_off": None,
+    "code": "12345",
+    "discount_type": "coded",
+    "end_date": "2018-01-01T10:00:00",
+    "end_date_relative": None,
+    "hold_ids": None,
+    "id": "380502040",
+    "percent_off": "15.00",
+    "quantity_available": 1,
+    "quantity_sold": 0,
+    "start_date": "2018-01-01T10:00:00",
+    "start_date_relative": None,
+    "ticket_class_ids": None,
+    "ticket_ids": None,
+    "type": "coded",
+    "event_id": "50751872216",
+    "ticket_group_id": None
+}
+
+# Mock get discount code exists in EB - without usage
+MOCK_DISCOUNT_EXISTS_IN_EB_NO_USAGE = {
+    "discounts": [
+        {
+            "resource_uri": "https://www.eventbriteapi.com/v3/discounts/380379915/",
+            "amount_off": None,
+            "code": "5680302082",
+            "discount_type": "coded",
+            "end_date": "2018-01-01T10:00:00",
+            "end_date_relative": None,
+            "hold_ids": None,
+            "id": "380379915",
+            "percent_off": "15.00",
+            "quantity_available": 1,
+            "quantity_sold": 0,
+            "start_date": "2018-01-01T10:00:00",
+            "start_date_relative": None,
+            "ticket_class_ids": None,
+            "ticket_ids": None,
+            "type": "coded",
+            "event_id": "50637782972",
+            "ticket_group_id": None
+        }
+    ],
+    "pagination": {
+        "object_count": 1,
+        "page_number": 1,
+        "page_size": 50,
+        "page_count": 1,
+        "has_more_items": False
+    }
+}
+
+# Mock get discount code exists in EB - with usage
+
+MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE = {
+    "discounts": [
+        {
+            "resource_uri": "https://www.eventbriteapi.com/v3/discounts/380379915/",
+            "amount_off": None,
+            "code": "5680302082",
+            "discount_type": "coded",
+            "end_date": "2018-01-01T10:00:00",
+            "end_date_relative": None,
+            "hold_ids": None,
+            "id": "380379915",
+            "percent_off": "15.00",
+            "quantity_available": 1,
+            "quantity_sold": 1,
+            "start_date": "2018-01-01T10:00:00",
+            "start_date_relative": None,
+            "ticket_class_ids": None,
+            "ticket_ids": None,
+            "type": "coded",
+            "event_id": "50637782972",
+            "ticket_group_id": None
+        }
+    ],
+    "pagination": {
+        "object_count": 1,
+        "page_number": 1,
+        "page_size": 50,
+        "page_count": 1,
+        "has_more_items": False
+    }
+}
+
 # A random event return value of EB API '/events/:id/'
 
 MOCK_EVENT_API = {

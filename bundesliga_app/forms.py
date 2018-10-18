@@ -64,5 +64,8 @@ class GetDiscountForm(forms.Form):
                 self.add_error('member_number', 'Invalid number')
                 return False
 
+    def discount_already_used(self):
+        self.add_error('member_number', 'You already used the discount for this event')
+
     def __init__(self, data=None, *args, **kwargs):
         super(GetDiscountForm, self).__init__(data, *args, **kwargs)
