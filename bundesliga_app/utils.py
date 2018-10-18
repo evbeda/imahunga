@@ -17,6 +17,7 @@ class EventAccessMixin(object):
     This mixin deny the access to the event
     if the logged user is not the owner of the event
     """
+
     def get_event(self):
         event = get_object_or_404(
             Event,
@@ -34,6 +35,7 @@ class DiscountAccessMixin(EventAccessMixin):
     if the logged user is not the owner of the discount
     also the access to the event is prohibited
     """
+
     def get_discount(self):
         discount = get_object_or_404(
             Discount,
@@ -45,7 +47,6 @@ class DiscountAccessMixin(EventAccessMixin):
 
 
 def get_auth_token(user):
-
     """
     This method will receive a user and
     returns its repesctive social_auth token
@@ -116,6 +117,19 @@ def get_event_tickets_eb_api(token, event_id):
             '/events/{}/ticket_classes/'.format(event_id)
         )['ticket_classes']
     ]
+
+
+def check_discount_code_in_eb(token, event_id, discount_code):
+    eventbrite = Eventbrite(token)
+    organization_id = get_user_eb_api(token)['id']
+    return eventbrite.get(
+        '/organizations/{}/discounts/?scope={}&event_id={}&code={}'.format(
+            organization_id,
+            'event',
+            event_id,
+            discount_code,
+        )
+    )
 
 
 def post_discount_code_to_eb(token, event_id, discount_code, discount_value):

@@ -20,6 +20,7 @@ from .utils import (
     EventAccessMixin,
     DiscountAccessMixin,
     post_discount_code_to_eb,
+    check_discount_code_in_eb,
 )
 from .forms import (
     DiscountForm,
@@ -499,29 +500,53 @@ class GetDiscountView(FormView):
     def get_success_url(self):
         return self.url
 
-    def _generate_discount_code(self, member_number):
+    def _generate_discount_code(self, member_number, form):
         event = Event.objects.get(
             id=self.kwargs['event_id'])
         organizer = self.get_context_data()['organizer']
+        organizer_token = get_auth_token(organizer)
         discount_code = event.event_id + '-' + member_number
         discount = Discount.objects.get(
             event_id=event.id
         )
-        eb_event = get_event_eb_api(get_auth_token(organizer), event.event_id)
-        post_discount_code_to_eb(
-            get_auth_token(organizer),
+        eb_event = self.get_context_data()['event']
+        #Verify if discount already exists
+        discount_code_eb_api = check_discount_code_in_eb(
+            organizer_token,
             event.event_id,
             discount_code,
-            discount.value,
         )
-        event_name = eb_event['name']['text'].replace(' ', '-').lower()
-        self.url = 'https://www.eventbrite.com/e/' + eb_event['id'] + '-tickets-' + event.event_id + '?discount=' + discount_code + '#tickets'
+
+        #If exists
+        if len(discount_code_eb_api['discounts']) == 0:
+            post_discount_code_to_eb(
+                organizer_token,
+                event.event_id,
+                discount_code,
+                discount.value,
+            )
+            self._generate_url(eb_event, event.event_id, discount_code)
+            return True
+        else:
+            if discount_code_eb_api['discounts'][0]['quantity_sold'] == 0:
+                self._generate_url(eb_event, event.event_id, discount_code)
+                return True
+            else:
+                return False
+
+    def _generate_url(self, eb_event, event_id, discount_code):
+        self.url = 'https://www.eventbrite.com/e/' + eb_event['id'] + '-tickets-' + event_id + '?discount=' + discount_code + '#tickets'
 
     def form_valid(self, form):
-        self._generate_discount_code(
-            str(form.cleaned_data['member_number'])
-        )
-        return super(GetDiscountView, self).form_valid(form)
+        if self._generate_discount_code(
+            str(form.cleaned_data['member_number']),
+            form
+        ):
+            return super(GetDiscountView, self).form_valid(form)
+        else:
+            form.discount_already_used()
+            return super(GetDiscountView, self).form_invalid(form)
+
 
     def get_context_data(self, **kwargs):
         context = super(GetDiscountView, self).get_context_data(**kwargs)
