@@ -27,12 +27,18 @@ from bundesliga_app.utils import (
     get_event_eb_api,
     get_venue_eb_api,
     get_event_tickets_eb_api,
+    post_discount_code_to_eb,
+    validate_member_number_ds,
 )
 from .models import (
     Discount,
     Event,
 )
+from .forms import GetDiscountForm
 from bundesliga_app.mocks import (
+    MOCK_DS_API_VALID_NUMBER,
+    MOCK_DS_API_INVALID_NUMBER,
+    MOCK_DS_API_INVALID_REQUEST,
     MOCK_EVENT_API,
     MOCK_USER_API,
     MOCK_LIST_EVENTS_API,
@@ -135,6 +141,46 @@ class UtilsApiEBTest(TestCase):
         self.assertEquals(
             mock_api_call.call_args_list[0][0][0],
             '/events/1/ticket_classes/',
+        )
+
+    @patch('bundesliga_app.utils.Eventbrite.post', return_value={'id': '1'})
+    @patch('bundesliga_app.views.get_user_eb_api', return_value=MOCK_USER_API)
+    def test_post_discount_code_to_eb(self,
+                                      mock_get_user_eb_api,
+                                      mock_api_post_call,
+                                      mock_api_get_call):
+        result = post_discount_code_to_eb('TEST', '1', '1', '20')
+        mock_api_post_call.assert_called_once()
+        self.assertEquals(result['id'], '1')
+
+
+class UtilsApiDSTest(TestCase):
+    @patch('bundesliga_app.utils.request', return_value=MOCK_DS_API_VALID_NUMBER)
+    def test_validate_member_number_ds(self, mock_api_call):
+        CardId = '1'
+        result = validate_member_number_ds(CardId)
+        mock_api_call.assert_called_once()
+        self.assertEquals(
+            mock_api_call.call_args_list[0][1]['params']['CardId'],
+            CardId,
+        )
+        self.assertEquals(
+            result['Kartentyp'],
+            "2"
+        )
+
+    @patch('bundesliga_app.utils.request', return_value=MOCK_DS_API_INVALID_REQUEST)
+    def test_invalid_validate_member_number_ds(self, mock_api_call):
+        CardId = '1'
+        result = validate_member_number_ds(CardId)
+        mock_api_call.assert_called_once()
+        self.assertEquals(
+            mock_api_call.call_args_list[0][1]['params']['CardId'],
+            CardId,
+        )
+        self.assertEquals(
+            result,
+            'Invalid Request'
         )
 
 
@@ -724,9 +770,9 @@ class SelectEventsViewTest(TestBase):
         )
 
     def test_post_event_update_unselect_with_discount(self,
-                                        mock_get_events_user_eb_api,
-                                        mock_get_user_eb_api,
-                                        ):
+                                                      mock_get_events_user_eb_api,
+                                                      mock_get_user_eb_api,
+                                                      ):
         """ One event for the organizer, a "selected" event
         with the same event_id of the mocked event api eb """
         event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
@@ -1160,14 +1206,13 @@ class ListingPageEventViewTest(TestCase):
             ticket_values,
         )
 
-
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.views.get_event_tickets_eb_api', side_effect=get_mock_event_tickets_api_paid_inverse_position)
     def test_get_tickets_paid_event_inverse_position(self,
                                                      mock_get_venue_eb_api,
                                                      mock_get_event_eb_api,
                                                      mock_get_event_tickets_eb_api,
-                                                    ):
+                                                     ):
         self.response = self.client.get(
             '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
@@ -1182,3 +1227,52 @@ class ListingPageEventViewTest(TestCase):
             self.response.context['tickets'],
             ticket_values,
         )
+
+
+class GetDiscountFormTest(TestCase):
+
+    def test_invalid_form_is_empty(
+            self,
+    ):
+        form = GetDiscountForm()
+        result = form.is_valid()
+        self.assertFalse(result)
+
+    @patch(
+        'bundesliga_app.forms.validate_member_number_ds',
+        return_value=MOCK_DS_API_VALID_NUMBER.text,
+    )
+    def test_valid_member_number(
+            self,
+            mock_validate_member_number_ds):
+        form = GetDiscountForm({
+            'member_number': '1234',
+        })
+        result = form.is_valid()
+        self.assertTrue(result)
+
+    @patch(
+        'bundesliga_app.forms.validate_member_number_ds',
+        return_value=MOCK_DS_API_INVALID_NUMBER.text,
+    )
+    def test_invalid_member_number(
+            self,
+            mock_validate_member_number_ds):
+        form = GetDiscountForm({
+            'member_number': '1234',
+        })
+        result = form.is_valid()
+        self.assertFalse(result)
+
+    @patch(
+        'bundesliga_app.forms.validate_member_number_ds',
+        return_value='Invalid Request',
+    )
+    def test_invalid_request(
+            self,
+            mock_validate_member_number_ds):
+        form = GetDiscountForm({
+            'member_number': '1234',
+        })
+        result = form.is_valid()
+        self.assertFalse(result)

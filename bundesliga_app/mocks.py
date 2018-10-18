@@ -1,4 +1,5 @@
 # Put the mocks for tests here
+from requests.models import Response
 import copy
 
 
@@ -28,12 +29,32 @@ def get_mock_event_tickets_api_paid(*args, **kwargs):
     del MOCK_EVENT_TICKETS_PAID[0][0]
     return MOCK_EVENT_TICKETS_PAID[0]
 
+
 def get_mock_event_tickets_api_paid_inverse_position(*args, **kwargs):
     MOCK_EVENT_TICKETS_PAID = copy.deepcopy(MOCK_EVENT_TICKETS)
     # Delete free ticket from MOCK TICKETS
     del MOCK_EVENT_TICKETS_PAID[0][0]
     # new mock [ TICKET[1], TICKET[0]], so we inverse the order
     return [MOCK_EVENT_TICKETS_PAID[0][1], MOCK_EVENT_TICKETS_PAID[0][0]]
+
+# Deutscher Sportausweis MOCKS
+# Mock for valid number
+
+
+MOCK_DS_API_VALID_NUMBER = Response()
+MOCK_DS_API_VALID_NUMBER.status_code = 200
+MOCK_DS_API_VALID_NUMBER._content = b'{"Kartentyp": "2","Version": "00"}'
+
+# Mock for invalid number
+
+MOCK_DS_API_INVALID_NUMBER = Response()
+MOCK_DS_API_INVALID_NUMBER.status_code = 200
+MOCK_DS_API_INVALID_NUMBER._content = b'{"ERROR": -1}'
+
+# Mock for invalid request
+
+MOCK_DS_API_INVALID_REQUEST = Response()
+MOCK_DS_API_INVALID_REQUEST.status_code = 400
 
 # A random event return value of EB API '/events/:id/'
 
