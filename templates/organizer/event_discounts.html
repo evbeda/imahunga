@@ -36,7 +36,7 @@
 						<a href="{% url 'modify_discount' id discount.id %}">
 							<img style="height:25px"; src="{% static 'images/settings.png' %}">
 						</a>&nbsp;&nbsp;&nbsp;
-						<a href="{% url 'delete_discount' id discount.id %}">
+						<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' id discount.id %}">
 							<img style="height:25px"; src="{% static 'images/garbage-can.png' %}">
 						</a>
 					</p>
