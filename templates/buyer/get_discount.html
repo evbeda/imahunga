@@ -11,13 +11,19 @@
 					</button>
 				</div>
 				<div class="modal-body">
+					<span id="errors">
+					</span>
 					{% if form.errors %}
 						{% for field in form %}
+							<span id="errors_form">
+
+
 							{% for error in field.errors %}
 								<div class="alert alert-danger">
 									<strong>{{ error|escape }}</strong>
 								</div>
 							{% endfor %}
+							</span>
 						{% endfor %}
 						{% for error in form.non_field_errors %}
 							<div class="alert alert-danger">
@@ -33,24 +39,30 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					{% if form.errors %}
-						<button class="eds-btn eds-btn--button eds-btn--fill" type="button" onclick="window.open('{{ event.url }}', '_blank')">
-						Continue without discount
-						</button>
-						<input type="submit" class="eds-btn eds-btn--button eds-btn--fill" value="Retry"/>
-					{% else %}
-						<input type="submit" class="eds-btn eds-btn--button eds-btn--fill" value="OK"/>
-					{% endif %}
+					<button class="eds-btn eds-btn--button eds-btn--fill" id="retry" type="button" onclick="window.open('{{ event.url }}', '_blank')" style="display: none;">
+					Continue without discount
+					</button>
+					<input type="submit" id="submit_btn" class="eds-btn eds-btn--button eds-btn--fill" value="OK"/>
 				</div>
 			</div>
 		</form>
 	</div>
-	 <!-- <script>
+	 	<script>
+
         var form_options = {
             target: '#modal',
+            dataType: 'json',
             success: function(response) {
+            	window.location.href=response.url
+            },
+            error: function(response){
+            	document.getElementById('errors').innerHTML=$($.parseHTML(response.responseText)).find("#errors_form")[0].innerHTML;
+            	$('#retry').show();
+            	$('#submit_btn').val('Retry');
             }
         }
         $('#get_discount_form').ajaxForm(form_options);
-        </script> -->
+
+        </script>
+
 {% endblock %}

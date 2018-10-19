@@ -1355,7 +1355,7 @@ class GetDiscountViewTest(TestCase):
                 'member_number': '12345'
             }
         )
-        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(self.response.status_code, 200)
 
     @patch(
         'bundesliga_app.forms.validate_member_number_ds',
@@ -1391,7 +1391,7 @@ class GetDiscountViewTest(TestCase):
                 'member_number': '12345'
             }
         )
-        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(self.response.status_code, 200)
 
     @patch(
         'bundesliga_app.forms.validate_member_number_ds',

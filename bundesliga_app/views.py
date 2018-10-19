@@ -7,7 +7,7 @@ from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from .models import Discount
 from .utils import (
     get_auth_token,
@@ -491,7 +491,6 @@ class GetDiscountView(FormView):
         form = GetDiscountForm(
             request.POST
         )
-
         if form.is_valid():
             return self.form_valid(form)
         else:
@@ -542,7 +541,7 @@ class GetDiscountView(FormView):
             str(form.cleaned_data['member_number']),
             form
         ):
-            return super(GetDiscountView, self).form_valid(form)
+            return JsonResponse({'url':self.url})
         else:
             form.discount_already_used()
             return super(GetDiscountView, self).form_invalid(form)
