@@ -555,4 +555,5 @@ class GetDiscountView(FormView):
         context['event'] = self._get_events(
             context['organizer'],
         )
+        context['event']['url'] = context['event']['url'] + '#tickets'
         return context
