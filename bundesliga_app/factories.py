@@ -56,11 +56,19 @@ class EventFactory(DjangoModelFactory):
     is_active = Faker('boolean')
 
 
+class EventTicketTypeFactory(DjangoModelFactory):
+    class Meta:
+        model = models.EventTicketType
+
+    ticket_id_eb = Sequence(lambda n: n)  # 0,1,2,3 ...
+    event = SubFactory(EventFactory)
+
+
 class DiscountFactory(DjangoModelFactory):
     class Meta:
         model = models.Discount
 
     name = Sequence(lambda n: u'Discount %d' % n)  # Discount0, Discount1 ...
-    event = SubFactory(EventFactory)
+    ticket_type = SubFactory(EventTicketTypeFactory)
     value = fuzzy.FuzzyFloat(low=0.0)  # Min value 0.0
     value_type = Iterator(["fixed", "percentage"])
