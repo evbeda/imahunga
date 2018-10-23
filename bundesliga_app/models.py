@@ -21,3 +21,13 @@ class Discount(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class LandingPage(models.Model):
+    name = models.CharField(max_length=200)
+    organizer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    events = models.ManyToManyField(Event)
+

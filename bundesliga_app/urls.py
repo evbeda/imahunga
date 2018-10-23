@@ -1,10 +1,12 @@
 from django.conf.urls import url
 from .views import (
-    ManageDiscount,
     HomeView,
+    CreateLandingpageView,
+    ManageDiscount,
     SelectEvents,
     EventDiscountsView,
     DeleteDiscountView,
+    LandingPageOrganizerView,
     LandingPageBuyerView,
     ListingPageEventView,
     GetDiscountView,
@@ -12,6 +14,8 @@ from .views import (
 
 urlpatterns = [
     url(r'^$', HomeView.as_view(), name='index'),
+    url(r'^organizer/landing_page/new/$', CreateLandingpageView.as_view(), name='create_landing_page'),
+    url(r'^organizer/landing_page/(?P<landing_page_id>[0-9]+)/$', LandingPageOrganizerView.as_view(), name='landing_page_organizer'),
     url(r'^select_events/$', SelectEvents.as_view(), name='select_events'),
     url(r'^events_discount/(?P<event_id>[0-9]+)/$', EventDiscountsView.as_view(), name='events_discount'),
     url(r'^events_discount/(?P<event_id>[0-9]+)/new/$', ManageDiscount.as_view(), name='create_discount'),

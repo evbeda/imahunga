@@ -1,12 +1,31 @@
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
+from .models import (
+    LandingPage,
+    Event,
+)
 from .utils import (
+    get_events_user_eb_api,
+    get_auth_token,
     validate_member_number_ds,
 )
 CHOICES = (
     ('fixed', 'Fixed Discount $'),
     ('percentage', 'Percentage Discount %')
 )
+
+
+class LandingPageForm(forms.Form):
+
+    name = forms.CharField(max_length=200, required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'form-control',
+            'placeholder': 'Insert a name'
+        }
+    ))
+
+    def __init__(self, data=None, *args, **kwargs):
+        super(LandingPageForm, self).__init__(data, *args, **kwargs)
 
 
 class DiscountForm(forms.Form):

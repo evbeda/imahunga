@@ -203,9 +203,9 @@ class UtilsApiDSTest(TestCase):
         )
 
 
-class HomeViewTest(TestBase):
+class LandingPageOrganizerViewTest(TestBase):
     def setUp(self):
-        super(HomeViewTest, self).setUp()
+        super(LandingPageOrganizerViewTest, self).setUp()
         # Create 4 Active Events of logged organizer
         self.events = EventFactory.create_batch(
             4,

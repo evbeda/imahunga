@@ -8,7 +8,10 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from .models import Discount
+from .models import (
+    Discount,
+    LandingPage,
+)
 from .utils import (
     get_auth_token,
     get_event_eb_api,
@@ -25,6 +28,7 @@ from .utils import (
 from .forms import (
     DiscountForm,
     GetDiscountForm,
+    LandingPageForm,
 )
 from django.views.generic.edit import (
     FormView,
@@ -37,11 +41,145 @@ from dateutil import parser
 
 @method_decorator(login_required, name='dispatch')
 class HomeView(TemplateView, LoginRequiredMixin):
-
     """ This is the index view.
-    Here we show all the events of the user in our app """
+    Here we show all the landing pages of the user in our app """
 
     template_name = 'index.html'
+
+    # Get all the data of organizer'events from EB API
+    def _get_landing_pages(self):
+        landing_pages = LandingPage.objects.filter(
+            organizer=self.request.user)
+
+        return landing_pages
+
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data(**kwargs)
+        context['landing_pages'] = self._get_landing_pages()
+        context['organizer'] = self.request.user
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class CreateLandingpageView(FormView, LoginRequiredMixin):
+    """ This is the Create Landing page view.
+    The user can create a landing page """
+
+    template_name = 'organizer/create_landing_page.html'
+    form_class = LandingPageForm
+
+    def _get_events(self):
+        # Dictionary for events
+        events = {}
+        # Get all events from DB
+        events_own = Event.objects.filter(
+            organizer=self.request.user)
+        for event in events_own:
+            """ Add event to dictionary with the id as key
+            and event from API as value """
+            events[event.id] = get_event_eb_api(
+                get_auth_token(self.request.user),
+                event.event_id,
+            )
+            # Add local_date format
+            events[event.id]['start_date'] = parser.parse(
+                events[event.id]['start']['local'])
+            events[event.id]['end_date'] = parser.parse(
+                events[event.id]['end']['local'])
+            # Add discount of the event
+            discount = Discount.objects.filter(
+                event=event.id
+            )
+            if discount:
+                """ If the event is free at the moment to load the page it will
+                delete the discount in our database"""
+                if events[event.id]['is_free']:
+                    Discount.objects.filter(
+                        event=event.id
+                    ).delete()
+                else:
+                    events[event.id]['discount'] = discount.get().value
+                    events[event.id]['discount_type'] = discount.get().value_type
+        return events
+
+    def post(self, request, *args, **kwargs):
+        form = LandingPageForm(request.POST)
+        self.add_landing_page(form)
+        self._add_events()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def _add_events(self):
+        """ This method add the selected events into the landing page,
+        and deletes the ones who are not selected
+        """
+        events = self.get_context_data()['events']
+        landing_page = self.get_context_data()['landing_page']
+        request_body_elements = str(self.request.body).split('event_')
+        request_body_elements.pop(0)
+        events_id = []
+        # Put in array all the events id selected
+        for event_id in request_body_elements:
+            event = event_id.split('=')
+            events_id.append(event[0])
+        """
+            See if had unselected any event active
+        """
+        db_selected_events = []
+        for event in landing_page.events.all():
+            db_selected_events.append(event)
+        for db_event in db_selected_events:
+            if db_event.event_id not in events_id:
+                landing_page.events.remove(db_event)
+        # For each event in the api, verify if the selected ones are corrects
+        for event_in_api in events:
+            # If the event id is in selected events
+            if event_in_api['id'] in events_id:
+                # Verify if this event already exist
+                landing_page.events.add(Event.objects.get(
+                    event_id=event_in_api['id']))
+
+    def form_valid(self, form):
+        landing_page_id = self.add_landing_page(form)
+        return HttpResponseRedirect(
+            reverse(
+                'landing_page_organizer',
+                kwargs={
+                    'landing_page_id': landing_page_id
+                },
+            )
+        )
+
+    def add_landing_page(self, form):
+        if not ('landing_page_id' in self.kwargs):
+            landing_page = LandingPage.objects.create(
+                name=form['name'].value(),
+                organizer=self.request.user,
+            )
+            return landing_page.id
+        else:
+            LandingPage.objects.filter(pk=self.kwargs['landing_page_id']).update(
+                name=form['name'].value(),
+            )
+            return self.kwargs['landing_page_id']
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateLandingpageView, self).get_context_data(**kwargs)
+        context['organizer'] = self.request.user
+        context['events'] = self._get_events()
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class LandingPageOrganizerView(TemplateView, LoginRequiredMixin):
+
+    """ This is the LandingPageOrganizer view.
+    Here we show all the events of the landing page in our app """
+
+    template_name = 'organizer/landing_page_organizer.html'
 
     # Get all the data of organizer'events from EB API
     def _get_events(self):
@@ -79,9 +217,11 @@ class HomeView(TemplateView, LoginRequiredMixin):
         return events
 
     def get_context_data(self, **kwargs):
-        context = super(HomeView, self).get_context_data(**kwargs)
+        context = super(LandingPageOrganizerView, self).get_context_data(**kwargs)
         context['events'] = self._get_events()
         context['organizer'] = self.request.user
+        context['landing_page'] = LandingPage.objects.get(
+            id=self.kwargs['landing_page_id'])
         context['attendee_url'] = self.request.get_host() + reverse(
             'landing_page_buyer',
             kwargs={
