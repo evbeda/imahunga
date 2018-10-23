@@ -4,6 +4,7 @@ from eventbrite import Eventbrite
 from .models import (
     Event,
     Discount,
+    EventTicketType,
 )
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
@@ -42,7 +43,7 @@ class DiscountAccessMixin(EventAccessMixin):
             Discount,
             id=self.kwargs['discount_id'],
         )
-        if discount.event.organizer != self.request.user:
+        if discount.ticket_type.event.organizer != self.request.user:
             raise PermissionDenied(_("You don't have access to this discount"))
         return discount
 
@@ -133,7 +134,7 @@ def check_discount_code_in_eb(token, event_id, discount_code):
     )
 
 
-def post_discount_code_to_eb(token, event_id, discount_code, discount_value, uses):
+def post_discount_code_to_eb(token, event_id, discount_code, discount_value, ticket_type, uses):
     eventbrite = Eventbrite(token)
     organization_id = get_user_eb_api(token)['id']
     data = {
@@ -142,6 +143,7 @@ def post_discount_code_to_eb(token, event_id, discount_code, discount_value, use
             "event_id": event_id,
             "type": "coded",
             "percent_off": discount_value,
+            "ticket_class_ids": ticket_type,
             "quantity_available": uses
         }
     }
@@ -179,3 +181,28 @@ def validate_member_number_ds(member_number):
         return loads(response.text)
     else:
         return _('Invalid Request')
+
+
+def get_ticket_type(user, event_id, ticket_type_id):
+        """
+        This method will receive an user, event_id from EB
+        and ticket_type_id from our BD
+        and returns the ticket type in a dict, the key is the id of ticket type in our DB
+        and the value is the ticket_type from EB
+        """
+        event_ticket_type_own = EventTicketType.objects.get(
+            id=ticket_type_id
+        )
+        # Get ticket type of event from EB
+        tickets_type_eb = get_event_tickets_eb_api(
+            get_auth_token(user),
+            event_id
+        )
+        """ For each event ticket type, get the same ticket from the context
+        """
+        ticket_type = {}
+        for ticket_type_eb in tickets_type_eb:
+            # If is the ticket type, save it in a dict a return it
+            if ticket_type_eb['id'] == event_ticket_type_own.ticket_id_eb:
+                ticket_type[str(ticket_type_id)] = ticket_type_eb
+                return ticket_type
