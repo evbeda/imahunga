@@ -1,62 +1,97 @@
 {% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 <html>
 <head>
-  <title>Eventbrite Discounts</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script
-  src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-  <script src="{% static 'js/jquery.form.js' %}"></script>
-  <link rel="icon" href="{% static 'images/eventbrite_logo.png' %}">
-  <link rel="stylesheet" href="{% static 'css/cards_styles.css' %}">
-  <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <link rel="stylesheet" type="text/css" href="https://cdn.evbstatic.com/s3-build/30226-rc2018-10-03_16.04-d2023ac/js/node_modules/eventbrite_design_system/css/eds.css">
+    <title>{% trans "Eventbrite Discounts" %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="{% static 'js/jquery.form.js' %}"></script>
+    <link rel="icon" href="{% static 'images/eventbrite_logo.png' %}">
+    <link rel="stylesheet" href="{% static 'css/cards_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" type="text/css" href="https://cdn.evbstatic.com/s3-build/30226-rc2018-10-03_16.04-d2023ac/js/node_modules/eventbrite_design_system/css/eds.css">
 </head>
 <body>
-  <div class= "navbar-wrapper" style="background-color: #1E0A3C">
-    <nav class="navbar navbar-expand-lg" id="navbar_whole">
-      <div class="navbar-header" style="height: 35px;">
-      </div>
-      {% if user.is_authenticated %}
-       <div class="navbar-header" style="height: 35px;">
-        <a href="{% url 'index' %}" class="navbar-brand">
-            <img class="mr-5 ml-2 mt-1"style="width: 25px; height: 25px;"src="{% static 'images/home-button.png'%}">
-        </a>
-      </div>
-      <div class="nav navbar-nav ml-auto">
-        <a class="row" style="color: #FFFFFF" href="{% url 'logout' %}">
-          <p class="mr-1">Logout</p>
-          <img class="mr-5 ml-2 mt-1"style="width: 15px; height: 15px;"src="{% static 'images/logout.png'%}">
-        </a>
-      </div>
-      {% endif %}
-    </nav>
-  </div>
-  <div class="container" style="margin-bottom: 60px;">
-    {% block content %}
-    {% endblock %}
-  </div>
-  <footer class="eds-global-footer eds-g-grid l-mar-top-2" style="z-index: 99;">
-    <h2 class="eds-is-hidden-accessible">Site Navigation</h2>
-    <div class="eds-global-footer__base eds-g-grid eds-l-pad-hor-6">
-      <div class="eds-global-footer__copyright eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-vert-4"></div>
-      <div class="eds-global-footer__general-links eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-8-12 eds-text--center" data-spec="global-footer-general-links">
-          © 2018 Powered by Imahunga
-      </div>
-      <div class="eds-global-footer__region eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-top-4 eds-l-pad-bot-3">
-        <div class="eds-global-footer__region-selector">
-          <div class="eds-l-mar-bot-0">
-            <div class="eds-text--left">
-              <label class="eds-field-styled__label eds-is-hidden-accessible" data-spec="label-label">Locale</label>
+    <div class= "navbar-wrapper" style="background-color: #1E0A3C">
+        <nav class="navbar navbar-expand-lg" id="navbar_whole">
+            <div class="navbar-header" style="height: 35px;">
             </div>
-          </div>
-        </div>
-      </div>
+            {% if user.is_authenticated %}
+            <div class="navbar-header" style="height: 35px;">
+                <a href="{% url 'index' %}" class="navbar-brand">
+                    <img class="mr-5 ml-2 mt-1" style="width: 25px; height: 25px;"src="{% static 'images/home-button.png'%}">
+                </a>
+            </div>
+            <div class="nav navbar-nav ml-auto">
+                <a class="row" style="color: #FFFFFF" href="{% url 'logout' %}">
+                    <p class="mr-1">{% trans "Logout" %}</p>
+                    <img class="mr-5 ml-2 mt-1"style="width: 15px; height: 15px;"src="{% static 'images/logout.png'%}">
+                </a>
+            </div>
+            {% endif %}
+        </nav>
     </div>
-  </footer>
+    <div class="container" style="margin-bottom: 60px;">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <footer class="eds-global-footer eds-g-grid l-mar-top-2" style="z-index: 99;">
+        <h2 class="eds-is-hidden-accessible">{% trans "Site Navigation" %}</h2>
+        <div class="eds-global-footer__base eds-g-grid eds-l-pad-hor-6">
+            <div class="eds-global-footer__copyright eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-vert-4"></div>
+            <div class="eds-global-footer__general-links eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-8-12 eds-text--center" data-spec="global-footer-general-links">
+                {% trans "© 2018 Powered by Imahunga" %}
+            </div>
+            <div class="eds-global-footer__region eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-top-4 eds-l-pad-bot-3">
+                <div class="eds-global-footer__region-selector">
+                    <div class="eds-l-mar-bot-0">
+                        {% if user.is_authenticated %}
+                        <div class="eds-text--left">
+                            <label class="eds-field-styled__label eds-is-hidden-accessible" data-spec="label-label">{% trans "Locale" %}</label>
+                                <a href="#" onclick="return lang_picker_en()"><img src="{% static 'images/en-flag.png'%}" style="height: 15px;"></a>
+                                &nbsp;&nbsp;<a href="#" onclick="return lang_picker_es()"><img src="{% static 'images/es-flag.png'%}" style="height: 15px;"></a>
+                                &nbsp;&nbsp;<a href="#" onclick="return lang_picker_de()"><img src="{% static 'images/ge-flag.png'%}" style="height: 15px;"></a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+{% if user.is_authenticated %}
+<script type="text/javascript">
+function lang_picker_en() {
+    language = 'en';
+    var url = window.location.href.split('/');
+    url[3] = language;
+    new_url = url.join('/')
+    window.location.href = new_url;
+    return false;
+};
+function lang_picker_es() {
+    language = 'es';
+    var url = window.location.href.split('/');
+    url[3] = language;
+    new_url = url.join('/')
+    window.location.href = new_url;
+    return false;
+};
+function lang_picker_de() {
+    language = 'de';
+    var url = window.location.href.split('/');
+    url[3] = language;
+    new_url = url.join('/')
+    window.location.href = new_url;
+    return false;
+};
+</script>
+{% endif %}
 </body>
 </html>

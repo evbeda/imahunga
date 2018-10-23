@@ -1,11 +1,12 @@
 {% extends '../shared/base.html' %}
 {% load static %}
+{% load i18n %}
 {% block content %}
 <div class="mt-5 row">
-    <p><a href="{% url 'index' %}"> Home </a>&nbsp;&nbsp;>&nbsp;&nbsp;Event discounts</p>
+    <p><a href="{% url 'index' %}"> {% trans "Home" %} </a>&nbsp;&nbsp;>&nbsp;&nbsp;{% trans "Event discounts" %}</p>
 </div>
 <div>
-	<h1 class="mt-2">{{event_name}}'s Discounts</h1>
+	<h1 class="mt-2">{{event_name}}{% trans "'s Discounts" %}</h1>
 	<hr>
 </div>
 {% if discounts %}
@@ -17,16 +18,13 @@
 				<span class="eds-l-pad-left-1">
 					<i class="eds-vector-image eds-icon--medium" data-spec="icon" aria-hidden="true">
 						<svg id="eds-icon--ticket_svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-							<path id="eds-icon--ticket_base" fill-rule="evenodd" clip-rule="evenodd" d="M19 21h-3c-.4-1.7-1.6-3-4-3s-3.6 1.3-4 3H5V3h3c.4 1.7 1.5 3.5 4 3.5s3.6-1.8 4-3.5h3v18zM15 2s0 3.5-3 3.5S9 2 9 2H4v20h5s0-3 3-3 3 3 3 3h5V2h-5z"/>
-							<g id="eds-icon--ticket_dashes" fill-rule="evenodd" clip-rule="evenodd">
-								<path d="M7 11.5h2v1H7zm4 0h2v1h-2zm4 0h2v1h-2z"/>
-							</g>
+							<path id="eds-icon--ticket_base" fill-rule="evenodd" clip-rule="evenodd" d="M19 21h-3c-.4-1.7-1.6-3-4-3s-3.6 1.3-4 3H5V3h3c.4 1.7 1.5 3.5 4 3.5s3.6-1.8 4-3.5h3v18zM15 2s0 3.5-3 3.5S9 2 9 2H4v20h5s0-3 3-3 3 3 3 3h5V2h-5z"/><g id="eds-icon--ticket_dashes" fill-rule="evenodd" clip-rule="evenodd"><path d="M7 11.5h2v1H7zm4 0h2v1h-2zm4 0h2v1h-2z"/></g>
 						</svg>
 					</i>
 				</span>
 				<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
 					<h5>{{discount.name}}</h5>
-					<p class="eds-text-bm--fixed eds-text-color--grey-700 ">{{discount.value}} % off</p>
+					<p class="eds-text-bm--fixed eds-text-color--grey-700 ">{{discount.value}} {% trans "% off" %}</p>
 				</div>
 				<div class="modal" id="modal">
 
@@ -66,12 +64,12 @@
                 </i>
             </span>
         </div>
-        <h1 class="eds-empty-state__title eds-text--center eds-text-hs eds-text-color--grey-900 eds-l-sn-mar-top-6 eds-l-sm-mar-top-6 eds-l-sw-mar-top-6 eds-l-mn-mar-top-6 eds-l-md-mar-top-6 eds-l-md-mar-top-8 eds-l-mw-mar-top-8 eds-l-ln-mar-top-8 eds-l-lg-mar-top-8 eds-l-lw-mar-top-8">Any discount yet</h1>
+        <h1 class="eds-empty-state__title eds-text--center eds-text-hs eds-text-color--grey-900 eds-l-sn-mar-top-6 eds-l-sm-mar-top-6 eds-l-sw-mar-top-6 eds-l-mn-mar-top-6 eds-l-md-mar-top-6 eds-l-md-mar-top-8 eds-l-mw-mar-top-8 eds-l-ln-mar-top-8 eds-l-lg-mar-top-8 eds-l-lw-mar-top-8">{% trans "Any discount yet" %}</h1>
         <div class="eds-align--center">
-            <p class="eds-empty-state__description eds-text--center eds-text-bl eds-text-color--grey-600 eds-l-sn-mar-top-3 eds-l-sm-mar-top-3 eds-l-sw-mar-top-3 eds-l-mn-mar-top-3 eds-l-md-mar-top-3 eds-l-md-mar-top-1 eds-l-mw-mar-top-1 eds-l-ln-mar-top-1 eds-l-lg-mar-top-1 eds-l-lw-mar-top-1">Create one for the members!</p>
+            <p class="eds-empty-state__description eds-text--center eds-text-bl eds-text-color--grey-600 eds-l-sn-mar-top-3 eds-l-sm-mar-top-3 eds-l-sw-mar-top-3 eds-l-mn-mar-top-3 eds-l-md-mar-top-3 eds-l-md-mar-top-1 eds-l-mw-mar-top-1 eds-l-ln-mar-top-1 eds-l-lg-mar-top-1 eds-l-lw-mar-top-1">{% trans "Create one for the members" %}</p>
         </div>
         <div class="eds-empty-state__actions eds-align--center eds-l-sn-mar-top-4 eds-l-sm-mar-top-4 eds-l-sw-mar-top-4 eds-l-mn-mar-top-4 eds-l-md-mar-top-4 eds-l-md-mar-top-6 eds-l-mw-mar-top-6 eds-l-ln-mar-top-6 eds-l-lg-mar-top-6 eds-l-lw-mar-top-6">
-            <a data-spec="eds-empty-state__primary-button" class="eds-btn eds-btn--button eds-btn--fill" href="{% url 'create_discount' event_id %}">Add Discount</a>
+            <a data-spec="eds-empty-state__primary-button" class="eds-btn eds-btn--button eds-btn--fill" href="{% url 'create_discount' event_id %}">{% trans "Add Discount" %}</a>
         </div>
     </div>
 </div>

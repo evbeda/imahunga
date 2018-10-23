@@ -1,6 +1,7 @@
 {% extends '../shared/base.html' %}
 {% block content %}
 {% load static %}
+{% load i18n %}
 <head>
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -46,9 +47,9 @@
 								<div class="eds-media-card-content__image-placeholder" style="background-color:#EEEDF2;">
 								</div>
 								{% if event.logo %}
-									<img class="eds-media-card-content__image eds-max-img" src="{{event.logo.original.url}}" alt="Event image"/>
+									<img class="eds-media-card-content__image eds-max-img" src="{{event.logo.original.url}}" alt="{% trans "Event image" %}"/>
 								{% else %}
-									<img class="eds-media-card-content__image eds-max-img" src="{% static 'images/default-img.png' %}" alt="Event image"/>
+									<img class="eds-media-card-content__image eds-max-img" src="{% static 'images/default-img.png' %}" alt="{% trans "Event image" %}"/>
 								{% endif %}
 							</div>
 						</div>
@@ -80,14 +81,14 @@
 							</div>
 							<div class="eds-media-card-content__sub-content">
 								<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
-									By {{ organizer.first_name }} {{ organizer.last_name }}
+									{% trans "By" %} {{ organizer.first_name }} {{ organizer.last_name }}
 								</div>
 							</div>
 							<div class="eds-media-card-content__sub-content">
 								<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-bot-4" style="bottom: 0;position: absolute">
 									{% if event.is_free %}
 										<div class="eds-media-card-content__flag eds-text-bs eds-text-color--grey-600">
-											<span class="eds-text-color--grey-700" style="color: green">Free
+											<span class="eds-text-color--grey-700" style="color: green">{% trans "Free" %}
 											</span>
 										</div>
 									{% else %}
@@ -104,12 +105,12 @@
 									{% endif %}
 									{% if event.discount %}
 										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
-											<span class="eds-text-color--grey-700">{{ event.discount }} % discount available for members
+											<span class="eds-text-color--grey-700">{{ event.discount }} % {% trans "discount available for members" %}
 											</span>
 										</div>
 									{% else %}
 										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
-											<span class="eds-text-color--grey-700">This event doesn't have any available discount
+											<span class="eds-text-color--grey-700">{% trans "This event doesn't have any available discount" %}
 											</span>
 										</div>
 									{% endif %}
@@ -130,7 +131,7 @@
 				</div>
 				<div id="event_tickets" style="margin-left: 30px" >
 					{% if event.is_free%}
-						<div> Free </div>
+						<div> {% trans "Free" %} </div>
 					{% else %}
 						<div>
 
@@ -141,9 +142,9 @@
 							{% endif %}
 						</div>
 						{% if event.discount %}
-							<div> {{ event.discount }} % discount available for members </div>
+							<div> {{ event.discount }} % {% trans "discount available for members" %} </div>
 						{% else %}
-							<div> This event doesn't have any available discount </div>
+							<div> {% trans "This event doesn't have any available discount" %} </div>
 						{% endif %}
 					{% endif %}
 				</div>
@@ -155,11 +156,11 @@
 							<div id="get_discount_box" class="eds-media-card-content__primary-content">
 									{% if event.discount %}
 		                                <button id="btn_get_discount"class="eds-btn eds-btn--button eds-btn--fill" type="button" style="width: 100%">
-												Get Discount
+												{% trans "Get Discount" %}
 		                                </button>
                                     {% else %}
 		                                <button class="eds-btn eds-btn--button eds-btn--fill" type="button" onclick="window.open('{{ event.url }}', '_blank')" style="width: 100%">
-		                                     Tickets
+		                                     {% trans "Tickets" %}
 		                                </button>
                                     {% endif %}
 							</div>
@@ -181,7 +182,7 @@
                     <div class="eds-media-card-content__content__principal" style="top: 0; padding-left: 20px ">
                         <div class="eds-media-card-content__primary-content">
                             <div class="eds-field-styled__input" style="color:black;">
-                            <strong>DESCRIPTION</strong>
+                            <strong>{% trans "DESCRIPTION" %}</strong>
                             </div>
                         </div>
                         <div class="eds-media-card-content__sub-content">
@@ -189,7 +190,7 @@
                                 {% if event.description.text %}
                                 		{{ event.description.html | safe}}
                                 {% else %}
-                                    This event does not have description
+                                    {% trans "This event does not have description" %}
                                 {% endif %}
                             </div>
                         </div>
@@ -206,7 +207,7 @@
                         <div class="eds-media-card-content__primary-content">
                             <div class="eds-media-card-content__primary-content" >
                             <div class="eds-field-styled__input" style="color:black">
-                            <strong >DATE AND TIME</strong>
+                            <strong >{% trans "DATE AND TIME" %}</strong>
                             </div>
                         </div>
                         </div>
@@ -229,7 +230,7 @@
 	        <div class="eds-align--left">
 	            <div class="eds-media-card-content__sub-content">
 	                <div class="eds-field-styled__input" style="color:black;">
-	                <strong>LOCATION</strong>
+	                <strong>{% trans "LOCATION" %}</strong>
 	                {% if venue.name %}
 	                    <div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
 	                        {{ venue.name}}
@@ -246,11 +247,11 @@
 		</div>
        		<div class="eds-align--center" style="background-color: #ffffff; padding-top: 10px; padding-bottom: 10px">
 	        	{% if venue.name %}
-	        		<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.name}},{{venue.address.city}},{{venue.address.country}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.name}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="Event's venue map" style="">
+	        		<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.name}},{{venue.address.city}},{{venue.address.country}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.name}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="{% trans "Event's venue map" %}" style="">
 	        	{% elif venue.address.localized_address_display %}
-					<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.address.localized_address_display}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.address.localized_address_display}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="Event's venue map" style="">
+					<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.address.localized_address_display}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.address.localized_address_display}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="{% trans "Event's venue map" %}" style="">
 	        	{% else %}
-	        		<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.address.city}},{{venue.address.country}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.address.city}},{{venue.address.country}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="Event's venue map" style="">
+	        		<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.address.city}},{{venue.address.country}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.address.city}},{{venue.address.country}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="{% trans "Event's venue map" %}" style="">
 	        	{% endif %}
 	        </div>
         {% endif %}

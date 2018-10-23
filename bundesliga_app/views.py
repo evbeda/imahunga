@@ -33,6 +33,7 @@ from django.views.generic.edit import (
     FormView,
     DeleteView,
 )
+from django.utils.translation import ugettext_lazy as _
 from django.forms.utils import ErrorList
 from django.contrib.auth import get_user_model
 from dateutil import parser
@@ -227,7 +228,7 @@ class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
         )['is_free']
         if valid_free:
             error = form.errors.setdefault('__all__', ErrorList())
-            error.append(u'You cant create a discount in a free event')
+            error.append(_('You cant create a discount in a free event'))
             return self.form_invalid(form)
         if not ('discount_id' in self.kwargs):
             self._verify_event_discount(form)
@@ -270,7 +271,7 @@ class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
         )
         if len(discount) > 0:
             error = form.errors.setdefault('__all__', ErrorList())
-            error.append(u'You already have a discount for this event')
+            error.append(_('You already have a discount for this event'))
 
     def get_context_data(self, **kwargs):
         context = super(ManageDiscount, self).get_context_data(**kwargs)

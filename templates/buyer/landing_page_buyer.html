@@ -1,6 +1,7 @@
 {% extends '../shared/base.html' %}
 {% block content %}
 {% load static %}
+{% load i18n %}
 <body style="background-color: #ffffff">
 <div class="container mt-5 mb-3 justify-content-center">
 		<h1>
@@ -22,13 +23,13 @@
         						{% if event.logo %}
         							<img class="eds-media-card-content__image eds-max-img" src={{event.logo.url}} alt="Event image"/>
         						{% else %}
-        							<img class="eds-media-card-content__image eds-max-img" src="{% static 'images/default-img.png' %}" alt="Event image"/>
+        							<img class="eds-media-card-content__image eds-max-img" src="{% static 'images/default-img.png' %}" alt="{% trans "Event image" %}"/>
         						{% endif %}
         					</div>
         				</div>
         				{% if event.is_free %}
 	        				<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
-	    						<span class="eds-text-color--grey-700">Free
+	    						<span class="eds-text-color--grey-700">{% trans "Free" %}
 	    						</span>
 	        				</div>
 	        			{% endif %}
