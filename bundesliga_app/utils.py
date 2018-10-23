@@ -5,6 +5,7 @@ from .models import (
     Event,
     Discount,
 )
+from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from bundesliga_site.settings import API_KEY_DEUTSCHER_SPORTAUSWEIS
@@ -25,7 +26,7 @@ class EventAccessMixin(object):
             is_active=True,
         )
         if event.organizer != self.request.user:
-            raise PermissionDenied("You don't have access to this event")
+            raise PermissionDenied(_("You don't have access to this event"))
         return event
 
 
@@ -42,7 +43,7 @@ class DiscountAccessMixin(EventAccessMixin):
             id=self.kwargs['discount_id'],
         )
         if discount.event.organizer != self.request.user:
-            raise PermissionDenied("You don't have access to this discount")
+            raise PermissionDenied(_("You don't have access to this discount"))
         return discount
 
 
@@ -56,7 +57,7 @@ def get_auth_token(user):
             provider='eventbrite'
         ).access_token
     except UserSocialAuth.DoesNotExist:
-        return 'UserSocialAuth does not exists!'
+        return _('UserSocialAuth does not exists!')
     return token
 
 
@@ -177,4 +178,4 @@ def validate_member_number_ds(member_number):
         # Return the text of response as JSON
         return loads(response.text)
     else:
-        return 'Invalid Request'
+        return _('Invalid Request')

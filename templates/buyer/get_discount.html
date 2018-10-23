@@ -1,9 +1,10 @@
 {% block content %}
 	{% load static %}
+    {% load i18n %}
 		<form id="get_discount_form" class="text-center" id="get_discount_form" method="POST">
 			{% csrf_token %}
 				<div >
-					<h4 >Get Discount</h4>
+					<h4>{% trans "Get Discount" %}</h4>
 				</div>
 				<div>
 					<span id="errors">
@@ -25,7 +26,7 @@
 						{% endfor %}
 					{% endif %}
 					<div class="form-group">
-						<label class="font-weight-bold">Enter your member number</label>
+						<label class="font-weight-bold">{% trans "Enter your member number" %}</label>
 						<div id="input_field" class="input-group input-group-lg mx-auto" style="width: 50%">
 							{{ form.member_number_1 }}
 						</div>
@@ -36,9 +37,9 @@
 				</div>
 				<div>
 					<button class="eds-btn eds-btn--button eds-btn--fill" id="retry" type="button" onclick="window.open('{{ event.url }}', '_blank')" style="display: none;">
-					Continue without discount
+					{% trans "Continue without discount" %}
 					</button>
-					<input type="submit" id="submit_btn" class="eds-btn eds-btn--button eds-btn--fill" value="OK"/>
+					<input type="submit" id="submit_btn" class="eds-btn eds-btn--button eds-btn--fill" value="{% trans "Ok" %}"/>
 				</div>
 				<div id="loading">
 			        <div>

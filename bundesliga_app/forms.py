@@ -1,5 +1,6 @@
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils.translation import ugettext_lazy as _
 from .utils import (
     validate_member_number_ds,
 )
@@ -13,13 +14,13 @@ class DiscountForm(forms.Form):
     discount_name = forms.CharField(max_length=200, required=True, widget=forms.TextInput(
         attrs={
             'class': 'form-control',
-            'placeholder': 'Insert a name code'
+            'placeholder': _('Insert a name code')
         }
     ))
     discount_value = forms.IntegerField(required=True, widget=forms.NumberInput(
         attrs={
             'class': 'form-control',
-            'placeholder': 'Insert your discount'
+            'placeholder': _('Insert your discount')
         }),
         validators=[
             MinValueValidator(0),
@@ -35,7 +36,7 @@ class GetDiscountForm(forms.Form):
     member_number_1 = forms.IntegerField(required=True, widget=forms.NumberInput(
         attrs={
             'class': 'form-control',
-            'placeholder': 'Insert your member number here'
+            'placeholder': _('Insert your member number here')
         }
     ))
 
@@ -55,7 +56,7 @@ class GetDiscountForm(forms.Form):
 
             if return_api_ds == 'Invalid Request':
                 self.add_error('member_number_{}'.format(
-                    number), 'Invalid request')
+                    number), _('Invalid request'))
                 return False
             else:
                 if not ('Kartentyp' in return_api_ds):
@@ -70,7 +71,7 @@ class GetDiscountForm(forms.Form):
             numbers = ','.join(invalid_numbers)
             self.add_error(
                 'member_number_1',
-                'Invalid numbers {}'.format(numbers),
+                _('Invalid numbers')+'{}'.format(numbers),
             )
             return False
         else:
@@ -78,7 +79,7 @@ class GetDiscountForm(forms.Form):
 
     def discount_already_used(self):
         self.add_error('member_number_1',
-                       'You already used the discount for this event')
+                       _('You already used the discount for this event'))
 
     def __init__(self, data=None, *args, **kwargs):
         super(GetDiscountForm, self).__init__(data, *args, **kwargs)

@@ -1,14 +1,15 @@
 {% extends '../shared/base.html' %}
 {% block content %}
 	{% load static %}
+  {% load i18n %}
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h4 class="modal-title" id="myModalLabel">Done </h4>
+                <h4 class="modal-title" id="myModalLabel">{% trans "Done" %} </h4>
               </div>
               <div class="modal-body">
-                  <p>Done</p>
+                  <p>{% trans "Done" %}</p>
               </div>
               <div class="modal-footer">
               </div>

@@ -1,8 +1,9 @@
 {% extends '../shared/base.html' %}
 {% load static %}
+{% load i18n %}
 {% block content %}
 <div class="mt-5 row">
-    <p><a href="{% url 'index' %}"> Home </a>&nbsp;&nbsp;>&nbsp;&nbsp;Select events</p>
+    <p><a href="{% url 'index' %}"> {% trans "Home" %} </a>&nbsp;&nbsp;>&nbsp;&nbsp;{% trans "Select events" %}</p>
 </div>
 {% if events %}
 <form class="mt-5" action="" method="POST">
@@ -50,7 +51,7 @@
     </div>
     {% endfor %}
     <div class="row justify-content-end">
-        <input type="submit" class="btn btn-success text-right" value="Select Event/s"></input>
+        <input type="submit" class="btn btn-success text-right" value="{% trans "Select Event/s" %}"></input>
     </div>
 </form>
 {% else %}
@@ -62,12 +63,12 @@
                 </i>
             </span>
         </div>
-        <h1 class="eds-empty-state__title eds-text--center eds-text-hs eds-text-color--grey-900 eds-l-sn-mar-top-6 eds-l-sm-mar-top-6 eds-l-sw-mar-top-6 eds-l-mn-mar-top-6 eds-l-md-mar-top-6 eds-l-md-mar-top-8 eds-l-mw-mar-top-8 eds-l-ln-mar-top-8 eds-l-lg-mar-top-8 eds-l-lw-mar-top-8">Ups!</h1>
+        <h1 class="eds-empty-state__title eds-text--center eds-text-hs eds-text-color--grey-900 eds-l-sn-mar-top-6 eds-l-sm-mar-top-6 eds-l-sw-mar-top-6 eds-l-mn-mar-top-6 eds-l-md-mar-top-6 eds-l-md-mar-top-8 eds-l-mw-mar-top-8 eds-l-ln-mar-top-8 eds-l-lg-mar-top-8 eds-l-lw-mar-top-8">{% trans "Ups!" %}</h1>
         <div class="eds-align--center">
-            <p class="eds-empty-state__description eds-text--center eds-text-bl eds-text-color--grey-600 eds-l-sn-mar-top-3 eds-l-sm-mar-top-3 eds-l-sw-mar-top-3 eds-l-mn-mar-top-3 eds-l-md-mar-top-3 eds-l-md-mar-top-1 eds-l-mw-mar-top-1 eds-l-ln-mar-top-1 eds-l-lg-mar-top-1 eds-l-lw-mar-top-1">it looks like you don’t have any live event at Eventbrite</p>
+            <p class="eds-empty-state__description eds-text--center eds-text-bl eds-text-color--grey-600 eds-l-sn-mar-top-3 eds-l-sm-mar-top-3 eds-l-sw-mar-top-3 eds-l-mn-mar-top-3 eds-l-md-mar-top-3 eds-l-md-mar-top-1 eds-l-mw-mar-top-1 eds-l-ln-mar-top-1 eds-l-lg-mar-top-1 eds-l-lw-mar-top-1">{% trans "it looks like you don’t have any live event at Eventbrite" %}</p>
         </div>
         <div class="eds-empty-state__actions eds-align--center eds-l-sn-mar-top-4 eds-l-sm-mar-top-4 eds-l-sw-mar-top-4 eds-l-mn-mar-top-4 eds-l-md-mar-top-4 eds-l-md-mar-top-6 eds-l-mw-mar-top-6 eds-l-ln-mar-top-6 eds-l-lg-mar-top-6 eds-l-lw-mar-top-6">
-            <a data-spec="eds-empty-state__primary-button" class="eds-btn eds-btn--button eds-btn--fill" href="https://www.eventbrite.com/">Go to Eventbrite</a>
+            <a data-spec="eds-empty-state__primary-button" class="eds-btn eds-btn--button eds-btn--fill" href="https://www.eventbrite.com/">{% trans "Go to Eventbrite" %}</a>
         </div>
     </div>
 </div>

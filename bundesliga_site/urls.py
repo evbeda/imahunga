@@ -19,6 +19,7 @@ from django.conf.urls import (
 )
 from django.contrib import admin
 from django.contrib.auth.views import login, logout
+from django.conf.urls.i18n import i18n_patterns
 
 
 urlpatterns = [
@@ -27,5 +28,7 @@ urlpatterns = [
     url(r'^accounts/login/$', login, name='login'),
     url(r'^accounts/logout/$', logout, name='logout'),
     url(r'^password_reset/$', login, name='password_reset'),
-    url(r'^', include('bundesliga_app.urls')),
 ]
+urlpatterns += i18n_patterns(
+    url(r'^', include('bundesliga_app.urls')),
+)
