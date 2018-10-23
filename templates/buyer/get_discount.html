@@ -33,10 +33,13 @@
 					{% endif %}
 					<div class="form-group">
 						<label class="font-weight-bold">Enter your member number</label>
-						<div  class="input-group input-group-lg">
-							{{ form.member_number }}
+						<div  class="input-group input-group-lg ">
+							{{ form.member_number_0 }}
 						</div>
 					</div>
+					<button class="eds-btn eds-btn--button eds-btn--fill" id="add_field" type="button" style="float: right;">
+							Add Number
+					</button>
 				</div>
 				<div class="modal-footer">
 					<button class="eds-btn eds-btn--button eds-btn--fill" id="retry" type="button" onclick="window.open('{{ event.url }}', '_blank')" style="display: none;">
@@ -48,7 +51,8 @@
 		</form>
 	</div>
 	 	<script>
-
+		var max_member_number = 9
+		var input_added = 1
         var form_options = {
             target: '#modal',
             dataType: 'json',
@@ -62,6 +66,18 @@
             }
         }
         $('#get_discount_form').ajaxForm(form_options);
+
+        $("#add_field").on('click',function(){
+        	if(input_added <= max_member_number){
+        		var member_input = '<input name="member_number_' + input_added+ '" type="number" class="form-control input-group input-group-lg " style="margin-top: 10px" placeholder="Insert your member number here" required/>';
+	        	console.log(member_input)
+	        	$(".form-group").append(member_input)
+	        	input_added += 1
+        	}else{
+        		alert("You can only add up to 10 member's numbers")
+        	}
+
+        });
 
         </script>
 

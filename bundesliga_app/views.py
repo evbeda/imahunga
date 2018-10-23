@@ -469,6 +469,7 @@ class GetDiscountView(FormView):
     template_name = 'buyer/get_discount.html'
     form_class = GetDiscountForm
 
+
     def _get_events(self, organizer):
         # Get Event by the id and organizer
         event_in_db = get_object_or_404(
@@ -491,7 +492,8 @@ class GetDiscountView(FormView):
         form = GetDiscountForm(
             request.POST
         )
-        if form.is_valid():
+        invalid_numbers = form.is_valid()
+        if len(invalid_numbers) == 0:
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
