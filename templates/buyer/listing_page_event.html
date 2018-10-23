@@ -103,7 +103,7 @@
 											</span>
 										</div>
 									{% endif %}
-									{% if event.discount %}
+									{% if discounts %}
 										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
 											<span class="eds-text-color--grey-700">{{ event.discount }} % {% trans "discount available for members" %}
 											</span>
@@ -154,7 +154,7 @@
 					<div class="eds-media-card-content__content__principal">
 						<div class="eds-media-card-content__primary-content">
 							<div id="get_discount_box" class="eds-media-card-content__primary-content">
-									{% if event.discount %}
+									{% if discounts %}
 		                                <button id="btn_get_discount"class="eds-btn eds-btn--button eds-btn--fill" type="button" style="width: 100%">
 												{% trans "Get Discount" %}
 		                                </button>
