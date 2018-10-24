@@ -58,7 +58,9 @@
 			    </div>
 		</form>
 	 	<script>
+	 	var input_added = 2
 	 	$(document).ready(function(){
+
 	        var form_options = {
 	            target: '#get_discount_form',
 	            dataType: 'json',
@@ -74,25 +76,26 @@
 	            	$("#loading").hide()
 	            	$("#submit_btn").show()
 	            	console.log(response)
-	            	debugger;
 	            }
 	        }
 	        $('#get_discount_form').ajaxForm(form_options);
-
         	var max_member_number = 10
-			var input_added = 2
+
         	$("#loading").hide()
 
         	$("#submit_btn").click(function(){
-        		$("#submit_btn").hide()
-        		$("#loading").show()
-        		$("#retry").hide()
+        		if(!($('[name=member_number_1]').val() == "")){
+        			$("#submit_btn").hide()
+	        		$("#loading").show()
+	        		$("#retry").hide()
+        		}
+
         	});
 
 	        $("#add_field").on('click',function(){
 	        	if(input_added <= max_member_number){
-	        		var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder="Insert your member number here"/></div>';
-		        	console.log(member_input)
+	        		var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder="Insert your member number here"/><input name="remove_number_' + input_added + '" type="button" value="Remove" onclick="remove('+ input_added +')"/></div>';
+		        	// console.log(member_input)
 		        	$(".form-group").append(member_input)
 		        	input_added += 1
 	        	}else{
@@ -100,6 +103,18 @@
 	        	}
 	        });
         });
+        function remove(input_to_delete){
+        	console.log(input_to_delete)
+        	$('[name=member_number_' + input_to_delete + ']').val('')
+	        $('[name=member_number_' + input_to_delete + ']').remove()
+			$('[name=remove_number_' + input_to_delete + ']').remove()
+			for(i=input_to_delete+1; i<= input_added; i++){
+				$('[name=member_number_' + i + ']').attr('name', 'member_number_' + (i-1))
+				$('[name=remove_number_' + i + ']').attr('onclick', 'remove(' + (i-1) + ')')
+				$('[name=remove_number_' + i + ']').attr('name', 'remove_number_' + (i-1))
+				input_added -= 1
+			}
+	    }
         </script>
 
 {% endblock %}
