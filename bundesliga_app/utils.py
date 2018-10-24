@@ -132,7 +132,7 @@ def check_discount_code_in_eb(token, event_id, discount_code):
     )
 
 
-def post_discount_code_to_eb(token, event_id, discount_code, discount_value):
+def post_discount_code_to_eb(token, event_id, discount_code, discount_value, uses):
     eventbrite = Eventbrite(token)
     organization_id = get_user_eb_api(token)['id']
     data = {
@@ -141,7 +141,7 @@ def post_discount_code_to_eb(token, event_id, discount_code, discount_value):
             "event_id": event_id,
             "type": "coded",
             "percent_off": discount_value,
-            "quantity_available": 1
+            "quantity_available": uses
         }
     }
     return eventbrite.post(

@@ -8,7 +8,10 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from .models import Discount
+from .models import (
+    Discount,
+    DiscountCode,
+)
 from .utils import (
     get_auth_token,
     get_event_eb_api,
@@ -132,8 +135,8 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                 )
                 if event_discounts:
                     Discount.objects.filter(
-                            event=event_in_db
-                        ).delete()
+                        event=event_in_db
+                    ).delete()
         # For each event in the api, verify if the selected ones are corrects
         for event_in_api in events:
             # If the event id is an event of organizer
@@ -293,7 +296,6 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
         )
 
     def get_object(self):
-        # import ipdb;ipdb.set_trace()
         return self.get_discount()
 
     def get_context_data(self, **kwargs):
@@ -357,10 +359,10 @@ class LandingPageBuyerView(TemplateView):
         return context
 
 
-class ListingPageEventView(TemplateView):
+class ListingPageEventView(FormView):
     """ This view visualize the info of an event """
-
     template_name = 'buyer/listing_page_event.html'
+    form_class = GetDiscountForm
 
     def _get_events(self, organizer):
         # Get Event by the id and organizer
@@ -443,6 +445,76 @@ class ListingPageEventView(TemplateView):
 
         return ticket_values
 
+    def get_success_url(self):
+        return self.url
+
+    def _generate_discount_code(self, form):
+        event = Event.objects.get(
+            id=self.kwargs['event_id'])
+        organizer = self.get_context_data()['organizer']
+        organizer_token = get_auth_token(organizer)
+        discount_code = event.event_id + '-'
+        member_numbers = []
+        for i in range(1, len(form.cleaned_data) + 1):
+            member_numbers.append(str(form.cleaned_data['member_number_{}'.format(i)]))
+        discount_code += '_'.join(member_numbers)
+        discount = Discount.objects.get(
+            event_id=event.id
+        )
+        eb_event = self.get_context_data()['event']
+        # Verify if discount already exists
+        discount_code_eb_api = check_discount_code_in_eb(
+            organizer_token,
+            event.event_id,
+            discount_code,
+        )
+        # for number in range(1, len(form.cleaned_data) + 1):
+        #     discount_code_local = DiscountCode.objects.filter(
+        #         event=event,
+        #     ).filter(
+        #         member_number=form.cleaned_data[
+        #             'member_number_{}'.format(number)
+        #         ])
+        # If exists
+        if len(discount_code_eb_api['discounts']) == 0:
+            post_discount_code_to_eb(
+                organizer_token,
+                event.event_id,
+                discount_code,
+                discount.value,
+                uses=len(form.cleaned_data),
+            )
+            DiscountCode.objects.create(
+                member_number=form.cleaned_data['member_number_1'],
+                event=event,
+                eb_event_id=eb_event['id'],
+                discount_code=discount_code,
+            )
+            self._generate_url(eb_event, event.event_id, discount_code)
+            return True
+        else:
+            quantity_available = discount_code_eb_api['discounts'][0]['quantity_available']
+            quantity_sold = discount_code_eb_api['discounts'][0]['quantity_sold']
+            if quantity_available - quantity_sold == 0:
+                return False
+            else:
+                self._generate_url(eb_event, event.event_id, discount_code)
+                return True
+
+    def _generate_url(self, eb_event, event_id, discount_code):
+        self.url = 'https://www.eventbrite.com/e/' + \
+            eb_event['id'] + '-tickets-' + event_id + \
+            '?discount=' + discount_code + '#tickets'
+
+    def form_valid(self, form):
+        if self._generate_discount_code(
+            form
+        ):
+           return JsonResponse({'url':self.url})
+        else:
+            form.discount_already_used()
+            return super(ListingPageEventView, self).form_invalid(form)
+
     def get_context_data(self, **kwargs):
         context = super(ListingPageEventView, self).get_context_data(**kwargs)
         context['organizer'] = get_user_model().objects.get(
@@ -459,100 +531,5 @@ class ListingPageEventView(TemplateView):
         context['tickets'] = self._get_tickets(
             context['organizer'],
             context['event']['id'],
-        )
-        return context
-
-
-class GetDiscountView(FormView):
-    """ This view allows the user to get a discount """
-
-    template_name = 'buyer/get_discount.html'
-    form_class = GetDiscountForm
-
-    def _get_events(self, organizer):
-        # Get Event by the id and organizer
-        event_in_db = get_object_or_404(
-            Event,
-            id=self.kwargs['event_id'],
-            organizer=organizer,
-        )
-        """ Get the event from API EB.
-            It uses the token of landing page's organizer """
-        event = get_event_eb_api(
-            get_auth_token(organizer),
-            event_in_db.event_id,
-        )
-        # Add local_date format
-        event['start_date'] = parser.parse(event['start']['local'])
-        event['end_date'] = parser.parse(event['end']['local'])
-        return event
-
-    def post(self, request, *args, **kwargs):
-        form = GetDiscountForm(
-            request.POST
-        )
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def get_success_url(self):
-        return self.url
-
-    def _generate_discount_code(self, member_number, form):
-        event = Event.objects.get(
-            id=self.kwargs['event_id'])
-        organizer = self.get_context_data()['organizer']
-        organizer_token = get_auth_token(organizer)
-        discount_code = event.event_id + '-' + member_number
-        discount = Discount.objects.get(
-            event_id=event.id
-        )
-        eb_event = self.get_context_data()['event']
-        #Verify if discount already exists
-        discount_code_eb_api = check_discount_code_in_eb(
-            organizer_token,
-            event.event_id,
-            discount_code,
-        )
-
-        #If exists
-        if len(discount_code_eb_api['discounts']) == 0:
-            post_discount_code_to_eb(
-                organizer_token,
-                event.event_id,
-                discount_code,
-                discount.value,
-            )
-            self._generate_url(eb_event, event.event_id, discount_code)
-            return True
-        else:
-            if discount_code_eb_api['discounts'][0]['quantity_sold'] == 0:
-                self._generate_url(eb_event, event.event_id, discount_code)
-                return True
-            else:
-                return False
-
-    def _generate_url(self, eb_event, event_id, discount_code):
-        self.url = 'https://www.eventbrite.com/e/' + eb_event['id'] + '-tickets-' + event_id + '?discount=' + discount_code + '#tickets'
-
-    def form_valid(self, form):
-        if self._generate_discount_code(
-            str(form.cleaned_data['member_number']),
-            form
-        ):
-            return JsonResponse({'url':self.url})
-        else:
-            form.discount_already_used()
-            return super(GetDiscountView, self).form_invalid(form)
-
-
-    def get_context_data(self, **kwargs):
-        context = super(GetDiscountView, self).get_context_data(**kwargs)
-        context['organizer'] = get_user_model().objects.get(
-            id=self.kwargs['organizer_id'])
-        context['event_id'] = self.kwargs['event_id']
-        context['event'] = self._get_events(
-            context['organizer'],
         )
         return context

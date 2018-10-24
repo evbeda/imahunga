@@ -7,6 +7,16 @@
 			$("#event_name_box").hide()
 			$("#event_name_box").css({'font-size':'1.3em'})
 			$("#event_tickets").hide()
+			$("#get_discount").hide()
+
+			$("#btn_get_discount").click(function(event){
+				event.preventDefault();
+				if($("#get_discount").is(":visible")){
+					$("#get_discount").hide()
+				}else{
+					$("#get_discount").show()
+				}
+			});
 		});
 		$(window).scroll(function(e){
 			  var $el = $('.fixedElement');
@@ -110,9 +120,6 @@
 				</main>
 			</section>
 		</div>
-		<!-- Modal Container -->
-		<div class="modal" id="modal">
-		</div>
 		<!-- Listing Get Discount -->
 		<div class="fixedElement" style="background-color: #ffffff">
 		<hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
@@ -147,7 +154,7 @@
 						<div class="eds-media-card-content__primary-content">
 							<div id="get_discount_box" class="eds-media-card-content__primary-content">
 									{% if event.discount %}
-		                                <button data-toggle="modal" data-target="#modal" href="{% url 'get_discount' organizer.id event_id %}" class="eds-btn eds-btn--button eds-btn--fill" type="button" style="width: 100%">
+		                                <button id="btn_get_discount"class="eds-btn eds-btn--button eds-btn--fill" type="button" style="width: 100%">
 												Get Discount
 		                                </button>
                                     {% else %}
@@ -162,6 +169,10 @@
 			</main>
 		</section>
 		<hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
+		</div>
+		<!-- Get Discount -->
+		<div id="get_discount" style="background-color: #ffffff">
+			{% include 'buyer/get_discount.html' with organizer_id=organizer.id event_id=event_id %}
 		</div>
 		 <!-- Listing Body -->
         <section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--fixed eds-l-pad-top-10" role="presentation" style="background-color: #ffffff; padding-bottom:20px;">
@@ -264,17 +275,5 @@
 		</section>
     </div>
 </body>
-<script>
-$('#modal').on('show.bs.modal', function (event) {
-    var modal = $('#modal')
-    $.ajax({
-        url: "{% url 'get_discount' organizer.id event_id %}",
-        context: document.body
-    }).done(function(response) {
-        modal.html(response);
-    });
-})
-</script>
-
 {% endblock %}
 
