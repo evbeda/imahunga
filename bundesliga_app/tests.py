@@ -226,12 +226,12 @@ class HomeViewTest(TestBase):
 
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_homepage(self, mock_get_event_eb_api):
-        self.response = self.client.get('/en/')
+        self.response = self.client.get('/')
         self.assertEqual(self.response.status_code, 200)
 
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_home_url_has_index_template(self, mock_get_event_eb_api):
-        self.response = self.client.get('/en/')
+        self.response = self.client.get('/')
         self.assertEqual(
             self.response.context_data['view'].template_name,
             'index.html',
@@ -239,7 +239,7 @@ class HomeViewTest(TestBase):
 
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_events_organizer(self, mock_get_event_eb_api):
-        self.response = self.client.get('/en/')
+        self.response = self.client.get('/')
         for event in self.events:
             self.assertIn(
                 event.id,
@@ -248,7 +248,7 @@ class HomeViewTest(TestBase):
 
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_events_organizer_not_active(self, mock_get_event_eb_api):
-        self.response = self.client.get('/en/')
+        self.response = self.client.get('/')
         self.assertNotContains(
             self.response,
             self.no_active_events,
@@ -256,7 +256,7 @@ class HomeViewTest(TestBase):
 
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_events_another_organizer(self, mock_get_event_eb_api):
-        self.response = self.client.get('/en/')
+        self.response = self.client.get('/')
         for event in self.events_another_organizer:
             self.assertNotContains(
                 self.response,
@@ -270,7 +270,7 @@ class HomeViewTest(TestBase):
             value=100.0,
             value_type="percentage",
         )
-        self.response = self.client.get('/en/')
+        self.response = self.client.get('/')
         self.assertEqual(
             self.response.context['events'][self.events[0].id]['discount'],
             discount.value,
@@ -288,7 +288,7 @@ class HomeViewTest(TestBase):
             value=100.0,
             value_type="percentage",
         )
-        self.response = self.client.get('/en/')
+        self.response = self.client.get('/')
         self.assertEqual(
             len(Discount.objects.filter(event=event)),
             0,
@@ -313,13 +313,13 @@ class EventDiscountsViewTest(TestBase):
 
     def test_event_discounts(self, mock_get_event_eb_api):
         self.response = self.client.get(
-            '/en/events_discount/{}/'.format(self.event.id)
+            '/events_discount/{}/'.format(self.event.id)
         )
         self.assertEqual(self.response.status_code, 200)
 
     def test_event_discounts_url_has_correct_template(self, mock_get_event_eb_api):
         self.response = self.client.get(
-            '/en/events_discount/{}/'.format(self.event.id)
+            '/events_discount/{}/'.format(self.event.id)
         )
         self.assertEqual(
             self.response.context_data['view'].template_name,
@@ -328,7 +328,7 @@ class EventDiscountsViewTest(TestBase):
 
     def test_event_in_response(self, mock_get_event_eb_api):
         self.response = self.client.get(
-            '/en/events_discount/{}/'.format(self.event.id)
+            '/events_discount/{}/'.format(self.event.id)
         )
         self.assertContains(
             self.response,
@@ -341,7 +341,7 @@ class EventDiscountsViewTest(TestBase):
 
     def test_events_discounts_in_response(self, mock_get_event_eb_api):
         self.response = self.client.get(
-            '/en/events_discount/{}/'.format(self.event.id)
+            '/events_discount/{}/'.format(self.event.id)
         )
         self.assertContains(
             self.response,
@@ -363,7 +363,7 @@ class CreateDiscountViewTest(TestBase):
         )
 
         self.response = self.client.get(
-            '/en/events_discount/{}/new/'.format(self.event.id)
+            '/events_discount/{}/new/'.format(self.event.id)
         )
 
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
@@ -387,7 +387,7 @@ class CreateDiscountViewTest(TestBase):
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_discount_wrong_percentage_value_negative(self, mock_get_event_eb_api):
         self.response = self.client.post(
-            '/en/events_discount/{}/new/'.format(self.event.id),
+            '/events_discount/{}/new/'.format(self.event.id),
             {
                 'discount_name': 'descuento',
                 'discount_type': 'percentage',
@@ -407,7 +407,7 @@ class CreateDiscountViewTest(TestBase):
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_discount_wrong_percentage_value_too_high(self, mock_get_event_eb_api):
         self.response = self.client.post(
-            '/en/events_discount/{}/new/'.format(self.event.id),
+            '/events_discount/{}/new/'.format(self.event.id),
             {
                 'discount_name': 'descuento',
                 'discount_type': 'percentage',
@@ -426,7 +426,7 @@ class CreateDiscountViewTest(TestBase):
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_discount_correct(self, mock_get_event_eb_api):
         self.response = self.client.post(
-            '/en/events_discount/{}/new/'.format(self.event.id),
+            '/events_discount/{}/new/'.format(self.event.id),
             {
                 'discount_name': 'descuento',
                 'discount_type': 'percentage',
@@ -447,7 +447,7 @@ class CreateDiscountViewTest(TestBase):
             value_type="percentage",
         )
         self.response = self.client.post(
-            '/en/events_discount/{}/new/'.format(self.event.id),
+            '/events_discount/{}/new/'.format(self.event.id),
             {
                 'discount_name': 'descuento',
                 'discount_type': 'percentage',
@@ -461,7 +461,7 @@ class CreateDiscountViewTest(TestBase):
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_event_api_free)
     def test_create_discount_on_free_event(self, mock_get_event_eb_api):
         self.response = self.client.post(
-            '/en/events_discount/{}/new/'.format(self.event.id),
+            '/events_discount/{}/new/'.format(self.event.id),
             {
                 'discount_name': 'descuento',
                 'discount_type': 'percentage',
@@ -491,7 +491,7 @@ class ModifyDiscountViewTest(TestBase):
         )
 
         self.response = self.client.get(
-            '/en/events_discount/{}/{}/'.format(
+            '/events_discount/{}/{}/'.format(
                 self.event.id,
                 self.discount.id,
             )
@@ -520,7 +520,7 @@ class ModifyDiscountViewTest(TestBase):
 
     def test_modify_discount_correct_percentage_value(self, mock_get_event_eb_api):
         self.response = self.client.post(
-            '/en/events_discount/{}/{}/'.format(
+            '/events_discount/{}/{}/'.format(
                 self.event.id,
                 self.discount.id,
             ),
@@ -542,7 +542,7 @@ class ModifyDiscountViewTest(TestBase):
     def test_modify_discount_low_percentage_value(self, mock_get_event_eb_api):
 
         self.response = self.client.post(
-            '/en/events_discount/{}/{}/'.format(
+            '/events_discount/{}/{}/'.format(
                 self.event.id,
                 self.discount.id,
             ),
@@ -565,7 +565,7 @@ class ModifyDiscountViewTest(TestBase):
     def test_modify_discount_too_high_percentage_value(self, mock_get_event_eb_api):
 
         self.response = self.client.post(
-            '/en/events_discount/{}/{}/'.format(
+            '/events_discount/{}/{}/'.format(
                 self.event.id,
                 self.discount.id,
             ),
@@ -601,7 +601,7 @@ class DeleteDiscountViewTest(TestBase):
         )
 
         self.response = self.client.get(
-            '/en/events_discount/{}/{}/delete/'.format(
+            '/events_discount/{}/{}/delete/'.format(
                 self.event.id,
                 self.discount.id,
             )
@@ -630,7 +630,7 @@ class DeleteDiscountViewTest(TestBase):
 
     def test_press_delete_discount(self):
         self.response = self.client.get(
-            '/en/events_discount/{}/{}/delete/'.format(
+            '/events_discount/{}/{}/delete/'.format(
                 self.event.id,
                 self.discount.id,
             ),
@@ -642,7 +642,7 @@ class DeleteDiscountViewTest(TestBase):
 
     def test_confirm_delete_discount(self):
         self.response = self.client.post(
-            '/en/events_discount/{}/{}/delete/'.format(
+            '/events_discount/{}/{}/delete/'.format(
                 self.event.id,
                 self.discount.id,
             ),
@@ -667,14 +667,14 @@ class SelectEventsViewTest(TestBase):
                            mock_get_events_user_eb_api,
                            mock_get_user_eb_api,
                            ):
-        self.response = self.client.get('/en/select_events/')
+        self.response = self.client.get('/select_events/')
         self.assertEqual(self.response.status_code, 200)
 
     def test_select_events_correct_template(self,
                                             mock_get_events_user_eb_api,
                                             mock_get_user_eb_api,
                                             ):
-        self.response = self.client.get('/en/select_events/')
+        self.response = self.client.get('/select_events/')
         self.assertEqual(
             self.response.context_data['view'].template_name,
             'organizer/select_events.html',
@@ -684,7 +684,7 @@ class SelectEventsViewTest(TestBase):
                                   mock_get_events_user_eb_api,
                                   mock_get_user_eb_api,
                                   ):
-        self.response = self.client.get('/en/select_events/')
+        self.response = self.client.get('/select_events/')
         self.assertEqual(
             self.response.context_data['user'],
             self.organizer,
@@ -694,7 +694,7 @@ class SelectEventsViewTest(TestBase):
                             mock_get_events_user_eb_api,
                             mock_get_user_eb_api,
                             ):
-        self.response = self.client.get('/en/select_events/')
+        self.response = self.client.get('/select_events/')
         for event in self.response.context_data['events']:
             self.assertEqual(
                 event['start_date'],
@@ -710,7 +710,7 @@ class SelectEventsViewTest(TestBase):
             organizer=self.organizer,
             is_active=True,
         )
-        self.response = self.client.get('/en/select_events/')
+        self.response = self.client.get('/select_events/')
         selected_events = Event.objects.filter(
             organizer=self.organizer
         ).filter(is_active=True)
@@ -726,7 +726,7 @@ class SelectEventsViewTest(TestBase):
                             ):
         event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
         self.response = self.client.post(
-            path='/en/select_events/',
+            path='/select_events/',
             data=urlencode({
                 'event_' + event_mock_api_eb['id']: 'on',
             }),
@@ -751,7 +751,7 @@ class SelectEventsViewTest(TestBase):
             event_id=event_mock_api_eb['id'],
         )
         self.response = self.client.post(
-            path='/en/select_events/',
+            path='/select_events/',
             data=urlencode({
                 'event_' + event_mock_api_eb['id']: 'on',
             }),
@@ -776,7 +776,7 @@ class SelectEventsViewTest(TestBase):
             event_id=event_mock_api_eb['id'],
         )
         self.response = self.client.post(
-            path='/en/select_events/',
+            path='/select_events/',
         )
         event_in_db = Event.objects.filter(event_id=event_mock_api_eb['id'])
         self.assertEqual(self.response.status_code, 302)
@@ -804,7 +804,7 @@ class SelectEventsViewTest(TestBase):
             event=self.event,
         )
         self.response = self.client.post(
-            path='/en/select_events/',
+            path='/select_events/',
         )
         event_in_db = Event.objects.filter(event_id=event_mock_api_eb['id'])
         discount_in_db = Discount.objects.filter(event=self.event)
@@ -843,7 +843,7 @@ class EventAccessMixinTest(TestBase):
         self.view.kwargs = {'event_id': event.id}
         # the logged user is user 0 and the organizer of the event is user 1
         self.view.request.user = self.organizer
-        self.view.response = '/en/events_discount/{}/new/'.format(event.id)
+        self.view.response = '/events_discount/{}/new/'.format(event.id)
 
         with self.assertRaises(PermissionDenied) as permission_denied:
             self.view.get_event()
@@ -861,7 +861,7 @@ class EventAccessMixinTest(TestBase):
         self.view.kwargs = {'event_id': event.id}
         # the logged user is user 0 and the organizer of the event is user 1
         self.view.request.user = self.organizer
-        self.view.response = '/en/events_discount/{}/new/'.format(event.id)
+        self.view.response = '/events_discount/{}/new/'.format(event.id)
         self.assertEqual(self.view.get_event(), event)
 
     def test_rise_exception_404(self):
@@ -869,7 +869,7 @@ class EventAccessMixinTest(TestBase):
         self.view.kwargs = {'event_id': 4}
         # the logged user is user 0 and the organizer of the event is user 1
         self.view.request.user = self.organizer
-        self.view.response = '/en/events_discount/{}/new/'.format(4)
+        self.view.response = '/events_discount/{}/new/'.format(4)
 
         with self.assertRaises(Http404):
             self.view.get_event()
@@ -905,7 +905,7 @@ class DiscountAccessMixinTest(TestBase):
         }
         # the logged user is user 0 and the organizer of the event is user 1
         self.view.request.user = self.organizer
-        self.view.response = 'en/events_discount/{}/{}/'.format(
+        self.view.response = 'events_discount/{}/{}/'.format(
             event2.id, discount.id)
 
         with self.assertRaises(PermissionDenied) as permission_denied:
@@ -930,7 +930,7 @@ class DiscountAccessMixinTest(TestBase):
         }
         # the logged user is user 0 and the organizer of the event is user 1
         self.view.request.user = self.organizer
-        self.view.response = 'en/events_discount/{}/{}/'.format(
+        self.view.response = 'events_discount/{}/{}/'.format(
             event.id, discount.id)
         self.assertEqual(self.view.get_discount(), discount)
 
@@ -946,7 +946,7 @@ class DiscountAccessMixinTest(TestBase):
         }
         # the logged user is user 0 and the organizer of the event is user 1
         self.view.request.user = self.organizer
-        self.view.response = 'en/events_discount/{}/{}/'.format(event.id, 8)
+        self.view.response = 'events_discount/{}/{}/'.format(event.id, 8)
 
         with self.assertRaises(Http404):
             self.view.get_discount()
@@ -975,13 +975,13 @@ class LandingPageBuyerViewTest(TestCase):
 
     def test_landing_page_buyer(self, mock_get_event_eb_api):
         self.response = self.client.get(
-            '/en/landing_page/{}/'.format(self.organizer.id)
+            '/landing_page/{}/'.format(self.organizer.id)
         )
         self.assertEqual(self.response.status_code, 200)
 
     def test_landing_page_url_has_index_template(self, mock_get_event_eb_api):
         self.response = self.client.get(
-            '/en/landing_page/{}/'.format(self.organizer.id)
+            '/landing_page/{}/'.format(self.organizer.id)
         )
         self.assertEqual(
             self.response.context_data['view'].template_name,
@@ -990,7 +990,7 @@ class LandingPageBuyerViewTest(TestCase):
 
     def test_events_landing_page(self, mock_get_event_eb_api):
         self.response = self.client.get(
-            '/en/landing_page/{}/'.format(self.organizer.id)
+            '/landing_page/{}/'.format(self.organizer.id)
         )
         for event in self.events:
             self.assertIn(
@@ -1000,7 +1000,7 @@ class LandingPageBuyerViewTest(TestCase):
 
     def test_events_landing_page_not_active(self, mock_get_event_eb_api):
         self.response = self.client.get(
-            '/en/landing_page/{}/'.format(self.organizer.id)
+            '/landing_page/{}/'.format(self.organizer.id)
         )
         self.assertNotIn(
             self.no_active_events.id,
@@ -1009,7 +1009,7 @@ class LandingPageBuyerViewTest(TestCase):
 
     def test_events_another_organizer(self, mock_get_event_eb_api):
         self.response = self.client.get(
-            '/en/landing_page/{}/'.format(self.organizer.id)
+            '/landing_page/{}/'.format(self.organizer.id)
         )
         self.assertNotIn(
             self.event_another_organizer.id,
@@ -1023,7 +1023,7 @@ class LandingPageBuyerViewTest(TestCase):
             value_type="percentage",
         )
         self.response = self.client.get(
-            '/en/landing_page/{}/'.format(self.organizer.id)
+            '/landing_page/{}/'.format(self.organizer.id)
         )
         self.assertEqual(
             self.response.context['events'][self.events[0].id]['discount'],
@@ -1049,7 +1049,7 @@ class ListingPageEventViewTest(TestCase):
                                 mock_get_event_tickets_eb_api,
                                 ):
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         self.assertEqual(self.response.status_code, 200)
@@ -1062,7 +1062,7 @@ class ListingPageEventViewTest(TestCase):
                                                  mock_get_event_tickets_eb_api,
                                                  ):
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         self.assertEqual(
@@ -1079,7 +1079,7 @@ class ListingPageEventViewTest(TestCase):
                                               ):
 
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         self.assertEqual(
@@ -1096,7 +1096,7 @@ class ListingPageEventViewTest(TestCase):
                                           ):
 
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         self.assertEqual(
@@ -1113,7 +1113,7 @@ class ListingPageEventViewTest(TestCase):
                                           ):
 
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         self.assertEqual(
@@ -1130,7 +1130,7 @@ class ListingPageEventViewTest(TestCase):
                                               ):
 
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         self.assertEqual(
@@ -1151,7 +1151,7 @@ class ListingPageEventViewTest(TestCase):
             value_type="percentage",
         )
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         self.assertEqual(
@@ -1167,7 +1167,7 @@ class ListingPageEventViewTest(TestCase):
                                     mock_get_event_tickets_eb_api,
                                     ):
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         ticket_values = {
@@ -1189,7 +1189,7 @@ class ListingPageEventViewTest(TestCase):
                                              mock_get_event_tickets_eb_api,
                                              ):
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         ticket_values = {
@@ -1211,7 +1211,7 @@ class ListingPageEventViewTest(TestCase):
                                     mock_get_event_tickets_eb_api,
                                     ):
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         ticket_values = {
@@ -1233,7 +1233,7 @@ class ListingPageEventViewTest(TestCase):
                                                      mock_get_event_tickets_eb_api,
                                                      ):
         self.response = self.client.get(
-            '/en/landing_page/{}/event/{}/'.format(
+            '/landing_page/{}/event/{}/'.format(
                 self.organizer.id, self.event.id)
         )
         ticket_values = {

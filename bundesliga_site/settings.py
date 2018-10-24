@@ -150,6 +150,8 @@ AUTHENTICATION_BACKENDS = (
 
 # Obtener variables de entorno
 
+LANGUAGE_CODE = 'en'
+
 LANGUAGES = (
     ('en', _('English')),
     ('de', _('German')),
@@ -177,7 +179,6 @@ LOGOUT_REDIRECT_URL = '/'
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en'
 
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),

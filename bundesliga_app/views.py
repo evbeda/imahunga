@@ -1,6 +1,6 @@
 from bundesliga_app.models import Event
 from django.shortcuts import get_object_or_404
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
@@ -33,7 +33,8 @@ from django.views.generic.edit import (
     FormView,
     DeleteView,
 )
-from django.utils.translation import ugettext_lazy as _
+from django.utils import translation
+from django.utils.translation import ugettext as _
 from django.forms.utils import ErrorList
 from django.contrib.auth import get_user_model
 from dateutil import parser
@@ -534,3 +535,15 @@ class ListingPageEventView(FormView):
             context['event']['id'],
         )
         return context
+
+
+class ActivateLanguageView(View):
+    language_code = ''
+    redirect_to   = ''
+
+    def get(self, request, *args, **kwargs):
+        self.redirect_to   = request.META.get('HTTP_REFERER')
+        self.language_code = kwargs.get('language_code')
+        translation.activate(self.language_code)
+        request.session[translation.LANGUAGE_SESSION_KEY] = self.language_code
+        return redirect(self.redirect_to)

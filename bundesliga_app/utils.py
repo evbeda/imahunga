@@ -5,7 +5,7 @@ from .models import (
     Event,
     Discount,
 )
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from bundesliga_site.settings import API_KEY_DEUTSCHER_SPORTAUSWEIS

@@ -1,6 +1,5 @@
 {% load static %}
 {% load i18n %}
-{% get_current_language as LANGUAGE_CODE %}
 <html>
 <head>
     <title>{% trans "Eventbrite Discounts" %}</title>
@@ -52,46 +51,23 @@
             <div class="eds-global-footer__region eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-top-4 eds-l-pad-bot-3">
                 <div class="eds-global-footer__region-selector">
                     <div class="eds-l-mar-bot-0">
-                        {% if user.is_authenticated %}
                         <div class="eds-text--left">
-                            <label class="eds-field-styled__label eds-is-hidden-accessible" data-spec="label-label">{% trans "Locale" %}</label>
-                                <a href="#" onclick="return lang_picker_en()"><img src="{% static 'images/en-flag.png'%}" style="height: 15px;"></a>
-                                &nbsp;&nbsp;<a href="#" onclick="return lang_picker_es()"><img src="{% static 'images/es-flag.png'%}" style="height: 15px;"></a>
-                                &nbsp;&nbsp;<a href="#" onclick="return lang_picker_de()"><img src="{% static 'images/ge-flag.png'%}" style="height: 15px;"></a>
+                            <ul id="language-list">
+                                <a href="{% url 'activate_language' 'en' %}" >
+                                    <img src="{% static 'images/en-flag.png'%}" name="en" style="height: 15px;">
+                                </a>&nbsp;&nbsp;
+                                <a href="{% url 'activate_language' 'es' %}" >
+                                    <img src="{% static 'images/es-flag.png'%}" name="es" style="height: 15px;">
+                                </a>&nbsp;&nbsp;
+                                <a href="{% url 'activate_language' 'de' %}">
+                                    <img src="{% static 'images/ge-flag.png'%}" name="de" style="height: 15px;">
+                                </a>
+                            </ul>
                         </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </footer>
-{% if user.is_authenticated %}
-<script type="text/javascript">
-function lang_picker_en() {
-    language = 'en';
-    var url = window.location.href.split('/');
-    url[3] = language;
-    new_url = url.join('/')
-    window.location.href = new_url;
-    return false;
-};
-function lang_picker_es() {
-    language = 'es';
-    var url = window.location.href.split('/');
-    url[3] = language;
-    new_url = url.join('/')
-    window.location.href = new_url;
-    return false;
-};
-function lang_picker_de() {
-    language = 'de';
-    var url = window.location.href.split('/');
-    url[3] = language;
-    new_url = url.join('/')
-    window.location.href = new_url;
-    return false;
-};
-</script>
-{% endif %}
 </body>
 </html>

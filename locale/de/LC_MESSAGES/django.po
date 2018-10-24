@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-24 14:57-0300\n"
+"POT-Creation-Date: 2018-10-25 12:19-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -57,23 +57,23 @@ msgstr "UserSocialAuth existiert nicht!"
 msgid "Invalid Request"
 msgstr "Ungültige Anfrage"
 
-#: bundesliga_app/views.py:231
+#: bundesliga_app/views.py:232
 msgid "You cant create a discount in a free event"
 msgstr "Sie können in einer kostenlosen Veranstaltung keinen Rabatt erstellen"
 
-#: bundesliga_app/views.py:274
+#: bundesliga_app/views.py:275
 msgid "You already have a discount for this event"
 msgstr "Login um die Rabatte Ihrer Events zu verwalten"
 
-#: bundesliga_site/settings.py:154
+#: bundesliga_site/settings.py:156
 msgid "English"
 msgstr "Englisch"
 
-#: bundesliga_site/settings.py:155
+#: bundesliga_site/settings.py:157
 msgid "German"
 msgstr "Deutsch"
 
-#: bundesliga_site/settings.py:156
+#: bundesliga_site/settings.py:158
 msgid "Spanish"
 msgstr "Spanisch"
 
@@ -292,7 +292,8 @@ msgstr "Hoppla!"
 
 #: templates/registration/authcanceled.html:8
 msgid "It seems like the access was denied. Please, try again."
-msgstr "Es scheint, als wäre der Zugang verweigert worden. Bitte versuche es erneut."
+msgstr ""
+"Es scheint, als wäre der Zugang verweigert worden. Bitte versuche es erneut."
 
 #: templates/registration/authcanceled.html:11
 #: templates/registration/login.html:11
@@ -307,25 +308,24 @@ msgstr "Willkommen!"
 msgid "Login to manage the discounts of your events"
 msgstr "Login um die Rabatte Ihrer Events zu verwalten"
 
-#: templates/shared/base.html:6
+#: templates/shared/base.html:5
 msgid "Eventbrite Discounts"
 msgstr "Eventbrite Rabatte"
 
-#: templates/shared/base.html:34
+#: templates/shared/base.html:33
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/shared/base.html:46
+#: templates/shared/base.html:45
 msgid "Site Navigation"
 msgstr "Websitenavigation"
 
-#: templates/shared/base.html:50
+#: templates/shared/base.html:49
 msgid "© 2018 Powered by Imahunga"
 msgstr "© 2018 Powered by Imahunga"
 
-#: templates/shared/base.html:57
-msgid "Locale"
-msgstr "Gebietsschema"
+#~ msgid "Locale"
+#~ msgstr "Gebietsschema"
 
 #~ msgid "Close"
 #~ msgstr "Schließen"

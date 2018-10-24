@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-24 14:57-0300\n"
+"POT-Creation-Date: 2018-10-25 12:19-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgstr "Ingrese el nombre del codigo"
 
 #: bundesliga_app/forms.py:23
 msgid "Insert your discount"
-msgstr "Ingrese el porcentage de descuento"
+msgstr "Ingrese el porcentaje de descuento"
 
 #: bundesliga_app/forms.py:39
 msgid "Insert your member number here"
@@ -58,23 +58,23 @@ msgstr "UserSocialAuth does not exists!"
 msgid "Invalid Request"
 msgstr "Pedido invalido"
 
-#: bundesliga_app/views.py:231
+#: bundesliga_app/views.py:232
 msgid "You cant create a discount in a free event"
 msgstr "No puedes crear descuentos en un evento gratuito"
 
-#: bundesliga_app/views.py:274
+#: bundesliga_app/views.py:275
 msgid "You already have a discount for this event"
 msgstr "Ya tienes un descuento para este evento"
 
-#: bundesliga_site/settings.py:154
+#: bundesliga_site/settings.py:156
 msgid "English"
 msgstr "Inglés"
 
-#: bundesliga_site/settings.py:155
+#: bundesliga_site/settings.py:157
 msgid "German"
 msgstr "Alemán"
 
-#: bundesliga_site/settings.py:156
+#: bundesliga_site/settings.py:158
 msgid "Spanish"
 msgstr "Español"
 
@@ -308,25 +308,24 @@ msgstr "Bienvenido!"
 msgid "Login to manage the discounts of your events"
 msgstr "Inicia sesion para administrar los descuentos de tu evento"
 
-#: templates/shared/base.html:6
+#: templates/shared/base.html:5
 msgid "Eventbrite Discounts"
 msgstr "Descuentos Eventbrite"
 
-#: templates/shared/base.html:34
+#: templates/shared/base.html:33
 msgid "Logout"
 msgstr "Logout"
 
-#: templates/shared/base.html:46
+#: templates/shared/base.html:45
 msgid "Site Navigation"
 msgstr "Navegacion del sitio"
 
-#: templates/shared/base.html:50
+#: templates/shared/base.html:49
 msgid "© 2018 Powered by Imahunga"
 msgstr "© 2018 Powered by Imahunga"
 
-#: templates/shared/base.html:57
-msgid "Locale"
-msgstr "Idioma"
+#~ msgid "Locale"
+#~ msgstr "Idioma"
 
 #~ msgid "Close"
 #~ msgstr "Cerrar"
