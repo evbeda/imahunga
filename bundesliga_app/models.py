@@ -21,3 +21,9 @@ class Discount(models.Model):
 
     def __str__(self):
         return self.name
+
+class DiscountCode(models.Model):
+    member_number = models.CharField(max_length=200)
+    event = models.ForeignKey(Event)
+    eb_event_id = models.CharField(max_length=200)
+    discount_code = models.CharField(max_length=500)

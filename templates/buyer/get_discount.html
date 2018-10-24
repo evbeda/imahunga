@@ -1,25 +1,18 @@
-{% extends '../shared/base.html' %}
 {% block content %}
 	{% load static %}
-	<div class="modal-dialog" role="document">
-		<form id="get_discount_form" action="{% url 'get_discount' organizer.id event_id %}" method="POST">{% csrf_token %}
-			<div class="modal-content">
-				<div class="modal-header">
-					<h4 class="modal-title">Get Discount</h4>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-					</button>
+		<form id="get_discount_form" class="text-center" id="get_discount_form" method="POST">
+			{% csrf_token %}
+				<div >
+					<h4 >Get Discount</h4>
 				</div>
-				<div class="modal-body">
+				<div>
 					<span id="errors">
 					</span>
 					{% if form.errors %}
 						{% for field in form %}
 							<span id="errors_form">
-
-
 							{% for error in field.errors %}
-								<div class="alert alert-danger">
+								<div class="alert alert-danger mx-auto" style="width: 50%">
 									<strong>{{ error|escape }}</strong>
 								</div>
 							{% endfor %}
@@ -33,36 +26,79 @@
 					{% endif %}
 					<div class="form-group">
 						<label class="font-weight-bold">Enter your member number</label>
-						<div  class="input-group input-group-lg">
-							{{ form.member_number }}
+						<div id="input_field" class="input-group input-group-lg mx-auto" style="width: 50%">
+							{{ form.member_number_1 }}
 						</div>
 					</div>
+					<button class="eds-btn eds-btn--button eds-btn--fill" id="add_field" type="button" style="float: right;">
+							Add Number
+					</button>
 				</div>
-				<div class="modal-footer">
+				<div>
 					<button class="eds-btn eds-btn--button eds-btn--fill" id="retry" type="button" onclick="window.open('{{ event.url }}', '_blank')" style="display: none;">
 					Continue without discount
 					</button>
 					<input type="submit" id="submit_btn" class="eds-btn eds-btn--button eds-btn--fill" value="OK"/>
 				</div>
-			</div>
+				<div id="loading">
+			        <div>
+			            <svg class="eds-progress-indicator--circular eds-fx--rotate" viewBox="0 0 100 100" style="width:20px;height:20px;" aria-valuetext="In progress">
+			              <defs>
+			                <linearGradient id="stroke-small-chunky-gradient-indeterminate">
+			                  <stop offset="0%" stop-color="#4BE1A0"></stop>
+			                  <stop offset="50%" stop-color="#4BE1A0"></stop>
+			                  <stop offset="100%" stop-color="#4BE1A0" stop-opacity="0"></stop>
+			                </linearGradient>
+			              </defs>
+			              <path d="M93.5,50C93.5,74,74,93.5,50,93.5S6.5,74,6.5,50S26,6.5,50,6.5" stroke="url(#stroke-small-chunky-gradient-indeterminate)" stroke-width="10" stroke-linecap="round" shape-rendering="geometricPrecision" fill="none"></path>
+			            </svg>
+			            <progress class="eds-is-hidden-accessible"></progress>
+			        </div>
+			    </div>
 		</form>
-	</div>
 	 	<script>
+	 	$(document).ready(function(){
+	        var form_options = {
+	            target: '#get_discount_form',
+	            dataType: 'json',
+	            success: function(response) {
+	            	window.location.href=response.url
+	            	$("#loading").hide()
+	            	$("#submit_btn").show()
+	            },
+	            error: function(response){
+	            	document.getElementById('errors').innerHTML=$($.parseHTML(response.responseText)).find("#errors_form")[0].innerHTML;
+	            	$('#retry').show();
+	            	$('#submit_btn').val('Retry');
+	            	$("#loading").hide()
+	            	$("#submit_btn").show()
+	            	console.log(response)
+	            	debugger;
+	            }
+	        }
+	        $('#get_discount_form').ajaxForm(form_options);
 
-        var form_options = {
-            target: '#modal',
-            dataType: 'json',
-            success: function(response) {
-            	window.location.href=response.url
-            },
-            error: function(response){
-            	document.getElementById('errors').innerHTML=$($.parseHTML(response.responseText)).find("#errors_form")[0].innerHTML;
-            	$('#retry').show();
-            	$('#submit_btn').val('Retry');
-            }
-        }
-        $('#get_discount_form').ajaxForm(form_options);
+        	var max_member_number = 10
+			var input_added = 2
+        	$("#loading").hide()
 
+        	$("#submit_btn").click(function(){
+        		$("#submit_btn").hide()
+        		$("#loading").show()
+        		$("#retry").hide()
+        	});
+
+	        $("#add_field").on('click',function(){
+	        	if(input_added <= max_member_number){
+	        		var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder="Insert your member number here"/></div>';
+		        	console.log(member_input)
+		        	$(".form-group").append(member_input)
+		        	input_added += 1
+	        	}else{
+	        		alert("You can only add up to 10 member's numbers")
+	        	}
+	        });
+        });
         </script>
 
 {% endblock %}
