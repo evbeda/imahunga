@@ -511,7 +511,7 @@ class ListingPageEventView(FormView):
         if self._generate_discount_code(
             form
         ):
-           return JsonResponse({'url':self.url})
+            return JsonResponse({'url':self.url})
         else:
             form.discount_already_used()
             return super(ListingPageEventView, self).form_invalid(form)
