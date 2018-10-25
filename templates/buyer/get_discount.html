@@ -3,7 +3,7 @@
     {% load i18n %}
 		<form id="get_discount_form" class="text-center" id="get_discount_form" method="POST">
 			{% csrf_token %}
-				<div >
+				<div style="padding: 10px" >
 					<h4>{% trans "Get Discount" %}</h4>
 				</div>
 				<div>
@@ -27,13 +27,13 @@
 					{% endif %}
 					<div class="form-group">
 						<label class="font-weight-bold">{% trans "Enter your member number" %}</label>
-						<div id="input_field" class="input-group input-group-lg mx-auto" style="width: 50%">
+						<div id="input_field" class="input-group input-group-lg mx-auto" style="width: 50%;">
 							{{ form.member_number_1 }}
+							<button  id="add_field" type="button" style="margin-left: 15px; background: transparent; border:none">
+								<img src="{% static 'images/add.png' %}" style="width: 20px">
+							</button>
 						</div>
 					</div>
-					<button class="eds-btn eds-btn--button eds-btn--fill" id="add_field" type="button" style="float: right;">
-							Add Number
-					</button>
 				</div>
 				<div>
 					<button class="eds-btn eds-btn--button eds-btn--fill" id="retry" type="button" onclick="window.open('{{ event.url }}', '_blank')" style="display: none;">
@@ -94,7 +94,7 @@
 
 	        $("#add_field").on('click',function(){
 	        	if(input_added <= max_member_number){
-	        		var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder="Insert your member number here"/><input name="remove_number_' + input_added + '" type="button" value="Remove" onclick="remove('+ input_added +')"/></div>';
+	        		var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder="Insert your member number here"/><input name="remove_number_' + input_added + '" type="button" value="X" onclick="remove('+ input_added +')" style="background: transparent; border: none; margin: 20px"/></div>';
 		        	// console.log(member_input)
 		        	$(".form-group").append(member_input)
 		        	input_added += 1
