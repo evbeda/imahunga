@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-24 14:57-0300\n"
+"POT-Creation-Date: 2018-10-26 09:43-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,9 +24,9 @@ msgstr "Ingrese el nombre del codigo"
 
 #: bundesliga_app/forms.py:23
 msgid "Insert your discount"
-msgstr "Ingrese el porcentage de descuento"
+msgstr "Ingrese el porcentaje de descuento"
 
-#: bundesliga_app/forms.py:39
+#: bundesliga_app/forms.py:39 templates/buyer/get_discount.html:97
 msgid "Insert your member number here"
 msgstr "Ingresá tu tarjeta de socio"
 
@@ -34,11 +34,15 @@ msgstr "Ingresá tu tarjeta de socio"
 msgid "Invalid request"
 msgstr "Pedido invalido"
 
-#: bundesliga_app/forms.py:74
-msgid "Invalid numbers"
-msgstr "Números invalido"
+#: bundesliga_app/forms.py:75
+msgid "Invalid number "
+msgstr "Número invalido "
 
-#: bundesliga_app/forms.py:82
+#: bundesliga_app/forms.py:80
+msgid "Invalid numbers "
+msgstr "Números invalidos "
+
+#: bundesliga_app/forms.py:88
 msgid "You already used the discount for this event"
 msgstr "Ya has usado el descuento para este evento"
 
@@ -58,11 +62,11 @@ msgstr "UserSocialAuth does not exists!"
 msgid "Invalid Request"
 msgstr "Pedido invalido"
 
-#: bundesliga_app/views.py:231
+#: bundesliga_app/views.py:232
 msgid "You cant create a discount in a free event"
 msgstr "No puedes crear descuentos en un evento gratuito"
 
-#: bundesliga_app/views.py:274
+#: bundesliga_app/views.py:275
 msgid "You already have a discount for this event"
 msgstr "Ya tienes un descuento para este evento"
 
@@ -98,6 +102,14 @@ msgstr "Continuar sin descuento"
 #: templates/buyer/get_discount.html:42
 msgid "Ok"
 msgstr "Ok"
+
+#: templates/buyer/get_discount.html:75
+msgid "Retry"
+msgstr "Validar"
+
+#: templates/buyer/get_discount.html:102
+msgid "You can only add up to 10 member's numbers"
+msgstr "Solo puedes agregar hasta 10 números de socios"
 
 #: templates/buyer/landing_page_buyer.html:26
 #: templates/buyer/listing_page_event.html:50
@@ -308,28 +320,24 @@ msgstr "Bienvenido!"
 msgid "Login to manage the discounts of your events"
 msgstr "Inicia sesion para administrar los descuentos de tu evento"
 
-#: templates/shared/base.html:6
+#: templates/shared/base.html:5
 msgid "Eventbrite Discounts"
 msgstr "Descuentos Eventbrite"
 
-#: templates/shared/base.html:34
+#: templates/shared/base.html:33
 msgid "Logout"
 msgstr "Logout"
 
-#: templates/shared/base.html:46
+#: templates/shared/base.html:45
 msgid "Site Navigation"
 msgstr "Navegacion del sitio"
 
-#: templates/shared/base.html:50
+#: templates/shared/base.html:49
 msgid "© 2018 Powered by Imahunga"
 msgstr "© 2018 Powered by Imahunga"
 
-#: templates/shared/base.html:57
-msgid "Locale"
-msgstr "Idioma"
+#~ msgid "Locale"
+#~ msgstr "Idioma"
 
 #~ msgid "Close"
 #~ msgstr "Cerrar"
-
-#~ msgid "Retry"
-#~ msgstr "Validar"

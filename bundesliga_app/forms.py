@@ -72,12 +72,12 @@ class GetDiscountForm(forms.Form):
             if len(invalid_numbers) == 1:
                 self.add_error(
                     'member_number_1',
-                    ('Invalid number ')+'{}'.format(numbers),
+                    _('Invalid number ')+'{}'.format(numbers),
                 )
             else:
                 self.add_error(
                     'member_number_1',
-                    ('Invalid numbers ')+'{}'.format(numbers),
+                    _('Invalid numbers ')+'{}'.format(numbers),
                 )
             return False
         else:
