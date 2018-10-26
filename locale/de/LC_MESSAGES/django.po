@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-26 09:43-0300\n"
+"POT-Creation-Date: 2018-10-26 11:53-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,57 +17,57 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: bundesliga_app/forms.py:17
+#: bundesliga_app/forms.py:26
 msgid "Insert a name code"
 msgstr "Einen Namen eingeben"
 
-#: bundesliga_app/forms.py:23
+#: bundesliga_app/forms.py:32
 msgid "Insert your discount"
 msgstr "Fügen Sie Ihren Rabatt ein"
 
-#: bundesliga_app/forms.py:39 templates/buyer/get_discount.html:97
-msgid "Insert your member number here"
-msgstr "Geben Sie hier Ihre Mitgliedsnummer ein"
-
 #: bundesliga_app/forms.py:59
-msgid "Invalid request"
-msgstr "Ungültige Anfrage"
-
-#: bundesliga_app/forms.py:75
-msgid "Invalid number "
-msgstr "Ungültige Nummer "
-
-#: bundesliga_app/forms.py:80
-msgid "Invalid numbers "
-msgstr "Ungültige Nummern "
-
-#: bundesliga_app/forms.py:88
-msgid "You already used the discount for this event"
-msgstr "Login um die Rabatte Ihrer Events zu verwalten"
-
-#: bundesliga_app/utils.py:29
-msgid "You don't have access to this event"
-msgstr "Sie haben keinen Zugriff auf dieses Ereignis"
-
-#: bundesliga_app/utils.py:46
-msgid "You don't have access to this discount"
-msgstr "Sie haben keinen Zugriff auf diesen Rabatt"
-
-#: bundesliga_app/utils.py:60
-msgid "UserSocialAuth does not exists!"
-msgstr "UserSocialAuth existiert nicht!"
-
-#: bundesliga_app/utils.py:181
-msgid "Invalid Request"
-msgstr "Ungültige Anfrage"
-
-#: bundesliga_app/views.py:232
 msgid "You cant create a discount in a free event"
 msgstr "Sie können in einer kostenlosen Veranstaltung keinen Rabatt erstellen"
 
-#: bundesliga_app/views.py:275
-msgid "You already have a discount for this event"
+#: bundesliga_app/forms.py:69
+msgid "You already have a discount for this ticket type"
 msgstr "Login um die Rabatte Ihrer Events zu verwalten"
+
+#: bundesliga_app/forms.py:101
+msgid "Insert your member number here"
+msgstr "Geben Sie hier Ihre Mitgliedsnummer ein"
+
+#: bundesliga_app/forms.py:122
+msgid "Invalid request"
+msgstr "Ungültige Anfrage"
+
+#: bundesliga_app/forms.py:138
+msgid "Invalid number "
+msgstr "Ungültige Nummer "
+
+#: bundesliga_app/forms.py:143
+msgid "Invalid numbers "
+msgstr "Ungültige Nummern "
+
+#: bundesliga_app/forms.py:151
+msgid "You already used the discount for this event"
+msgstr "Login um die Rabatte Ihrer Events zu verwalten"
+
+#: bundesliga_app/utils.py:30
+msgid "You don't have access to this event"
+msgstr "Sie haben keinen Zugriff auf dieses Ereignis"
+
+#: bundesliga_app/utils.py:47
+msgid "You don't have access to this discount"
+msgstr "Sie haben keinen Zugriff auf diesen Rabatt"
+
+#: bundesliga_app/utils.py:61
+msgid "UserSocialAuth does not exists!"
+msgstr "UserSocialAuth existiert nicht!"
+
+#: bundesliga_app/utils.py:183
+msgid "Invalid Request"
+msgstr "Ungültige Anfrage"
 
 #: bundesliga_site/settings.py:154
 msgid "English"
@@ -91,24 +91,22 @@ msgid "Get Discount"
 msgstr "Rabatt erhalten"
 
 #: templates/buyer/get_discount.html:29
+#, fuzzy
+#| msgid "Tickets"
+msgid "Tickets Type"
+msgstr "Tickets"
+
+#: templates/buyer/get_discount.html:35
 msgid "Enter your member number"
 msgstr "Geben Sie Ihre Mitgliedsnummer ein"
 
-#: templates/buyer/get_discount.html:40
+#: templates/buyer/get_discount.html:46
 msgid "Continue without discount"
 msgstr "Weiter ohne Rabatt"
 
-#: templates/buyer/get_discount.html:42
+#: templates/buyer/get_discount.html:48
 msgid "Ok"
 msgstr "Ok"
-
-#: templates/buyer/get_discount.html:75
-msgid "Retry"
-msgstr "Erneut versuchen"
-
-#: templates/buyer/get_discount.html:102
-msgid "You can only add up to 10 member's numbers"
-msgstr "Sie können nur bis zu 10 Mitgliedsnummern hinzufügen"
 
 #: templates/buyer/landing_page_buyer.html:26
 #: templates/buyer/listing_page_event.html:50
@@ -233,11 +231,11 @@ msgstr "Rabatt erstellen"
 msgid "Name"
 msgstr "Name"
 
-#: templates/organizer/create_discount.html:44
+#: templates/organizer/create_discount.html:42
 msgid "Discount amount"
 msgstr "Rabattbetrag"
 
-#: templates/organizer/create_discount.html:56
+#: templates/organizer/create_discount.html:59
 msgid "Save"
 msgstr "Speichern"
 
@@ -261,22 +259,10 @@ msgstr "Ereignisrabatte"
 msgid "'s Discounts"
 msgstr "Rabatte"
 
-#: templates/organizer/event_discounts.html:27
+#: templates/organizer/event_discounts.html:30
 #, python-format
 msgid "%% off"
 msgstr "%% aus"
-
-#: templates/organizer/event_discounts.html:67
-msgid "Any discount yet"
-msgstr "Noch ein Rabatt"
-
-#: templates/organizer/event_discounts.html:69
-msgid "Create one for the members"
-msgstr "Erstelle einen für die Mitglieder"
-
-#: templates/organizer/event_discounts.html:72
-msgid "Add Discount"
-msgstr "Rabatt hinzufügen"
 
 #: templates/organizer/select_events.html:6
 msgid "Select events"
@@ -304,7 +290,8 @@ msgstr "Hoppla!"
 
 #: templates/registration/authcanceled.html:8
 msgid "It seems like the access was denied. Please, try again."
-msgstr "Es scheint, als wäre der Zugang verweigert worden. Bitte versuche es erneut."
+msgstr ""
+"Es scheint, als wäre der Zugang verweigert worden. Bitte versuche es erneut."
 
 #: templates/registration/authcanceled.html:11
 #: templates/registration/login.html:11
@@ -334,6 +321,21 @@ msgstr "Websitenavigation"
 #: templates/shared/base.html:49
 msgid "© 2018 Powered by Imahunga"
 msgstr "© 2018 Powered by Imahunga"
+
+#~ msgid "Retry"
+#~ msgstr "Erneut versuchen"
+
+#~ msgid "You can only add up to 10 member's numbers"
+#~ msgstr "Sie können nur bis zu 10 Mitgliedsnummern hinzufügen"
+
+#~ msgid "Any discount yet"
+#~ msgstr "Noch ein Rabatt"
+
+#~ msgid "Create one for the members"
+#~ msgstr "Erstelle einen für die Mitglieder"
+
+#~ msgid "Add Discount"
+#~ msgstr "Rabatt hinzufügen"
 
 #~ msgid "Locale"
 #~ msgstr "Gebietsschema"
