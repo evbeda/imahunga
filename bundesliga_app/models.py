@@ -26,9 +26,6 @@ class Discount(models.Model):
     value = models.IntegerField()
     value_type = models.CharField(max_length=200)
 
-    def __str__(self):
-        return self.name
-
 
 class DiscountCode(models.Model):
     member_number = models.CharField(max_length=200)
