@@ -28,7 +28,15 @@ class Discount(models.Model):
 
 
 class DiscountCode(models.Model):
-    member_number = models.CharField(max_length=200)
     discount = models.ForeignKey(Discount)
-    eb_event_id = models.CharField(max_length=200)
     discount_code = models.CharField(max_length=500)
+
+
+class StatusMemberDiscountCode(models.Model):
+    name = models.CharField(max_length=200)
+
+
+class MemberDiscountCode(models.Model):
+    discount_code = models.ForeignKey(DiscountCode)
+    member_number = models.CharField(max_length=200)
+    status = models.ForeignKey(StatusMemberDiscountCode)

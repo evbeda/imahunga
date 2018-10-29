@@ -105,7 +105,11 @@ class DiscountForm(forms.Form):
 
 
 class GetDiscountForm(forms.Form):
-    tickets_type = forms.ChoiceField(widget=forms.Select())
+    tickets_type = forms.ChoiceField(widget=forms.Select(
+        attrs={
+            'class': 'custom-select'
+        }
+    ))
     member_number_1 = forms.IntegerField(required=True, widget=forms.NumberInput(
         attrs={
             'class': 'form-control',
@@ -114,11 +118,7 @@ class GetDiscountForm(forms.Form):
     ))
 
     def is_valid(self):
-        # import ipdb; ipdb.set_trace()
         super(GetDiscountForm, self).is_valid()
-        # if not valid:
-        #     return valid
-
         """ This method calls the API of DS in utils
         and returns a string according to the response
         """
@@ -156,10 +156,6 @@ class GetDiscountForm(forms.Form):
             return False
         else:
             return True
-
-    def discount_already_used(self):
-        self.add_error('member_number_1',
-                       _('You already used the discount for this event'))
 
     def __init__(self, data=None, *args, **kwargs):
         event_id = kwargs.pop('event_id', None)

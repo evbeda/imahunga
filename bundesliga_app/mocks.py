@@ -19,6 +19,13 @@ def get_mock_event_api_free(*args, **kwargs):
     return MOCK_EVENT_API_COPY
 
 
+def get_mock_event_ticket(*args, **kwargs):
+    ticket = {}
+    ticket[MOCK_EVENT_TICKETS[0][2]['id']] = copy.deepcopy(
+        MOCK_EVENT_TICKETS[0][2])
+    return ticket
+
+
 def get_mock_event_tickets_api_free(*args, **kwargs):
     return []
 
@@ -36,6 +43,12 @@ def get_mock_event_tickets_api_paid_inverse_position(*args, **kwargs):
     del MOCK_EVENT_TICKETS_PAID[0][0]
     # new mock [ TICKET[1], TICKET[0]], so we inverse the order
     return [MOCK_EVENT_TICKETS_PAID[0][1], MOCK_EVENT_TICKETS_PAID[0][0]]
+
+def get_mock_valid_numbers_ds(*args, **kwargs):
+    MOCK_DS_VALID_NUMBERS = []
+    MOCK_DS_VALID_NUMBERS.append(copy.deepcopy(MOCK_DS_API_VALID_NUMBER))
+    MOCK_DS_VALID_NUMBERS.append(copy.deepcopy(MOCK_DS_API_VALID_NUMBER))
+    return MOCK_DS_VALID_NUMBERS
 
 # Deutscher Sportausweis MOCKS
 # Mock for valid number
