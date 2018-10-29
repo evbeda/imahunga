@@ -120,9 +120,9 @@ def get_event_tickets_eb_api(token, event_id):
     ]
 
 
-def check_discount_code_in_eb(token, event_id, discount_code):
-    eventbrite = Eventbrite(token)
-    organization_id = get_user_eb_api(token)['id']
+def check_discount_code_in_eb(user, event_id, discount_code):
+    eventbrite = Eventbrite(get_auth_token(user))
+    organization_id = get_user_eb_api(get_auth_token(user))['id']
     return eventbrite.get(
         '/organizations/{}/discounts/?scope={}&event_id={}&code={}'.format(
             organization_id,
@@ -133,9 +133,9 @@ def check_discount_code_in_eb(token, event_id, discount_code):
     )
 
 
-def post_discount_code_to_eb(token, event_id, discount_code, discount_value, ticket_type, uses):
-    eventbrite = Eventbrite(token)
-    organization_id = get_user_eb_api(token)['id']
+def post_discount_code_to_eb(user, event_id, discount_code, discount_value, ticket_type, uses):
+    eventbrite = Eventbrite(get_auth_token(user))
+    organization_id = get_user_eb_api(get_auth_token(user))['id']
     data = {
         "discount": {
             "code": discount_code,
@@ -151,6 +151,29 @@ def post_discount_code_to_eb(token, event_id, discount_code, discount_value, tic
         data
     )
 
+
+def update_discount_code_to_eb(user, discount_id, uses):
+    eventbrite = Eventbrite(get_auth_token(user))
+    data = {
+        "discount": {
+            "quantity_available": uses
+        }
+    }
+    return eventbrite.post(
+        '/discounts/{}/'.format(
+            discount_id
+        ),
+        data
+    )
+
+def delete_discount_code_from_eb(user, discount_id):
+
+    eventbrite = Eventbrite(get_auth_token(user))
+    return eventbrite.delete(
+        '/discounts/{}/'.format(
+            discount_id
+        )
+    )
 
 def validate_member_number_ds(member_number):
     """
