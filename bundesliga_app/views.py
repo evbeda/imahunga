@@ -50,12 +50,6 @@ class HomeView(TemplateView, LoginRequiredMixin):
 
     template_name = 'index.html'
 
-    def _get_event_tickets(self, event_id):
-        return get_event_tickets_eb_api(
-            get_auth_token(self.request.user),
-            event_id,
-        )
-
     # Get all the data of organizer'events from EB API
     def _get_events(self):
         # Dictionary for events
@@ -76,46 +70,61 @@ class HomeView(TemplateView, LoginRequiredMixin):
             events[event.id]['end_date'] = parser.parse(
                 events[event.id]['end']['local'])
 
-            # Dictionary for tickets type
-            events[event.id]['tickets_type'] = {}
-            # Get all tickets type of event from DB
-            tickets_type_own = EventTicketType.objects.filter(
-                event=event.id
-            )
-            for ticket_type_own in tickets_type_own:
-                """ Add ticket_type to dictionary with the id as key
-                and ticket type from API as value """
-                events[event.id]['tickets_type'].update(get_ticket_type(
-                    self.request.user,
-                    event.event_id,
-                    ticket_type_own.id,
-                ))
-                """ Get the discount of the ticket type and
-                add it to the dictionary of ticket_type """
-                # If the ticket type has a discount
-                if Discount.objects.filter(
-                        ticket_type=ticket_type_own.id).exists():
+            """ If the event is free at the moment to load the page it will
+            delete the discounts and ticket types in our database"""
+            if events[event.id]['is_free']:
+                # Search the tickets type of this event
+                events_tickets_type = EventTicketType.objects.filter(
+                    event=event.id
+                )
+                for event_ticket_type in events_tickets_type:
+                    # For each ticket type,delete the related discounts
+                    Discount.objects.filter(
+                        ticket_type=event_ticket_type
+                    ).delete()
+                # Delete tickets type
+                events_tickets_type.delete()
+            else:
+                # If not free, get the tickets types
 
-                    discount = Discount.objects.get(
-                        ticket_type=ticket_type_own.id
-                    )
+                # Dictionary for tickets type
+                events[event.id]['tickets_type'] = {}
+                # Get all tickets type of event from DB
+                tickets_type_own = EventTicketType.objects.filter(
+                    event=event.id
+                )
+                # Init has discount in false
+                events[event.id]['has_discount'] = False
 
-                    events[event.id]['tickets_type'][str(
-                        ticket_type_own.id)]['discount'] = discount.__dict__
-                    """ If the event is free at the moment to load the page it will
-                    delete the discounts and ticket types in our database"""
-                    if events[event.id]['is_free']:
-                        # Search the tickets type of this event
-                        events_tickets_type = EventTicketType.objects.filter(
-                            event=event.id
-                        )
-                        for event_ticket_type in events_tickets_type:
-                            # For each ticket type,delete the related discounts
+                for ticket_type_own in tickets_type_own:
+                    """ Add ticket_type to dictionary with the id as key
+                    and ticket type from API as value """
+                    events[event.id]['tickets_type'].update(get_ticket_type(
+                        self.request.user,
+                        event.event_id,
+                        ticket_type_own.id,
+                    ))
+                    """ Get the discount of the ticket type and
+                    add it to the dictionary of ticket_type """
+                    # If the ticket type has a discount
+                    if Discount.objects.filter(
+                            ticket_type=ticket_type_own).exists():
+                        # It has a discount, so set in true
+                        events[event.id]['has_discount'] = True
+                        """ If the ticket is in our DB and
+                        its free but has a discount, delete it"""
+                        if events[event.id]['tickets_type'][str(
+                                ticket_type_own.id)]['free']:
                             Discount.objects.filter(
-                                ticket_type=event_ticket_type
+                                ticket_type=ticket_type_own,
                             ).delete()
-                        # Delete tickets type
-                        events_tickets_type.delete()
+                        else:
+                            discount = Discount.objects.get(
+                                ticket_type=ticket_type_own
+                            )
+
+                            events[event.id]['tickets_type'][str(
+                                ticket_type_own.id)]['discount'] = discount.__dict__
 
         return events
 
@@ -202,6 +211,7 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                         Discount.objects.filter(
                             ticket_type=ticket_type
                         ).delete()
+                    ticket_type_discounts.delete()
 
     def _create_event(self, event_in_api_id):
         """
@@ -212,14 +222,18 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
             organizer=self.request.user,
             is_active=True,
         )
+        # Extract the tickets id from EB
+        tickets_id_eb = []
         # Search the tickets of the event of EB and save it in db
-
         tickets = self._get_event_tickets(event_in_api_id)
         for ticket in tickets:
+            tickets_id_eb.append(ticket['id'])
             EventTicketType.objects.create(
                 event=created_event,
                 ticket_id_eb=ticket['id'],
             )
+
+        return tickets_id_eb
 
     def _update_event(self, event_in_api_id):
         """
@@ -249,6 +263,19 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                     event=event.get(),
                     ticket_id_eb=ticket['id'],
                 )
+            else:
+                """ If the ticket is in our DB and
+             its free but has a discount, delete it"""
+                event_ticket_type = EventTicketType.objects.filter(
+                    ticket_id_eb=ticket['id'],
+                )
+                if ticket['free'] and Discount.objects.filter(
+                    ticket_type=event_ticket_type,
+                ).exists():
+                    Discount.objects.filter(
+                        ticket_type=event_ticket_type,
+                    ).delete()
+
         return tickets_id_eb
 
     def _delete_old_tickets_types(self, tickets_id_eb):
@@ -280,6 +307,7 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
     # END METHODS THAT SUPPORT THE POST OF THIS VIEW
 
     def post(self, *args, **kwargs):
+
         events = self._get_event()
         events_id = self._get_events_selected_id()
 
@@ -295,7 +323,9 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                 if not Event.objects.filter(
                         event_id=event_in_api['id']).exists():
                     # The event isnt in the BD,create with its tickets type
-                    self._create_event(event_in_api['id'])
+                    tickets_id_eb.extend(
+                        self._create_event(event_in_api['id'])
+                    )
 
                 else:
                     """ The event is in the BD, so update the info of event
@@ -338,23 +368,50 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
     template_name = 'organizer/event_discounts.html'
 
     def _get_tickets_type(self, event):
-        tickets_type_in_db = EventTicketType.objects.filter(
-            event=event
+        # Get the tickets type of EB
+        tickets_eb = get_event_tickets_eb_api(
+            get_auth_token(self.request.user),
+            event.event_id,
         )
         tickets_type = {}
-        for ticket_type_in_db in tickets_type_in_db:
-            tickets_type.update(get_ticket_type(
-                self.request.user,
-                event.event_id,
-                ticket_type_in_db.id,
-            ))
-            # tickets_type[ticket_type_in_db.id] = ticket_type_in_db.__dict__
-            if Discount.objects.filter(ticket_type=ticket_type_in_db).exists():
-                discount = Discount.objects.get(
-                    ticket_type=ticket_type_in_db
+        for ticket_eb in tickets_eb:
+            # If the ticket type exists in our db
+            if EventTicketType.objects.filter(
+                    ticket_id_eb=ticket_eb['id']).exists():
+
+                event_ticket_type = EventTicketType.objects.get(
+                    ticket_id_eb=ticket_eb['id'])
+                tickets_type[str(event_ticket_type.id)] = ticket_eb
+
+                # If it has a discount
+                if Discount.objects.filter(
+                        ticket_type=event_ticket_type).exists():
+                    discount = Discount.objects.get(
+                        ticket_type=event_ticket_type
+                    )
+                    # If its free, delete the discount
+                    if ticket_eb['free']:
+                        discount.delete()
+                    else:
+                        tickets_type[str(event_ticket_type.id)
+                                     ]['discount'] = discount.__dict__
+
+            else:
+                # Create ticket type
+                event_ticket_type = EventTicketType.objects.create(
+                    ticket_id_eb=ticket_eb['id'],
+                    event=event,
                 )
-                tickets_type[str(ticket_type_in_db.id)
-                             ]['discount'] = discount.__dict__
+                tickets_type[str(event_ticket_type.id)] = ticket_eb
+        # Delete the tickets type that are not in EB
+        event_tickets_type_own = EventTicketType.objects.filter(
+            event=event)
+        for event_ticket_type_own in event_tickets_type_own:
+            if str(event_ticket_type_own.id) not in tickets_type.keys():
+                Discount.objects.filter(
+                    ticket_type=event_ticket_type_own).delete()
+                event_ticket_type_own.delete()
+
         return tickets_type
 
     def get_context_data(self, **kwargs):
@@ -617,7 +674,8 @@ class ListingPageEventView(FormView):
 
         for ticket_id in tickets_type.keys():
             if Discount.objects.filter(ticket_type=ticket_id).exists():
-                discounts.append(Discount.objects.get(ticket_type=ticket_id).__dict__)
+                discounts.append(Discount.objects.get(
+                    ticket_type=ticket_id).__dict__)
         return discounts
 
     def _get_tickets(self, organizer, event_id):
@@ -678,11 +736,11 @@ class ListingPageEventView(FormView):
             member_numbers.append(
                 str(form.cleaned_data['member_number_{}'.format(i)]))
         discount_code += '_'.join(member_numbers)
-        #Find ticket type
+        # Find ticket type
         ticket_type = EventTicketType.objects.get(
             id=form.cleaned_data['tickets_type']
         )
-        #Find discount
+        # Find discount
         discount = Discount.objects.get(
             ticket_type=ticket_type
         )
@@ -771,14 +829,16 @@ class ListingPageEventView(FormView):
         )
         return context
 
+
 """ -- tranlation View -- """
+
 
 class ActivateLanguageView(View):
     language_code = ''
-    redirect_to   = ''
+    redirect_to = ''
 
     def get(self, request, *args, **kwargs):
-        self.redirect_to   = request.META.get('HTTP_REFERER')
+        self.redirect_to = request.META.get('HTTP_REFERER')
         self.language_code = kwargs.get('language_code')
         translation.activate(self.language_code)
         request.session[translation.LANGUAGE_SESSION_KEY] = self.language_code

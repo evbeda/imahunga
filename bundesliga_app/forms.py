@@ -59,6 +59,17 @@ class DiscountForm(forms.Form):
                 _('You cant create a discount in a free event'),
             )
             return False
+        valid_free_ticket = get_ticket_type(
+            self.user,
+            self.event.event_id,
+            self.ticket_type_id,
+        )[self.ticket_type_id]['free']
+        if valid_free_ticket:
+            self.add_error(
+                '__all__',
+                _('You cant create a discount for a free ticket'),
+            )
+            return False
         if not self.discount_id:
             discount = Discount.objects.filter(
                 ticket_type=self.ticket_type_id

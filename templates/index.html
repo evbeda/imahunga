@@ -62,7 +62,7 @@
 						<div class="eds-g-cell eds-g-cell-lw-2-12 eds-g-cell-lg-2-12 eds-g-cell-ln-2-12 eds-g-cell-mw-2-12 eds-g-cell-md-2-12 eds-g-cell-mn-2-12 eds-g-cell-4-12">
 							<p class="eds-text-bm--fixed eds-text-color--grey-700 eds-text--right">{% trans "FREE EVENT" %}</p>
 						</div>
-			{% elif event.discount %}
+			{% elif event.has_discount %}
 			<div class="eds-ticket-card-content eds-ticket-edit-card-content" style="background-color: #FFFFFF" onclick="location.href='{% url 'events_discount' id %}';">
 				<div class="eds-g-cell eds-g-cell-1-1 eds-ticket-card-content__details-wrapper">
 					<div class="eds-g-cell eds-g-cell-1-1 eds-ticket-card-content__details">
@@ -75,9 +75,6 @@
 									{% trans "Discount created" %}
 								</p>
 							</div>
-						</div>
-						<div class="eds-g-cell eds-g-cell-lw-2-12 eds-g-cell-lg-2-12 eds-g-cell-ln-2-12 eds-g-cell-mw-2-12 eds-g-cell-md-2-12 eds-g-cell-mn-2-12 eds-g-cell-4-12">
-							<p class="eds-text-bm--fixed eds-text-color--grey-700 eds-text--right">- {{ event.discount }} %</p>
 						</div>
 			{% else %}
 			<div class="eds-ticket-card-content eds-ticket-edit-card-content" style="background-color: #FFFFFF" onclick="location.href='{% url 'events_discount' id %}';">
@@ -98,8 +95,7 @@
 				</div>
 				<div class="eds-g-cell eds-g-cell-1-12 eds-g-cell--has-overflow">
 					{% if not event.is_free %}
-						{% if event.discount %}
-						<div class="eds-text--right">
+						{% if event.has_discount %}
 							<div class="eds-more-actions">
 								<span class="eds-icon-button eds-icon-button--dark">
 									<a href="{% url 'events_discount' id %}">
@@ -107,7 +103,6 @@
 									</a>
 								</span>
 							</div>
-						</div>
 						{% else %}
 						<div class="eds-more-actions">
 							<span class="eds-icon-button eds-icon-button--dark">

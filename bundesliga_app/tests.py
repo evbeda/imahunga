@@ -347,8 +347,37 @@ class HomeViewTest(TestBase):
             "It doesn't have any paid ticket",
         )
 
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=MOCK_EVENT_TICKETS[0])
+    def test_free_ticket_type_delete_discount(self,
+                                              mock_get_event_tickets_eb_api,
+                                              mock_get_event_eb_api):
+        event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        # Create 1 Ticket Type for the event
+        tickets_type = EventTicketTypeFactory(
+            event=event,
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
+        )
+        DiscountFactory(
+            ticket_type=tickets_type,
+            value=100.0,
+            value_type="percentage",
+        )
+        self.response = self.client.get('/')
+        self.assertEqual(
+            len(Discount.objects.filter(ticket_type=tickets_type)),
+            0,
+        )
+        self.assertEqual(
+            len(EventTicketType.objects.filter(event=event)),
+            1,
+        )
 
-@patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
+
+@patch('bundesliga_app.views.get_event_tickets_eb_api', return_value=MOCK_EVENT_TICKETS[0])
 @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
 class EventDiscountsViewTest(TestBase):
     def setUp(self):
@@ -363,7 +392,7 @@ class EventDiscountsViewTest(TestBase):
                              mock_get_event_tickets_eb_api):
         EventTicketTypeFactory(
             event=self.event,
-            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
         self.response = self.client.get(
             '/events_discount/{}/'.format(self.event.id)
@@ -375,7 +404,7 @@ class EventDiscountsViewTest(TestBase):
                                                       mock_get_event_tickets_eb_api):
         EventTicketTypeFactory(
             event=self.event,
-            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
         self.response = self.client.get(
             '/events_discount/{}/'.format(self.event.id)
@@ -390,7 +419,7 @@ class EventDiscountsViewTest(TestBase):
                                mock_get_event_tickets_eb_api):
         EventTicketTypeFactory(
             event=self.event,
-            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
         self.response = self.client.get(
             '/events_discount/{}/'.format(self.event.id)
@@ -409,9 +438,9 @@ class EventDiscountsViewTest(TestBase):
                                                       mock_get_event_tickets_eb_api):
         ticket_type = EventTicketTypeFactory(
             event=self.event,
-            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        discount = DiscountFactory(
+        DiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -425,8 +454,56 @@ class EventDiscountsViewTest(TestBase):
                 ticket_type.id)]['id'],
         )
 
+    def test_events_ticket_type_delete(self,
+                                       mock_get_event_eb_api,
+                                       mock_get_event_tickets_eb_api):
+        # Ticket type with random ticket_eb_ids
+        ticket_type = EventTicketTypeFactory(
+            event=self.event,
+        )
+        DiscountFactory(
+            ticket_type=ticket_type,
+            value=100.0,
+            value_type="percentage",
+        )
+        self.response = self.client.get(
+            '/events_discount/{}/'.format(self.event.id)
+        )
+        self.assertEqual(
+            len(EventTicketType.objects.filter(id=ticket_type.id)),
+            0,
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(ticket_type=ticket_type)),
+            0,
+        )
 
-@patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
+    def test_events_ticket_type_free_delete_discount(self,
+                                                     mock_get_event_eb_api,
+                                                     mock_get_event_tickets_eb_api):
+        ticket_type = EventTicketTypeFactory(
+            event=self.event,
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
+        )
+        DiscountFactory(
+            ticket_type=ticket_type,
+            value=100.0,
+            value_type="percentage",
+        )
+        self.response = self.client.get(
+            '/events_discount/{}/'.format(self.event.id)
+        )
+        self.assertEqual(
+            ticket_type.ticket_id_eb,
+            self.response.context_data['tickets_type'][str(
+                ticket_type.id)]['id'],
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(ticket_type=ticket_type)),
+            0,
+        )
+
+
 class CreateDiscountViewTest(TestBase):
     def setUp(self):
         super(CreateDiscountViewTest, self).setUp()
@@ -435,6 +512,7 @@ class CreateDiscountViewTest(TestBase):
             is_active=True,
         )
 
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_event_discount(self,
                                    mock_get_event_eb_api,
@@ -451,6 +529,7 @@ class CreateDiscountViewTest(TestBase):
         )
         self.assertEqual(self.response.status_code, 200)
 
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_event_discount_url_has_correct_template(self,
                                                             mock_get_event_eb_api,
@@ -470,6 +549,7 @@ class CreateDiscountViewTest(TestBase):
             'organizer/create_discount.html',
         )
 
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_events_api)
     def test_event_in_response(self,
                                mock_get_event_eb_api,
@@ -489,6 +569,7 @@ class CreateDiscountViewTest(TestBase):
             self.event.id,
         )
 
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_events_api)
     def test_ticket_type_in_response(self,
                                      mock_get_event_eb_api,
@@ -509,6 +590,7 @@ class CreateDiscountViewTest(TestBase):
             ticket_type.ticket_id_eb,
         )
 
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_discount_wrong_percentage_value_negative(self,
                                                              mock_get_event_eb_api,
@@ -544,6 +626,7 @@ class CreateDiscountViewTest(TestBase):
             0,
         )
 
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_discount_wrong_percentage_value_too_high(self,
                                                              mock_get_event_eb_api,
@@ -578,6 +661,7 @@ class CreateDiscountViewTest(TestBase):
             0,
         )
 
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_discount_correct(self,
                                      mock_get_event_eb_api,
@@ -611,6 +695,7 @@ class CreateDiscountViewTest(TestBase):
         )
         self.assertEqual(self.response.status_code, 302)
 
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_events_api)
     def test_create_second_discount(self,
                                     mock_get_event_eb_api,
@@ -646,6 +731,7 @@ class CreateDiscountViewTest(TestBase):
             self.response,
             'You already have a discount for this ticket type')
 
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_event_api_free)
     def test_create_discount_on_free_event(self,
                                            mock_get_event_eb_api,
@@ -676,6 +762,39 @@ class CreateDiscountViewTest(TestBase):
         self.assertContains(
             self.response,
             'You cant create a discount in a free event'
+        )
+
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=MOCK_EVENT_TICKETS[0])
+    @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_events_api)
+    def test_create_discount_on_free_ticket(self,
+                                           mock_get_event_eb_api,
+                                           mock_get_event_tickets_eb_api):
+        ticket_type = EventTicketTypeFactory(
+            event=self.event,
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
+        )
+        self.response = self.client.get(
+            '/events_discount/{}/{}/new/'.format(
+                self.event.id,
+                ticket_type.id,
+            )
+        )
+        self.response = self.client.post(
+            '/events_discount/{}/{}/new/'.format(
+                self.event.id,
+                ticket_type.id,
+            ),
+            {
+                'discount_name': 'descuento',
+                'discount_type': 'percentage',
+                'discount_value': 50,
+                'ticket_type': mock_get_event_tickets_eb_api.return_value[0]['name'],
+            },
+        )
+
+        self.assertContains(
+            self.response,
+            'You cant create a discount for a free ticket'
         )
 
 
@@ -1101,12 +1220,104 @@ class SelectEventsViewTest(TestBase):
             1,
         )
 
+    @patch('bundesliga_app.views.get_event_tickets_eb_api', return_value=MOCK_EVENT_TICKETS[0])
+    def test_post_event_update_free_ticket(self,
+                                           mock_get_event_tickets_eb_api,
+                                           mock_get_events_user_eb_api,
+                                           mock_get_user_eb_api,
+                                           ):
+        """ One event for the organizer, a "selected" event
+        with the same event_id of the mocked event api eb """
+        event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+            event_id=event_mock_api_eb['id'],
+        )
+        self.ticket_type = EventTicketTypeFactory(
+            event=self.event,
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
+        )
+        self.discount = DiscountFactory(
+            ticket_type=self.ticket_type,
+        )
+        self.response = self.client.post(
+            path='/select_events/',
+            data=urlencode({
+                'event_' + event_mock_api_eb['id']: 'on',
+            }),
+            content_type='application/x-www-form-urlencoded'
+        )
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(Event.objects.filter(event_id=event_mock_api_eb['id'])),
+            1,
+        )
+        self.assertEqual(
+            len(EventTicketType.objects.filter(
+                ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id'])
+                ),
+            1,
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(
+                ticket_type=self.ticket_type)
+                ),
+            0,
+        )
+
+    @patch('bundesliga_app.views.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
+    def test_post_event_update_delete_old_ticket(self,
+                                                 mock_get_event_tickets_eb_api,
+                                                 mock_get_events_user_eb_api,
+                                                 mock_get_user_eb_api,
+                                                 ):
+        event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+            event_id=event_mock_api_eb['id'],
+        )
+        """ in one hand create the ticket type with the ticket 0 from the mock
+        in another hand, the patch will return the other tickets so
+        when the view calls get_event_tickets_eb_api
+        it will return the ticket 1 and 2 but not the 0"""
+        self.ticket_type = EventTicketTypeFactory(
+            event=self.event,
+            ticket_id_eb=MOCK_EVENT_TICKETS[0][0]['id']
+        )
+        self.discount = DiscountFactory(
+            ticket_type=self.ticket_type,
+        )
+        self.response = self.client.post(
+            path='/select_events/',
+            data=urlencode({
+                'event_' + event_mock_api_eb['id']: 'on',
+            }),
+            content_type='application/x-www-form-urlencoded'
+        )
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(Event.objects.filter(event_id=event_mock_api_eb['id'])),
+            1,
+        )
+        self.assertEqual(
+            len(EventTicketType.objects.filter(
+                ticket_id_eb=self.ticket_type.ticket_id_eb)
+                ),
+            0,
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(
+                ticket_type=self.ticket_type)
+                ),
+            0,
+        )
+
     def test_post_event_update_unselect(self,
                                         mock_get_events_user_eb_api,
                                         mock_get_user_eb_api,
                                         ):
-        """ One event for the organizer, a "selected" event
-        with the same event_id of the mocked event api eb """
         event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
         self.event = EventFactory(
             organizer=self.organizer,
@@ -1126,19 +1337,19 @@ class SelectEventsViewTest(TestBase):
             event_in_db.get().is_active
         )
 
-    def test_post_event_update_unselect_with_discount(self,
-                                                      mock_get_events_user_eb_api,
-                                                      mock_get_user_eb_api,
-                                                      ):
-        """ One event for the organizer, a "selected" event
-        with the same event_id of the mocked event api eb """
+    def test_post_event_update_unselect_without_discount_and_ticket_type(self,
+                                                                         mock_get_events_user_eb_api,
+                                                                         mock_get_user_eb_api,
+                                                                         ):
         event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
         self.event = EventFactory(
             organizer=self.organizer,
             is_active=True,
             event_id=event_mock_api_eb['id'],
         )
-        self.ticket_type = EventTicketTypeFactory()
+        self.ticket_type = EventTicketTypeFactory(
+            event=self.event
+        )
         self.discount = DiscountFactory(
             ticket_type=self.ticket_type,
         )
@@ -1146,6 +1357,8 @@ class SelectEventsViewTest(TestBase):
             path='/select_events/',
         )
         event_in_db = Event.objects.filter(event_id=event_mock_api_eb['id'])
+        event_ticket_type_in_db = EventTicketType.objects.filter(
+            event=self.event)
         discount_in_db = Discount.objects.filter(ticket_type=self.ticket_type)
         self.assertEqual(self.response.status_code, 302)
         self.assertEqual(
@@ -1154,6 +1367,10 @@ class SelectEventsViewTest(TestBase):
         )
         self.assertFalse(
             event_in_db.get().is_active
+        )
+        self.assertEqual(
+            len(event_ticket_type_in_db),
+            0,
         )
         self.assertEqual(
             len(discount_in_db),
@@ -1225,8 +1442,7 @@ class DiscountAccessMixinTest(TestBase):
         super(DiscountAccessMixinTest, self).setUp()
         self.view = self.DummyView()
 
-    @skip("No works for demo test")
-    def test_rise_exception_permission_denied(self):
+    def test_raise_exception_permission_denied(self):
         event = EventFactory(
             organizer=OrganizerFactory(),
             is_active=True,
@@ -1235,8 +1451,11 @@ class DiscountAccessMixinTest(TestBase):
             organizer=self.organizer,
             is_active=True,
         )
-        discount = DiscountFactory(
+        ticket_type = EventTicketTypeFactory(
             event=event,
+        )
+        discount = DiscountFactory(
+            ticket_type=ticket_type,
         )
         # Setup request and view.
         self.view.kwargs = {
@@ -1293,7 +1512,6 @@ class DiscountAccessMixinTest(TestBase):
             self.view.get_discount()
 
 
-@patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
 class LandingPageBuyerViewTest(TestCase):
     def setUp(self):
         self.organizer = OrganizerFactory()
@@ -1314,12 +1532,14 @@ class LandingPageBuyerViewTest(TestCase):
             is_active=True,
         )
 
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_landing_page_buyer(self, mock_get_event_eb_api):
         self.response = self.client.get(
             '/landing_page/{}/'.format(self.organizer.id)
         )
         self.assertEqual(self.response.status_code, 200)
 
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_landing_page_url_has_index_template(self, mock_get_event_eb_api):
         self.response = self.client.get(
             '/landing_page/{}/'.format(self.organizer.id)
@@ -1329,6 +1549,7 @@ class LandingPageBuyerViewTest(TestCase):
             'buyer/landing_page_buyer.html',
         )
 
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_events_landing_page(self, mock_get_event_eb_api):
         self.response = self.client.get(
             '/landing_page/{}/'.format(self.organizer.id)
@@ -1339,6 +1560,7 @@ class LandingPageBuyerViewTest(TestCase):
                 self.response.context_data['events'],
             )
 
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_events_landing_page_not_active(self, mock_get_event_eb_api):
         self.response = self.client.get(
             '/landing_page/{}/'.format(self.organizer.id)
@@ -1348,6 +1570,7 @@ class LandingPageBuyerViewTest(TestCase):
             self.response.context_data['events'],
         )
 
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     def test_events_another_organizer(self, mock_get_event_eb_api):
         self.response = self.client.get(
             '/landing_page/{}/'.format(self.organizer.id)
@@ -1357,6 +1580,7 @@ class LandingPageBuyerViewTest(TestCase):
             self.response.context_data['events'],
         )
 
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     def test_get_discount_if_exists_2(self,
                                       mock_get_event_tickets_eb_api,
@@ -1377,6 +1601,32 @@ class LandingPageBuyerViewTest(TestCase):
             self.response.context['events'][self.events[0].id]['tickets_type'][str(
                 ticket_type.id)]['discount']['id'],
             discount.id,
+        )
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_event_api_free)
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
+    def test_event_free_no_discount(self,
+                                    mock_get_event_tickets_eb_api,
+                                    mock_get_event_eb_api):
+        ticket_type = EventTicketTypeFactory(
+            event=self.events[0],
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
+        )
+        DiscountFactory(
+            ticket_type=ticket_type,
+            value=100.0,
+            value_type="percentage",
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/'.format(self.organizer.id)
+        )
+        self.assertEqual(
+            len(EventTicketType.objects.filter(event=self.events[0])),
+            0,
+        )
+        self.assertEqual(
+            len(Discount.objects.filter(ticket_type=ticket_type)),
+            0,
         )
 
 

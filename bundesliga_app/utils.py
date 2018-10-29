@@ -111,7 +111,6 @@ def get_event_tickets_eb_api(token, event_id):
     This method will receive a event id and token from logged user
     and returns a list of tickets
     """
-
     eventbrite = Eventbrite(token)
     return [
         ticket

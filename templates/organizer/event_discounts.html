@@ -3,10 +3,10 @@
 {% load i18n %}
 {% block content %}
 <div class="mt-5 row">
-    <p><a href="{% url 'index' %}"> {% trans "Home" %} </a>&nbsp;&nbsp;>&nbsp;&nbsp;{% trans "Event discounts" %}</p>
+    <p><a href="{% url 'index' %}"> {% trans "Home" %} </a>&nbsp;&nbsp;>&nbsp;&nbsp;{% trans "Event tickets type" %}</p>
 </div>
 <div>
-	<h1 class="mt-2">{{event_name}}{% trans "'s Discounts" %}</h1>
+	<h1 class="mt-2">{{event_name}}{% trans "'s Tickets Type" %}</h1>
 	<hr>
 </div>
 
@@ -23,11 +23,16 @@
 						</svg>
 					</i>
 				</span>
-				{% if ticket_type.discount %}
+				{% if ticket_type.free %}
+				<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
+					<h5>{{ticket_type.name}}</h5>
+					<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-red eds-l-mar-right-2"></span> {% trans "Free Ticket Type" %}</p>
+				</div>
+				{% elif ticket_type.discount %}
 				<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
 					<h5>{{ticket_type.name}}</h5>
 					<p class="eds-text-bm--fixed eds-text-color--grey-700 "> {{ticket_type.discount.name}} </p>
-					<p class="eds-text-bm--fixed eds-text-color--grey-700 ">  {{ticket_type.discount.value}} {% trans "% off" %}</p>
+					<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-green eds-l-mar-right-2"></span>  {{ticket_type.discount.value}} {% trans "% off" %}</p>
 				</div>
 				<div class="modal" id="modal">
 
@@ -56,6 +61,7 @@
 				{% else %}
 				<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
 					<h5>{{ticket_type.name}}</h5>
+					<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--tropical-yellow-400 eds-l-mar-right-2"></span>  {% trans "No discount yet" %}</p>
 				</div>
 				<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
 					<p>
