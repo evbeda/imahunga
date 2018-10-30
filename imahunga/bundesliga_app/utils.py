@@ -1,0 +1,208 @@
+""" This are the methods that supports the behaviour of the views """
+from social_django.models import UserSocialAuth
+from eventbrite import Eventbrite
+from .models import (
+    Event,
+    Discount,
+    EventTicketType,
+)
+from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
+from bundesliga_site.settings import API_KEY_DEUTSCHER_SPORTAUSWEIS
+from requests import request
+from json import loads
+
+
+class EventAccessMixin(object):
+    """
+    This mixin deny the access to the event
+    if the logged user is not the owner of the event
+    """
+
+    def get_event(self):
+        event = get_object_or_404(
+            Event,
+            id=self.kwargs['event_id'],
+            is_active=True,
+        )
+        if event.organizer != self.request.user:
+            raise PermissionDenied(_("You don't have access to this event"))
+        return event
+
+
+class DiscountAccessMixin(EventAccessMixin):
+    """
+    This mixin deny the access to a discount
+    if the logged user is not the owner of the discount
+    also the access to the event is prohibited
+    """
+
+    def get_discount(self):
+        discount = get_object_or_404(
+            Discount,
+            id=self.kwargs['discount_id'],
+        )
+        if discount.ticket_type.event.organizer != self.request.user:
+            raise PermissionDenied(_("You don't have access to this discount"))
+        return discount
+
+
+def get_auth_token(user):
+    """
+    This method will receive a user and
+    returns its repesctive social_auth token
+    """
+    try:
+        token = user.social_auth.get(
+            provider='eventbrite'
+        ).access_token
+    except UserSocialAuth.DoesNotExist:
+        return _('UserSocialAuth does not exists!')
+    return token
+
+
+def get_user_eb_api(token):
+    """
+    This method will receive a valid token for user of EB,
+    and returns the user of EB
+    """
+    eventbrite = Eventbrite(token)
+    return eventbrite.get('/users/me/')
+
+
+def get_events_user_eb_api(token):
+    """
+    This method will receive a valid token for user of EB,
+    and returns a list of events with specific state
+    """
+    eventbrite = Eventbrite(token)
+    return [
+        event
+        # Status : live, draft, canceled, started, ended, all
+        for event in eventbrite.get(
+            '/users/me/owned_events/?status=live'
+        )['events']
+    ]
+
+
+def get_event_eb_api(token, event_id):
+    """
+    This method will receive an event id and token from logged user
+    and returns an event
+    """
+
+    eventbrite = Eventbrite(token)
+    return eventbrite.get('/events/{}/'.format(event_id))
+
+
+def get_venue_eb_api(token, venue_id):
+    """
+    This method will receive a venue id and token from logged user
+    and returns an venue
+    """
+
+    eventbrite = Eventbrite(token)
+    return eventbrite.get('/venues/{}/'.format(venue_id))
+
+
+def get_event_tickets_eb_api(token, event_id):
+    """
+    This method will receive a event id and token from logged user
+    and returns a list of tickets
+    """
+
+    eventbrite = Eventbrite(token)
+    return [
+        ticket
+        for ticket in eventbrite.get(
+            '/events/{}/ticket_classes/'.format(event_id)
+        )['ticket_classes']
+    ]
+
+
+def check_discount_code_in_eb(token, event_id, discount_code):
+    eventbrite = Eventbrite(token)
+    organization_id = get_user_eb_api(token)['id']
+    return eventbrite.get(
+        '/organizations/{}/discounts/?scope={}&event_id={}&code={}'.format(
+            organization_id,
+            'event',
+            event_id,
+            discount_code,
+        )
+    )
+
+
+def post_discount_code_to_eb(token, event_id, discount_code, discount_value, ticket_type, uses):
+    eventbrite = Eventbrite(token)
+    organization_id = get_user_eb_api(token)['id']
+    data = {
+        "discount": {
+            "code": discount_code,
+            "event_id": event_id,
+            "type": "coded",
+            "percent_off": discount_value,
+            "ticket_class_ids": ticket_type,
+            "quantity_available": uses
+        }
+    }
+    return eventbrite.post(
+        '/organizations/{}/discounts/'.format(organization_id),
+        data
+    )
+
+
+def validate_member_number_ds(member_number):
+    """
+    This method will receive a possible member number of Deutscher Sportausweis
+    and return a json with the info
+    """
+    url = "https://admin.sportausweis.de/DSARestWs/RestController.php"
+
+    querystring = {
+        "request": "validateCard",
+        "CardId": member_number,
+    }
+
+    headers = {
+        'APIKEY': API_KEY_DEUTSCHER_SPORTAUSWEIS,
+        'Accept': "application/json",
+    }
+
+    response = request(
+        "GET",
+        url,
+        headers=headers,
+        params=querystring
+    )
+    if response.status_code == 200:
+        # Return the text of response as JSON
+        return loads(response.text)
+    else:
+        return _('Invalid Request')
+
+
+def get_ticket_type(user, event_id, ticket_type_id):
+        """
+        This method will receive an user, event_id from EB
+        and ticket_type_id from our BD
+        and returns the ticket type in a dict, the key is the id of ticket type in our DB
+        and the value is the ticket_type from EB
+        """
+        event_ticket_type_own = EventTicketType.objects.get(
+            id=ticket_type_id
+        )
+        # Get ticket type of event from EB
+        tickets_type_eb = get_event_tickets_eb_api(
+            get_auth_token(user),
+            event_id
+        )
+        """ For each event ticket type, get the same ticket from the context
+        """
+        ticket_type = {}
+        for ticket_type_eb in tickets_type_eb:
+            # If is the ticket type, save it in a dict a return it
+            if ticket_type_eb['id'] == event_ticket_type_own.ticket_id_eb:
+                ticket_type[str(ticket_type_id)] = ticket_type_eb
+                return ticket_type

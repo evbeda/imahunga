@@ -1,0 +1,10 @@
+{% extends './shared/base.html' %}
+{% load static %}
+{% load i18n %}
+{% block content %}
+<div class="alert alert-danger mt-5" role="alert">
+    <strong>{% trans "Sorry!" %}</strong>
+    <br>
+    <p>{{ exception }}</p>
+</div>
+{% endblock %}

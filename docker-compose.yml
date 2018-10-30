@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  # PostgreSQL
+  db:
+    image: postgres:10.5
+    hostname: db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+
+  # Django
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: web
+    # From documentation:
+    # However, Compose does not wait until a container is “ready”
+    # (whatever that means for your particular application) - only until it’s
+    # running. There’s a good reason for this.
+    command: ["./wait-for-postgres.sh", "db", "./entrypoint.sh"]
+    volumes:
+      # Mount imahunga to app
+      - ./imahunga:/app
+      # Mount entrypoint.sh to run in container
+      - ./entrypoint.sh:/app/entrypoint.sh
+      # Mount wait-for-postgres.sh to run in container
+      - ./wait-for-postgres.sh:/app/wait-for-postgres.sh
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    restart: always

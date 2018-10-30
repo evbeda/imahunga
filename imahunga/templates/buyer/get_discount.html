@@ -1,0 +1,125 @@
+{% block content %}
+	{% load static %}
+	{% load i18n %}
+		<form id="get_discount_form" class="text-center" id="get_discount_form" method="POST">
+			{% csrf_token %}
+				<div style="padding: 10px" >
+					<h4>{% trans "Get Discount" %}</h4>
+				</div>
+				<div>
+					<span id="errors">
+					</span>
+					{% if form.errors %}
+						{% for field in form %}
+							<span id="errors_form">
+							{% for error in field.errors %}
+								<div class="alert alert-danger mx-auto" style="width: 50%">
+									<strong>{{ error|escape }}</strong>
+								</div>
+							{% endfor %}
+							</span>
+						{% endfor %}
+						{% for error in form.non_field_errors %}
+							<div class="alert alert-danger">
+								<strong>{{ error|escape }}</strong>
+							</div>
+						{% endfor %}
+					{% endif %}
+					<div class="form-group">
+						<label class="font-weight-bold">{% trans "Tickets Type" %}</label>
+						<div id="select_ticket_type" class="input-group input-group-lg mx-auto" style="width: 50%">
+							{{ form.tickets_type }}
+						</div>
+					</div>
+					<div id="form-members-numbers" class="form-group">
+						<label class="font-weight-bold">{% trans "Enter your member number" %}</label>
+						<div id="input_field" class="input-group input-group-lg mx-auto" style="width: 50%;">
+							{{ form.member_number_1 }}
+							<button  id="add_field" type="button" style="margin-left: 15px; background: transparent; border:none">
+								<img src="{% static 'images/add.png' %}" style="width: 20px">
+							</button>
+						</div>
+					</div>
+				</div>
+				<div>
+					<button class="eds-btn eds-btn--button eds-btn--fill" id="retry" type="button" onclick="window.open('{{ event.url }}', '_blank')" style="display: none;">
+					{% trans "Continue without discount" %}
+					</button>
+					<input type="submit" id="submit_btn" class="eds-btn eds-btn--button eds-btn--fill" value="{% trans "Ok" %}"/>
+				</div>
+				<div id="loading">
+					<div>
+						<svg class="eds-progress-indicator--circular eds-fx--rotate" viewBox="0 0 100 100" style="width:20px;height:20px;" aria-valuetext="In progress">
+						  <defs>
+							<linearGradient id="stroke-small-chunky-gradient-indeterminate">
+							  <stop offset="0%" stop-color="#4BE1A0"></stop>
+							  <stop offset="50%" stop-color="#4BE1A0"></stop>
+							  <stop offset="100%" stop-color="#4BE1A0" stop-opacity="0"></stop>
+							</linearGradient>
+						  </defs>
+						  <path d="M93.5,50C93.5,74,74,93.5,50,93.5S6.5,74,6.5,50S26,6.5,50,6.5" stroke="url(#stroke-small-chunky-gradient-indeterminate)" stroke-width="10" stroke-linecap="round" shape-rendering="geometricPrecision" fill="none"></path>
+						</svg>
+						<progress class="eds-is-hidden-accessible"></progress>
+					</div>
+				</div>
+		</form>
+		<script>
+		var input_added = 2
+		$(document).ready(function(){
+			var form_options = {
+				target: '#get_discount_form',
+				dataType: 'json',
+				success: function(response) {
+					window.location.href=response.url
+					$("#loading").hide()
+					$("#submit_btn").show()
+				},
+				error: function(response){
+					document.getElementById('errors').innerHTML=$($.parseHTML(response.responseText)).find("#errors_form")[1].innerHTML;
+					$('#retry').show();
+					$('#submit_btn').val('Retry');
+					$("#loading").hide()
+					$("#submit_btn").show()
+					console.log(response)
+				}
+			}
+			$('#get_discount_form').ajaxForm(form_options);
+			var max_member_number = 10
+
+			$("#loading").hide()
+
+			$("#submit_btn").click(function(){
+				if(!($('[name=member_number_1]').val() == "")){
+					$("#submit_btn").hide()
+					$("#loading").show()
+					$("#retry").hide()
+				}
+
+			});
+
+			$("#add_field").on('click',function(){
+				if(input_added <= max_member_number){
+					var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder="Insert your member number here"/><input name="remove_number_' + input_added + '" type="button" value="X" onclick="remove('+ input_added +')" style="background: transparent; border: none; margin: 20px"/></div>';
+					// console.log(member_input)
+					$("#form-members-numbers").append(member_input)
+					input_added += 1
+				}else{
+					alert("You can only add up to 10 member's numbers")
+				}
+			});
+		});
+		function remove(input_to_delete){
+			console.log(input_to_delete)
+			$('[name=member_number_' + input_to_delete + ']').val('')
+			$('[name=member_number_' + input_to_delete + ']').remove()
+			$('[name=remove_number_' + input_to_delete + ']').remove()
+			for(i=input_to_delete+1; i<= input_added; i++){
+				$('[name=member_number_' + i + ']').attr('name', 'member_number_' + (i-1))
+				$('[name=remove_number_' + i + ']').attr('onclick', 'remove(' + (i-1) + ')')
+				$('[name=remove_number_' + i + ']').attr('name', 'remove_number_' + (i-1))
+				input_added -= 1
+			}
+		}
+		</script>
+
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends '../shared/base.html' %}
+{% block content %}
+{% load static %}
+{% load i18n %}
+<body style="background-color: #ffffff">
+<div class="container mt-5 mb-3 justify-content-center">
+		<h1>
+		{{ organizer.first_name }} {{ organizer.last_name }}'s Events
+		</h1>
+		<hr>
+
+	<div class="row">
+        {% for id, event in events.items %}
+        <div class="col-4" onclick="location.href='{% url 'listing_page_event' organizer.id id %}'">
+        	<div class="eds-card eds-card--neutral" role="presentation">
+        		<section class="eds-ticket-edit-card-content eds-l-pad-all-6 eds-media-card-content eds-media-card-content--grid eds-media-card-content--standard eds-media-card-content--fixed" role="presentation">
+        			<aside class="eds-media-card-content__image-container">
+        				<div class="eds-media-card-content__image-wrapper eds-media-card-content__image-wrapper--with-width">
+        					<div class="eds-media-card-content__image-content">
+        						<div class="eds-media-card-content__image-placeholder" style="background-color:#EEEDF2;">
+
+        						</div>
+        						{% if event.logo %}
+        							<img class="eds-media-card-content__image eds-max-img" src={{event.logo.url}} alt="Event image"/>
+        						{% else %}
+        							<img class="eds-media-card-content__image eds-max-img" src="{% static 'images/default-img.png' %}" alt="{% trans "Event image" %}"/>
+        						{% endif %}
+        					</div>
+        				</div>
+        				{% if event.is_free %}
+	        				<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
+	    						<span class="eds-text-color--grey-700">{% trans "Free" %}
+	    						</span>
+	        				</div>
+	        			{% endif %}
+	        			{% if event.discount %}
+	        				<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
+	    						<span class="eds-text-color--grey-700">- {{ event.discount }} %
+	    						</span>
+	        				</div>
+	        			{% endif %}
+        			</aside>
+        			<main class="eds-media-card-content__content-container">
+        				<div class="eds-media-card-content__content">
+                            <div class="eds-media-card-content__extra-content eds-l-pad-right-4">
+                                <div class="eds-media-card-content__extra-content eds-l-pad-right-4">
+                                    <div class="date-thumbnail eds-text--center eds-l-mar-top-1">
+                                        <p class="date-thumbnail__month eds-text-color--ui-orange eds-text-bs">
+                                            {{ event.start_date | date:"M" | upper}}
+                                        </p>
+                                        <p class="date-thumbnail__day eds-text-bl eds-text-color--grey-600">
+                                            {{ event.start_date | date:"d"}}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+        					<div class="eds-media-card-content__content__principal">
+                                <div class="eds-media-card-content__primary-content">
+        						    <div class="eds-text-bs eds-text-color--grey-600">
+        						  </div>
+        						  <h3 class="eds-media-card-content__title eds-text-color--grey-800 eds-text-bl">{{ event.name.text }}
+        						  </h3>
+        					    </div>
+
+                            <div class="eds-media-card-content__sub-content">
+        						<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">{{ event.start_date | date:"F d, Y"}}
+        						</div>
+        						<div class="eds-media-card-content__sub-content-cropped">
+        							<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
+        								{% if event.venue.name %}
+        									{{event.venue.name}}, {{event.venue.address.city}}
+        								{% else %}
+        									{{event.venue.address.city}}
+        								{% endif 	%}
+        							</div>
+        							<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
+        							</div>
+        						</div>
+        					</div>
+        				</div>
+        			</div>
+				</main>
+			</section>
+		</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+{% endblock %}
+
