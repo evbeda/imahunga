@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-26 11:53-0300\n"
+"POT-Creation-Date: 2018-10-31 10:21-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,27 +30,31 @@ msgstr "Ingrese el porcentaje de descuento"
 msgid "You cant create a discount in a free event"
 msgstr "No puedes crear descuentos en un evento gratuito"
 
-#: bundesliga_app/forms.py:69
-msgid "You already have a discount for this ticket type"
-msgstr "Ya tienes un descuento para este tipo de ticket"
+#: bundesliga_app/forms.py:70
+msgid "You cant create a discount for a free ticket"
+msgstr "No puedes crear descuentos para un tipo de entrada gratuita"
 
-#: bundesliga_app/forms.py:101
+#: bundesliga_app/forms.py:80
+msgid "You already have a discount for this ticket type"
+msgstr "Ya tienes un descuento para este tipo de entrada"
+
+#: bundesliga_app/forms.py:112
 msgid "Insert your member number here"
 msgstr "Ingresá tu tarjeta de socio"
 
-#: bundesliga_app/forms.py:122
+#: bundesliga_app/forms.py:133
 msgid "Invalid request"
 msgstr "Pedido invalido"
 
-#: bundesliga_app/forms.py:138
+#: bundesliga_app/forms.py:149
 msgid "Invalid number "
 msgstr "Número invalido "
 
-#: bundesliga_app/forms.py:143
+#: bundesliga_app/forms.py:154
 msgid "Invalid numbers "
 msgstr "Números invalidos "
 
-#: bundesliga_app/forms.py:151
+#: bundesliga_app/forms.py:162
 msgid "You already used the discount for this event"
 msgstr "Ya has usado el descuento para este evento"
 
@@ -60,13 +64,13 @@ msgstr "No tienes acceso a este evento"
 
 #: bundesliga_app/utils.py:47
 msgid "You don't have access to this discount"
-msgstr "No tienens acceso a este descuento"
+msgstr "No tienes acceso a este descuento"
 
 #: bundesliga_app/utils.py:61
 msgid "UserSocialAuth does not exists!"
 msgstr "UserSocialAuth does not exists!"
 
-#: bundesliga_app/utils.py:183
+#: bundesliga_app/utils.py:182
 msgid "Invalid Request"
 msgstr "Pedido invalido"
 
@@ -93,11 +97,11 @@ msgstr "Obtener Descuento"
 
 #: templates/buyer/get_discount.html:29
 msgid "Tickets Type"
-msgstr "Tipos de Tickets"
+msgstr "Tipos de Entrada"
 
 #: templates/buyer/get_discount.html:35
 msgid "Enter your member number"
-msgstr "Ingresá tu tarjeta de socio"
+msgstr "Ingresa tu tarjeta de socio"
 
 #: templates/buyer/get_discount.html:46
 msgid "Continue without discount"
@@ -131,7 +135,7 @@ msgstr "Descuento disponible para socios"
 #: templates/buyer/listing_page_event.html:113
 #: templates/buyer/listing_page_event.html:147
 msgid "This event doesn't have any available discount"
-msgstr "No tiene ningun ticket pago"
+msgstr "Este evento no tiene ningun descuento disponible"
 
 #: templates/buyer/listing_page_event.html:163
 msgid "Tickets"
@@ -174,23 +178,23 @@ msgstr "Link para Compartir"
 
 #: templates/index.html:24
 msgid "Share This Page"
-msgstr "Compartí esta pagina"
+msgstr "Comparte esta pagina"
 
 #: templates/index.html:36
 msgid "Want to manage your event’s discounts"
-msgstr "¿Querés administrar tus descuentos?"
+msgstr "¿Quieres administrar tus descuentos?"
 
 #: templates/index.html:38
 msgid "Please add the events that you want to manage!"
-msgstr "Por favor, agregá los eventos que quieras administrar"
+msgstr "Por favor, agrega los eventos que quieras administrar"
 
-#: templates/index.html:41 templates/index.html:130
+#: templates/index.html:41 templates/index.html:125
 msgid "Add Event"
 msgstr "Agregar Evento"
 
 #: templates/index.html:58
 msgid "It doesn't have any paid ticket"
-msgstr "No tiene ningun ticket pago"
+msgstr "No tienes ningun ticket pago"
 
 #: templates/index.html:63
 msgid "FREE EVENT"
@@ -200,7 +204,7 @@ msgstr "EVENTO GRATUITO"
 msgid "Discount created"
 msgstr "Descuento creado"
 
-#: templates/index.html:92
+#: templates/index.html:89 templates/organizer/event_discounts.html:64
 msgid "No discount yet"
 msgstr "Sin descuento aún"
 
@@ -211,8 +215,9 @@ msgid "Home"
 msgstr "Home"
 
 #: templates/organizer/create_discount.html:7
-msgid "Event Discounts"
-msgstr "Obtener Descuento"
+#: templates/organizer/event_discounts.html:6
+msgid "Event tickets type"
+msgstr "Tipos de Tickets"
 
 #: templates/organizer/create_discount.html:7
 msgid "Manage discounts"
@@ -238,27 +243,27 @@ msgstr "Monto de descuento"
 msgid "Save"
 msgstr "Guardar"
 
-#: templates/organizer/delete_discount.html:13
+#: templates/organizer/delete_discount.html:16
 msgid "Are you sure you want to delete the discount"
 msgstr "Estas seguro que deseas eliminar el descuento"
 
-#: templates/organizer/delete_discount.html:17
+#: templates/organizer/delete_discount.html:20
 msgid "Confirm"
 msgstr "Si"
 
-#: templates/organizer/delete_discount.html:20
+#: templates/organizer/delete_discount.html:23
 msgid "Cancel"
 msgstr "No"
 
-#: templates/organizer/event_discounts.html:6
-msgid "Event discounts"
-msgstr "Descuentos del evento"
-
 #: templates/organizer/event_discounts.html:9
-msgid "'s Discounts"
-msgstr "- Descuentos"
+msgid "'s Tickets Type"
+msgstr "- Tipos de Entrada"
 
-#: templates/organizer/event_discounts.html:30
+#: templates/organizer/event_discounts.html:29
+msgid "Free Ticket Type"
+msgstr "Tipo de Entrada Gratuita"
+
+#: templates/organizer/event_discounts.html:35
 #, python-format
 msgid "%% off"
 msgstr "%% off"
@@ -277,7 +282,7 @@ msgstr "Ups!"
 
 #: templates/organizer/select_events.html:68
 msgid "it looks like you don’t have any live event at Eventbrite"
-msgstr "parece que no tienen eventos activos en Eventbrite"
+msgstr "parece que no tienes eventos activos en Eventbrite"
 
 #: templates/organizer/select_events.html:71
 msgid "Go to Eventbrite"
@@ -319,6 +324,15 @@ msgstr "Navegacion del sitio"
 #: templates/shared/base.html:49
 msgid "© 2018 Powered by Imahunga"
 msgstr "© 2018 Powered by Imahunga"
+
+#~ msgid "Event Discounts"
+#~ msgstr "Obtener Descuento"
+
+#~ msgid "Event discounts"
+#~ msgstr "Descuentos del evento"
+
+#~ msgid "'s Discounts"
+#~ msgstr "- Descuentos"
 
 #~ msgid "Retry"
 #~ msgstr "Validar"

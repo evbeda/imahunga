@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-26 11:53-0300\n"
+"POT-Creation-Date: 2018-10-31 10:21-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,27 +29,31 @@ msgstr "Fügen Sie Ihren Rabatt ein"
 msgid "You cant create a discount in a free event"
 msgstr "Sie können in einer kostenlosen Veranstaltung keinen Rabatt erstellen"
 
-#: bundesliga_app/forms.py:69
+#: bundesliga_app/forms.py:70
+msgid "You cant create a discount for a free ticket"
+msgstr "Sie können keinen Rabatt für ein Freiticket anlegen"
+
+#: bundesliga_app/forms.py:80
 msgid "You already have a discount for this ticket type"
 msgstr "Login um die Rabatte Ihrer Events zu verwalten"
 
-#: bundesliga_app/forms.py:101
+#: bundesliga_app/forms.py:112
 msgid "Insert your member number here"
 msgstr "Geben Sie hier Ihre Mitgliedsnummer ein"
 
-#: bundesliga_app/forms.py:122
+#: bundesliga_app/forms.py:133
 msgid "Invalid request"
 msgstr "Ungültige Anfrage"
 
-#: bundesliga_app/forms.py:138
+#: bundesliga_app/forms.py:149
 msgid "Invalid number "
 msgstr "Ungültige Nummer "
 
-#: bundesliga_app/forms.py:143
+#: bundesliga_app/forms.py:154
 msgid "Invalid numbers "
 msgstr "Ungültige Nummern "
 
-#: bundesliga_app/forms.py:151
+#: bundesliga_app/forms.py:162
 msgid "You already used the discount for this event"
 msgstr "Login um die Rabatte Ihrer Events zu verwalten"
 
@@ -65,7 +69,7 @@ msgstr "Sie haben keinen Zugriff auf diesen Rabatt"
 msgid "UserSocialAuth does not exists!"
 msgstr "UserSocialAuth existiert nicht!"
 
-#: bundesliga_app/utils.py:183
+#: bundesliga_app/utils.py:182
 msgid "Invalid Request"
 msgstr "Ungültige Anfrage"
 
@@ -91,10 +95,8 @@ msgid "Get Discount"
 msgstr "Rabatt erhalten"
 
 #: templates/buyer/get_discount.html:29
-#, fuzzy
-#| msgid "Tickets"
 msgid "Tickets Type"
-msgstr "Tickets"
+msgstr "Ticketstyp"
 
 #: templates/buyer/get_discount.html:35
 msgid "Enter your member number"
@@ -185,7 +187,7 @@ msgstr "Möchten Sie die Rabatte Ihrer Veranstaltung verwalten?"
 msgid "Please add the events that you want to manage!"
 msgstr "Bitte fügen Sie die Ereignisse hinzu, die Sie verwalten möchten!"
 
-#: templates/index.html:41 templates/index.html:130
+#: templates/index.html:41 templates/index.html:125
 msgid "Add Event"
 msgstr "Ereignis hinzufügen"
 
@@ -201,7 +203,7 @@ msgstr "KOSTENLOSE EREIGNISSE"
 msgid "Discount created"
 msgstr "Rabatt erstellt"
 
-#: templates/index.html:92
+#: templates/index.html:89 templates/organizer/event_discounts.html:64
 msgid "No discount yet"
 msgstr "Noch kein Rabatt"
 
@@ -212,8 +214,9 @@ msgid "Home"
 msgstr "Startseite"
 
 #: templates/organizer/create_discount.html:7
-msgid "Event Discounts"
-msgstr "Ereignisrabatte"
+#: templates/organizer/event_discounts.html:6
+msgid "Event tickets type"
+msgstr "Typ der Veranstaltungstickets"
 
 #: templates/organizer/create_discount.html:7
 msgid "Manage discounts"
@@ -239,27 +242,27 @@ msgstr "Rabattbetrag"
 msgid "Save"
 msgstr "Speichern"
 
-#: templates/organizer/delete_discount.html:13
+#: templates/organizer/delete_discount.html:16
 msgid "Are you sure you want to delete the discount"
 msgstr "Möchten Sie den Rabatt wirklich löschen?"
 
-#: templates/organizer/delete_discount.html:17
+#: templates/organizer/delete_discount.html:20
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: templates/organizer/delete_discount.html:20
+#: templates/organizer/delete_discount.html:23
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: templates/organizer/event_discounts.html:6
-msgid "Event discounts"
-msgstr "Ereignisrabatte"
-
 #: templates/organizer/event_discounts.html:9
-msgid "'s Discounts"
-msgstr "Rabatte"
+msgid "'s Tickets Type"
+msgstr "- Ticketstyp"
 
-#: templates/organizer/event_discounts.html:30
+#: templates/organizer/event_discounts.html:29
+msgid "Free Ticket Type"
+msgstr "Freikartentyp"
+
+#: templates/organizer/event_discounts.html:35
 #, python-format
 msgid "%% off"
 msgstr "%% aus"
@@ -321,6 +324,15 @@ msgstr "Websitenavigation"
 #: templates/shared/base.html:49
 msgid "© 2018 Powered by Imahunga"
 msgstr "© 2018 Powered by Imahunga"
+
+#~ msgid "Event Discounts"
+#~ msgstr "Ereignisrabatte"
+
+#~ msgid "Event discounts"
+#~ msgstr "Ereignisrabatte"
+
+#~ msgid "'s Discounts"
+#~ msgstr "Rabatte"
 
 #~ msgid "Retry"
 #~ msgstr "Erneut versuchen"
