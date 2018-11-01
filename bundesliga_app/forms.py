@@ -127,7 +127,6 @@ class GetDiscountForm(forms.Form):
             return_api_ds = validate_member_number_ds(
                 self.cleaned_data['member_number_{}'.format(number)]
             )
-
             if return_api_ds == 'Invalid Request':
                 self.add_error('member_number_{}'.format(
                     number), _('Invalid request'))
