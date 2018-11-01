@@ -12,6 +12,9 @@ from django.core.exceptions import PermissionDenied
 from bundesliga_site.settings import API_KEY_DEUTSCHER_SPORTAUSWEIS
 from requests import request
 from json import loads
+from django.core.cache import cache
+from django.conf import settings
+CACHE_TTL = getattr(settings, "CACHE_TTL")
 
 
 class EventAccessMixin(object):
@@ -76,14 +79,18 @@ def get_events_user_eb_api(token):
     This method will receive a valid token for user of EB,
     and returns a list of events with specific state
     """
-    eventbrite = Eventbrite(token)
-    return [
-        event
-        # Status : live, draft, canceled, started, ended, all
-        for event in eventbrite.get(
-            '/users/me/owned_events/?status=live'
-        )['events']
-    ]
+    events = cache.get('events-'+token)
+    if not events:
+        eventbrite = Eventbrite(token)
+        events = [
+            event
+            # Status : live, draft, canceled, started, ended, all
+            for event in eventbrite.get(
+                '/users/me/owned_events/?status=live'
+            )['events']
+        ]
+        cache.set('events-'+token, events, timeout=CACHE_TTL)
+    return events
 
 
 def get_event_eb_api(token, event_id):
@@ -91,9 +98,13 @@ def get_event_eb_api(token, event_id):
     This method will receive an event id and token from logged user
     and returns an event
     """
+    event = cache.get('event-'+event_id)
+    if not event:
+        eventbrite = Eventbrite(token)
+        event = eventbrite.get('/events/{}/'.format(event_id))
+        cache.set('event-'+event_id, event, timeout=CACHE_TTL)
+    return event
 
-    eventbrite = Eventbrite(token)
-    return eventbrite.get('/events/{}/'.format(event_id))
 
 
 def get_venue_eb_api(token, venue_id):
@@ -101,9 +112,12 @@ def get_venue_eb_api(token, venue_id):
     This method will receive a venue id and token from logged user
     and returns an venue
     """
-
-    eventbrite = Eventbrite(token)
-    return eventbrite.get('/venues/{}/'.format(venue_id))
+    venue = cache.get('venue-'+venue_id)
+    if not venue:
+        eventbrite = Eventbrite(token)
+        venue = eventbrite.get('/venues/{}/'.format(venue_id))
+        cache.set('venue-'+venue_id, venue, timeout=CACHE_TTL)
+    return venue
 
 
 def get_event_tickets_eb_api(token, event_id):
@@ -111,13 +125,17 @@ def get_event_tickets_eb_api(token, event_id):
     This method will receive a event id and token from logged user
     and returns a list of tickets
     """
-    eventbrite = Eventbrite(token)
-    return [
-        ticket
-        for ticket in eventbrite.get(
-            '/events/{}/ticket_classes/'.format(event_id)
-        )['ticket_classes']
-    ]
+    tickets = cache.get('tickets-'+event_id)
+    if not tickets:
+        eventbrite = Eventbrite(token)
+        tickets = [
+            ticket
+            for ticket in eventbrite.get(
+                '/events/{}/ticket_classes/'.format(event_id)
+            )['ticket_classes']
+        ]
+        cache.set('tickets-'+event_id, tickets, timeout=CACHE_TTL)
+    return tickets
 
 
 def check_discount_code_in_eb(user, event_id, discount_code):

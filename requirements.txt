@@ -9,6 +9,7 @@ defusedxml==0.5.0
 dj-database-url==0.4.2
 Django==1.11
 django-bootstrap4==0.0.7
+django-redis-cache==1.7.1
 docopt==0.6.2
 eventbrite==3.3.3
 factory-boy==2.11.1
@@ -33,6 +34,7 @@ PyJWT==1.6.4
 python-dateutil==2.7.3
 python3-openid==3.1.0
 pytz==2018.5
+redis==2.10.6
 requests==2.19.1
 requests-oauthlib==1.0.0
 simplegeneric==0.8.1

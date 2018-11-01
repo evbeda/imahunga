@@ -70,6 +70,7 @@ from bundesliga_app.mocks import (
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 import datetime
+from django.conf import settings
 
 
 # Create your tests here.
@@ -95,6 +96,11 @@ class TestBase(TestCase):
             username=self.auth.user.username,
             password='12345',
         )
+        setattr(settings, "CACHES", {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+            }
+        })
         return login
 
 
@@ -116,7 +122,7 @@ class AuthTokenTest(TestBase):
         )
 
 
-@patch('bundesliga_app.utils.Eventbrite.get')
+@patch('bundesliga_app.utils.Eventbrite.get', return_value={})
 class UtilsApiEBTest(TestCase):
 
     def test_get_user_eb_api(self, mock_api_call):
@@ -128,6 +134,7 @@ class UtilsApiEBTest(TestCase):
         )
 
     def test_get_events_user_eb_api(self, mock_api_call):
+        mock_api_call.return_value = {'events':''}
         get_events_user_eb_api('TEST')
         mock_api_call.assert_called_once()
         self.assertEquals(
@@ -136,6 +143,7 @@ class UtilsApiEBTest(TestCase):
         )
 
     def test_get_event_eb_api(self, mock_api_call):
+        mock_api_call.return_value = {'id':1}
         get_event_eb_api('TEST', '1')
         mock_api_call.assert_called_once()
         self.assertEquals(
@@ -152,6 +160,7 @@ class UtilsApiEBTest(TestCase):
         )
 
     def test_get_event_tickets_eb_api(self, mock_api_call):
+        mock_api_call.return_value = {'ticket_classes':''}
         get_event_tickets_eb_api('TEST', '1')
         mock_api_call.assert_called_once()
         self.assertEquals(
@@ -178,11 +187,14 @@ class UtilsApiEBTest(TestCase):
     @patch('bundesliga_app.utils.Eventbrite.post', return_value={'id': '1'})
     @patch('bundesliga_app.views.get_user_eb_api', return_value=MOCK_USER_API)
     @patch('bundesliga_app.utils.get_auth_token', return_value={})
-    def test_post_discount_code_to_eb(self,
-                                      mock_get_auth_toke,
-                                      mock_get_user_eb_api,
-                                      mock_api_post_call,
-                                      mock_api_get_call):
+    def test_post_discount_code_to_eb(
+        self,
+        mock_get_auth_toke,
+        mock_get_user_eb_api,
+        mock_api_post_call,
+        mock_api_get_call
+    ):
+        mock_api_get_call.return_value = {'id': 1}
         result = post_discount_code_to_eb('TEST', '1', '1', '20', '1', '1')
         mock_api_post_call.assert_called_once()
         self.assertEquals(result['id'], '1')
@@ -2035,3 +2047,31 @@ class GetDiscountFormTest(TestCase):
         })
         result = form.is_valid()
         self.assertFalse(result)
+
+class ActivateLanguageViewTest(TestBase):
+    def setUp(self):
+        super(ActivateLanguageViewTest, self).setUp()
+
+    def test_language_english(self):
+        self.response = self.client.get('/language/activate/en/', **{'HTTP_REFERER':'/'})
+        self.page = self.client.get(self.response.url)
+        self.assertContains(
+            self.page,
+            "Want to manage",
+        )
+
+    def test_language_german(self):
+        self.response = self.client.get('/language/activate/de/', **{'HTTP_REFERER':'/'})
+        self.page = self.client.get(self.response.url)
+        self.assertContains(
+            self.page,
+            "Möchten Sie die ",
+        )
+
+    def test_language_spanish(self):
+        self.response = self.client.get('/language/activate/es/', **{'HTTP_REFERER':'/'})
+        self.page = self.client.get(self.response.url)
+        self.assertContains(
+            self.page,
+            "administrar tus descuentos",
+        )
