@@ -44,6 +44,11 @@ from django.utils.translation import ugettext as _
 from django.forms.utils import ErrorList
 from django.contrib.auth import get_user_model
 from dateutil import parser
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.views.decorators.cache import cache_page
+
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -539,7 +544,7 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
 
 """ -- Buyer Views -- """
 
-
+# @cache_page(CACHE_TTL)
 class LandingPageBuyerView(TemplateView):
     """ This is the landing page of an organizer for the buyer """
 
