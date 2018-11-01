@@ -813,6 +813,7 @@ class ListingPageEventView(FormView):
                 ]).filter(
                     status=uknown_status
             )
+
             # If exists
             if existing_discount_code:
                 for i in range(len(existing_discount_code)):

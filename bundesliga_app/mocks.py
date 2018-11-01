@@ -44,11 +44,6 @@ def get_mock_event_tickets_api_paid_inverse_position(*args, **kwargs):
     # new mock [ TICKET[1], TICKET[0]], so we inverse the order
     return [MOCK_EVENT_TICKETS_PAID[0][1], MOCK_EVENT_TICKETS_PAID[0][0]]
 
-def get_mock_valid_numbers_ds(*args, **kwargs):
-    MOCK_DS_VALID_NUMBERS = []
-    MOCK_DS_VALID_NUMBERS.append(copy.deepcopy(MOCK_DS_API_VALID_NUMBER))
-    MOCK_DS_VALID_NUMBERS.append(copy.deepcopy(MOCK_DS_API_VALID_NUMBER))
-    return MOCK_DS_VALID_NUMBERS
 
 # Deutscher Sportausweis MOCKS
 # Mock for valid number
@@ -103,6 +98,28 @@ MOCK_POST_DISCOUNT_CODE_TO_EB = {
     "ticket_group_id": None
 }
 
+# Mock response update discount code to EB
+MOCK_UPDATE_DISCOUNT_CODE_TO_EB = {
+    "resource_uri": "https://www.eventbriteapi.com/v3/discounts/380502040/",
+    "amount_off": None,
+    "code": "12345",
+    "discount_type": "coded",
+    "end_date": "2018-01-01T10:00:00",
+    "end_date_relative": None,
+    "hold_ids": None,
+    "id": "380502040",
+    "percent_off": "15.00",
+    "quantity_available": 1,
+    "quantity_sold": 1,
+    "start_date": "2018-01-01T10:00:00",
+    "start_date_relative": None,
+    "ticket_class_ids": None,
+    "ticket_ids": None,
+    "type": "coded",
+    "event_id": "50751872216",
+    "ticket_group_id": None
+}
+
 # Mock get discount code exists in EB - without usage
 MOCK_DISCOUNT_EXISTS_IN_EB_NO_USAGE = {
     "discounts": [
@@ -118,6 +135,72 @@ MOCK_DISCOUNT_EXISTS_IN_EB_NO_USAGE = {
             "percent_off": "15.00",
             "quantity_available": 1,
             "quantity_sold": 0,
+            "start_date": "2018-01-01T10:00:00",
+            "start_date_relative": None,
+            "ticket_class_ids": None,
+            "ticket_ids": None,
+            "type": "coded",
+            "event_id": "50637782972",
+            "ticket_group_id": None
+        }
+    ],
+    "pagination": {
+        "object_count": 1,
+        "page_number": 1,
+        "page_size": 50,
+        "page_count": 1,
+        "has_more_items": False
+    }
+}
+
+# Mock get discount code exists in EB - without usage - multiple uses
+MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES= {
+    "discounts": [
+        {
+            "resource_uri": "https://www.eventbriteapi.com/v3/discounts/380379915/",
+            "amount_off": None,
+            "code": "5680302082",
+            "discount_type": "coded",
+            "end_date": "2018-01-01T10:00:00",
+            "end_date_relative": None,
+            "hold_ids": None,
+            "id": "380379915",
+            "percent_off": "15.00",
+            "quantity_available": 2,
+            "quantity_sold": 0,
+            "start_date": "2018-01-01T10:00:00",
+            "start_date_relative": None,
+            "ticket_class_ids": None,
+            "ticket_ids": None,
+            "type": "coded",
+            "event_id": "50637782972",
+            "ticket_group_id": None
+        }
+    ],
+    "pagination": {
+        "object_count": 1,
+        "page_number": 1,
+        "page_size": 50,
+        "page_count": 1,
+        "has_more_items": False
+    }
+}
+
+# Mock get discount code exists in EB - with one use - multiple uses
+MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES_ONE_USED= {
+    "discounts": [
+        {
+            "resource_uri": "https://www.eventbriteapi.com/v3/discounts/380379915/",
+            "amount_off": None,
+            "code": "5680302082",
+            "discount_type": "coded",
+            "end_date": "2018-01-01T10:00:00",
+            "end_date_relative": None,
+            "hold_ids": None,
+            "id": "380379915",
+            "percent_off": "15.00",
+            "quantity_available": 2,
+            "quantity_sold": 1,
             "start_date": "2018-01-01T10:00:00",
             "start_date_relative": None,
             "ticket_class_ids": None,
