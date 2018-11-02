@@ -8,7 +8,7 @@
 		$('[data-toggle="popover"]').popover({
 			placement : 'bottom',
 			html : true,
-			content : '<input id="link" value={{ attendee_url }}></input> <button onclick="copy_text()"> <img style="height:16px"; src="{% static "images/copy.png" %}"> </button> <a href="{% url "landing_page_buyer" organizer.id %}" target="_blank">{% trans "Go" %}</a>'
+			content : '<input id="link" value={{ attendee_url }}></input> <button onclick="copy_text()"> <img style="height:16px"; src="{% static "images/copy.png" %}"> </button> <a href="{% url "landing_page_buyer" organizer.id %}" target="_blank">{% trans "View your page" %}</a>'
 		});
 	});
 	function copy_text(){
@@ -33,7 +33,7 @@
 					</i>
 				</span>
 			</div>
-			<h1 class="eds-empty-state__title eds-text--center eds-text-hs eds-text-color--grey-900 eds-l-sn-mar-top-6 eds-l-sm-mar-top-6 eds-l-sw-mar-top-6 eds-l-mn-mar-top-6 eds-l-md-mar-top-6 eds-l-md-mar-top-8 eds-l-mw-mar-top-8 eds-l-ln-mar-top-8 eds-l-lg-mar-top-8 eds-l-lw-mar-top-8">{% trans "Want to manage your event’s discounts" %}?</h1>
+			<h1 class="eds-empty-state__title eds-text--center eds-text-hs eds-text-color--grey-900 eds-l-sn-mar-top-6 eds-l-sm-mar-top-6 eds-l-sw-mar-top-6 eds-l-mn-mar-top-6 eds-l-md-mar-top-6 eds-l-md-mar-top-8 eds-l-mw-mar-top-8 eds-l-ln-mar-top-8 eds-l-lg-mar-top-8 eds-l-lw-mar-top-8">{% trans "Want to manage your events’ discounts?" %}?</h1>
 			<div class="eds-align--center">
 				<p class="eds-empty-state__description eds-text--center eds-text-bl eds-text-color--grey-600 eds-l-sn-mar-top-3 eds-l-sm-mar-top-3 eds-l-sw-mar-top-3 eds-l-mn-mar-top-3 eds-l-md-mar-top-3 eds-l-md-mar-top-1 eds-l-mw-mar-top-1 eds-l-ln-mar-top-1 eds-l-lg-mar-top-1 eds-l-lw-mar-top-1">{% trans "Please add the events that you want to manage!" %}</p>
 			</div>
@@ -86,7 +86,7 @@
 							<div class="eds-g-cell eds-text-bm--fixed eds-text-color--grey-600" data-spec="eds-ticket-card-content-status">
 								<span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--tropical-yellow-400 eds-l-mar-right-2"></span>
 								<p class="eds-g-cell eds-ticket-edit-card-content__status">
-									{% trans "No discount yet" %}
+									{% trans "No discount" %}
 								</p>
 							</div>
 						</div>

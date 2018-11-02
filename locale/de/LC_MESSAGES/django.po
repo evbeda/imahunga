@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-31 10:21-0300\n"
+"POT-Creation-Date: 2018-11-02 11:08-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,60 +18,61 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: bundesliga_app/forms.py:26
-msgid "Insert a name code"
-msgstr "Einen Namen eingeben"
+msgid "Insert a code name"
+msgstr "Geben Sie einen Codenamen ein"
 
 #: bundesliga_app/forms.py:32
 msgid "Insert your discount"
 msgstr "Fügen Sie Ihren Rabatt ein"
 
 #: bundesliga_app/forms.py:59
-msgid "You cant create a discount in a free event"
-msgstr "Sie können in einer kostenlosen Veranstaltung keinen Rabatt erstellen"
+msgid "You can not create a discount in a free event"
+msgstr "Sie können keinen Rabatt in einer kostenlosen Veranstaltung erstellen"
 
 #: bundesliga_app/forms.py:70
-msgid "You cant create a discount for a free ticket"
-msgstr "Sie können keinen Rabatt für ein Freiticket anlegen"
+msgid "You can not create a discount for a free ticket"
+msgstr "Sie können keinen Rabatt für ein kostenloses Ticket erstellen"
 
 #: bundesliga_app/forms.py:80
-msgid "You already have a discount for this ticket type"
-msgstr "Login um die Rabatte Ihrer Events zu verwalten"
+msgid "You have already used a discount for this ticket type"
+msgstr "Sie haben bereits einen Rabatt für diesen Ticket-Typ verwendet"
 
-#: bundesliga_app/forms.py:112
+#: bundesliga_app/forms.py:116
 msgid "Insert your member number here"
 msgstr "Geben Sie hier Ihre Mitgliedsnummer ein"
 
-#: bundesliga_app/forms.py:133
+#: bundesliga_app/forms.py:132
 msgid "Invalid request"
 msgstr "Ungültige Anfrage"
 
-#: bundesliga_app/forms.py:149
-msgid "Invalid number "
-msgstr "Ungültige Nummer "
+#: bundesliga_app/forms.py:148
+msgid "Invalid member number "
+msgstr "Ungültige Mitgliedsnummer "
 
-#: bundesliga_app/forms.py:154
-msgid "Invalid numbers "
-msgstr "Ungültige Nummern "
+#: bundesliga_app/forms.py:153
+msgid "Invalid member numbers "
+msgstr "Ungültige Mitgliedsnummern "
 
-#: bundesliga_app/forms.py:162
-msgid "You already used the discount for this event"
-msgstr "Login um die Rabatte Ihrer Events zu verwalten"
-
-#: bundesliga_app/utils.py:30
+#: bundesliga_app/utils.py:33
 msgid "You don't have access to this event"
 msgstr "Sie haben keinen Zugriff auf dieses Ereignis"
 
-#: bundesliga_app/utils.py:47
+#: bundesliga_app/utils.py:50
 msgid "You don't have access to this discount"
 msgstr "Sie haben keinen Zugriff auf diesen Rabatt"
 
-#: bundesliga_app/utils.py:61
+#: bundesliga_app/utils.py:64
 msgid "UserSocialAuth does not exists!"
 msgstr "UserSocialAuth existiert nicht!"
 
-#: bundesliga_app/utils.py:182
+#: bundesliga_app/utils.py:223
 msgid "Invalid Request"
 msgstr "Ungültige Anfrage"
+
+#: bundesliga_app/views.py:845 bundesliga_app/views.py:959
+#: bundesliga_app/views.py:986
+msgid "Number {} has already used the discount for this event"
+msgstr "Nummer {} hat den Rabatt für dieses Ereignis bereits verwendet"
 
 #: bundesliga_site/settings.py:154
 msgid "English"
@@ -90,13 +91,12 @@ msgid "Sorry!"
 msgstr "Entschuldigung!"
 
 #: templates/buyer/get_discount.html:7
-#: templates/buyer/listing_page_event.html:159
 msgid "Get Discount"
 msgstr "Rabatt erhalten"
 
 #: templates/buyer/get_discount.html:29
-msgid "Tickets Type"
-msgstr "Ticketstyp"
+msgid "Tickets with discount"
+msgstr "Tickets mit Rabatt"
 
 #: templates/buyer/get_discount.html:35
 msgid "Enter your member number"
@@ -118,7 +118,7 @@ msgstr "Ereignisbild"
 
 #: templates/buyer/landing_page_buyer.html:32
 #: templates/buyer/listing_page_event.html:91
-#: templates/buyer/listing_page_event.html:134
+#: templates/buyer/listing_page_event.html:143
 msgid "Free"
 msgstr "Frei"
 
@@ -126,39 +126,44 @@ msgstr "Frei"
 msgid "By"
 msgstr "Von"
 
-#: templates/buyer/listing_page_event.html:108
-#: templates/buyer/listing_page_event.html:145
+#: templates/buyer/listing_page_event.html:110
+#: templates/buyer/listing_page_event.html:116
+#: templates/buyer/listing_page_event.html:154
 msgid "discount available for members"
 msgstr "Rabatt für Mitglieder verfügbar"
 
-#: templates/buyer/listing_page_event.html:113
-#: templates/buyer/listing_page_event.html:147
+#: templates/buyer/listing_page_event.html:122
+#: templates/buyer/listing_page_event.html:156
 msgid "This event doesn't have any available discount"
 msgstr "Dieses Event hat keinen verfügbaren Rabatt"
 
-#: templates/buyer/listing_page_event.html:163
+#: templates/buyer/listing_page_event.html:168
+msgid "Check Available Discount"
+msgstr "Prüfen Sie den verfügbaren Rabatt"
+
+#: templates/buyer/listing_page_event.html:172
 msgid "Tickets"
 msgstr "Tickets"
 
-#: templates/buyer/listing_page_event.html:185
+#: templates/buyer/listing_page_event.html:194
 msgid "DESCRIPTION"
 msgstr "BESCHREIBUNG"
 
-#: templates/buyer/listing_page_event.html:193
+#: templates/buyer/listing_page_event.html:202
 msgid "This event does not have description"
 msgstr "Dieses Ereignis hat keine Beschreibung"
 
-#: templates/buyer/listing_page_event.html:210
+#: templates/buyer/listing_page_event.html:219
 msgid "DATE AND TIME"
 msgstr "DATUM UND ZEIT"
 
-#: templates/buyer/listing_page_event.html:233
+#: templates/buyer/listing_page_event.html:242
 msgid "LOCATION"
 msgstr "ORT"
 
-#: templates/buyer/listing_page_event.html:250
-#: templates/buyer/listing_page_event.html:252
-#: templates/buyer/listing_page_event.html:254
+#: templates/buyer/listing_page_event.html:259
+#: templates/buyer/listing_page_event.html:261
+#: templates/buyer/listing_page_event.html:263
 msgid "Event's venue map"
 msgstr "Veranstaltungsortkarte"
 
@@ -168,8 +173,8 @@ msgid "Done"
 msgstr "Fertig"
 
 #: templates/index.html:11
-msgid "Go"
-msgstr "Geh"
+msgid "View your page"
+msgstr "Zeigen Sie Ihre Seite an"
 
 #: templates/index.html:22
 msgid "Share this link"
@@ -180,8 +185,8 @@ msgid "Share This Page"
 msgstr "Diese Seite teilen"
 
 #: templates/index.html:36
-msgid "Want to manage your event’s discounts"
-msgstr "Möchten Sie die Rabatte Ihrer Veranstaltung verwalten?"
+msgid "Want to manage your events’ discounts?"
+msgstr "Möchten Sie die Rabatte Ihrer Veranstaltungen verwalten?"
 
 #: templates/index.html:38
 msgid "Please add the events that you want to manage!"
@@ -204,8 +209,8 @@ msgid "Discount created"
 msgstr "Rabatt erstellt"
 
 #: templates/index.html:89 templates/organizer/event_discounts.html:64
-msgid "No discount yet"
-msgstr "Noch kein Rabatt"
+msgid "No discount"
+msgstr "Kein Rabatt"
 
 #: templates/organizer/create_discount.html:7
 #: templates/organizer/event_discounts.html:6
@@ -259,20 +264,20 @@ msgid "'s Tickets Type"
 msgstr "- Ticketstyp"
 
 #: templates/organizer/event_discounts.html:29
-msgid "Free Ticket Type"
-msgstr "Freikartentyp"
+msgid "Free Ticket"
+msgstr "Freikarten"
 
 #: templates/organizer/event_discounts.html:35
 #, python-format
-msgid "%% off"
-msgstr "%% aus"
+msgid "%% discount"
+msgstr "%% Rabatt"
 
 #: templates/organizer/select_events.html:6
 msgid "Select events"
 msgstr "Ereignisse auswählen"
 
 #: templates/organizer/select_events.html:54
-msgid "Select Event/s"
+msgid "Select Event(s)"
 msgstr "Wähle Event/s"
 
 #: templates/organizer/select_events.html:66
@@ -306,8 +311,8 @@ msgid "Welcome!"
 msgstr "Willkommen!"
 
 #: templates/registration/login.html:9
-msgid "Login to manage the discounts of your events"
-msgstr "Login um die Rabatte Ihrer Events zu verwalten"
+msgid "Login to manage your events' discounts"
+msgstr "Melden Sie sich an, um die Rabatte Ihrer Veranstaltungen zu verwalten"
 
 #: templates/shared/base.html:5
 msgid "Eventbrite Discounts"
@@ -324,6 +329,18 @@ msgstr "Websitenavigation"
 #: templates/shared/base.html:49
 msgid "© 2018 Powered by Imahunga"
 msgstr "© 2018 Powered by Imahunga"
+
+#~ msgid "Tickets Type"
+#~ msgstr "Ticketstyp"
+
+#~ msgid "Go"
+#~ msgstr "Geh"
+
+#~ msgid "%% off"
+#~ msgstr "%% aus"
+
+#~ msgid "Login to manage the discounts of your events"
+#~ msgstr "Login um die Rabatte Ihrer Events zu verwalten"
 
 #~ msgid "Event Discounts"
 #~ msgstr "Ereignisrabatte"

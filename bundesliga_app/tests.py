@@ -755,7 +755,7 @@ class CreateDiscountViewTest(TestBase):
         )
         self.assertContains(
             self.response,
-            'You already have a discount for this ticket type')
+            'You have already used a discount for this ticket')
 
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_event_api_free)
@@ -787,7 +787,7 @@ class CreateDiscountViewTest(TestBase):
 
         self.assertContains(
             self.response,
-            'You cant create a discount in a free event'
+            'You can not create a discount in a free event'
         )
 
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=MOCK_EVENT_TICKETS[0])
@@ -820,7 +820,7 @@ class CreateDiscountViewTest(TestBase):
 
         self.assertContains(
             self.response,
-            'You cant create a discount for a free ticket'
+            'You can not create a discount for a free ticket'
         )
 
 
@@ -2043,7 +2043,7 @@ class ListingPageEventViewTest(TestCase):
         )
         self.assertContains(
             self.response,
-            "Invalid number"
+            "Invalid member number"
         )
 
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
@@ -2349,5 +2349,5 @@ class ActivateLanguageViewTest(TestBase):
         self.page = self.client.get(self.response.url)
         self.assertContains(
             self.page,
-            "administrar tus descuentos",
+            "administrar los descuentos",
         )
