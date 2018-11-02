@@ -94,20 +94,29 @@
 									{% else %}
 										<div class="eds-media-card-content__flag eds-text-bs eds-text-color--grey-600">
 											<span class="eds-text-color--grey-700">
-												{% if tickets.min_value_display == tickets.max_value_display %}
-													{{ tickets.min_value_display}}
+												{% if tickets_value.min_value_display == tickets_value.max_value_display %}
+													{{ tickets_value.min_value_display}}
 												{% else %}
-													{{ tickets.min_value_display}} -
-													{{tickets.max_value_display}}
+													{{ tickets_value.min_value_display}} -
+													{{tickets_value.max_value_display}}
 												{% endif %}
 											</span>
 										</div>
 									{% endif %}
-									{% if discounts %}
+									{% if discounts.available %}
+										{% if discounts.max_discount == discounts.min_discount  %}
 										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
-											<span class="eds-text-color--grey-700">{{ event.discount }} % {% trans "discount available for members" %}
+											<span class="eds-text-color--grey-700">
+												{{ discounts.max_discount }} % {% trans "discount available for members" %}
 											</span>
 										</div>
+										{% else %}
+										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
+											<span class="eds-text-color--grey-700">
+												{{ discounts.min_discount }} - {{ discounts.max_discount }} % {% trans "discount available for members" %}
+											</span>
+										</div>
+										{% endif %}
 									{% else %}
 										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
 											<span class="eds-text-color--grey-700">{% trans "This event doesn't have any available discount" %}
@@ -135,10 +144,10 @@
 					{% else %}
 						<div>
 
-							{% if tickets.min_value_display == tickets.max_value_display %}
-								{{ tickets.min_value_display}}
+							{% if tickets_value.min_value_display == tickets_value.max_value_display %}
+								{{ tickets_value.min_value_display}}
 							{% else %}
-								{{ tickets.min_value_display}} - {{tickets.max_value_display}}
+								{{ tickets_value.min_value_display}} - {{tickets_value.max_value_display}}
 							{% endif %}
 						</div>
 						{% if event.discount %}

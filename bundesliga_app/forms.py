@@ -32,7 +32,7 @@ class DiscountForm(forms.Form):
             'placeholder': _('Insert your discount')
         }),
         validators=[
-            MinValueValidator(0),
+            MinValueValidator(1),
             MaxValueValidator(100),
 
     ])

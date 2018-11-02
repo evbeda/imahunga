@@ -576,26 +576,28 @@ class LandingPageBuyerView(TemplateView):
             tickets_type_own = EventTicketType.objects.filter(
                 event=event.id
             )
+            events[event.id]['max_discount'] = 0
+            events[event.id]['min_discount'] = 0
+            events[event.id]['discounts'] = {}
             for ticket_type_own in tickets_type_own:
-                """ Add ticket_type to dictionary with the id as key
-                and ticket type from API as value """
-                events[event.id]['tickets_type'].update(get_ticket_type(
-                    organizer,
-                    event.event_id,
-                    ticket_type_own.id,
-                ))
-                """ Get the discount of the ticket type and
-                add it to the dictionary of ticket_type """
-                # If the ticket type has a discount
+
                 if Discount.objects.filter(
                         ticket_type=ticket_type_own.id).exists():
 
                     discount = Discount.objects.get(
                         ticket_type=ticket_type_own.id
                     )
+                    events[event.id]['discounts'][discount.id] = discount.__dict__
 
-                    events[event.id]['tickets_type'][str(
-                        ticket_type_own.id)]['discount'] = discount.__dict__
+                    if discount.value > events[event.id]['max_discount']:
+                        events[event.id]['max_discount'] = discount.value
+
+                    if events[event.id]['min_discount'] == 0:
+                        events[event.id]['min_discount'] = discount.value
+
+                    if discount.value < events[event.id]['min_discount']:
+                        events[event.id]['min_discount'] = discount.value
+
                     """ If the event is free at the moment to load the page it will
                     delete the discounts and ticket types in our database"""
                     if events[event.id]['is_free']:
@@ -680,12 +682,25 @@ class ListingPageEventView(FormView):
         return tickets_type
 
     def _get_discounts(self, tickets_type):
-        discounts = []
+        discounts = {
+            'max_discount': 0,
+            'min_discount': 0,
+            'available': False,
+        }
 
         for ticket_id in tickets_type.keys():
             if Discount.objects.filter(ticket_type=ticket_id).exists():
-                discounts.append(Discount.objects.get(
-                    ticket_type=ticket_id).__dict__)
+                discount = Discount.objects.get(
+                    ticket_type=ticket_id)
+                discounts['available'] = True
+                if discount.value > discounts['max_discount']:
+                        discounts['max_discount'] = discount.value
+
+                if discounts['min_discount'] == 0:
+                        discounts['min_discount'] = discount.value
+
+                if discount.value < discounts['min_discount']:
+                        discounts['min_discount'] = discount.value
         return discounts
 
     def _get_tickets(self, tickets):

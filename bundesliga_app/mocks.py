@@ -462,5 +462,69 @@ MOCK_EVENT_TICKETS = [[
         ],
         "event_id": "50607739110",
         "id": "95845509"
+    },
+    {
+        "actual_cost": {
+            "display": "$300.00",
+            "currency": "ARS",
+            "value": 30000,
+            "major_value": "300.00"
+        },
+        "actual_fee": {
+            "display": "$25.37",
+            "currency": "ARS",
+            "value": 2537,
+            "major_value": "25.37"
+        },
+        "cost": {
+            "display": "$300.00",
+            "currency": "ARS",
+            "value": 30000,
+            "major_value": "300.00"
+        },
+        "fee": {
+            "display": "$25.37",
+            "currency": "ARS",
+            "value": 2537,
+            "major_value": "25.37"
+        },
+        "tax": {
+            "display": "$0.00",
+            "currency": "ARS",
+            "value": 0,
+            "major_value": "0.00"
+        },
+        "resource_uri": "https://www.eventbriteapi.com/v3/events/50607739110/ticket_classes/95845509/",
+        "variant_id": "T95845509",
+        "name": "Ultra VIP",
+        "description": None,
+        "donation": False,
+        "free": False,
+        "minimum_quantity": 1,
+        "maximum_quantity": None,
+        "maximum_quantity_per_order": 10,
+        "maximum_quantity_per_order_without_pending": 10,
+        "on_sale_status": "AVAILABLE",
+        "quantity_total": 10,
+        "quantity_sold": 0,
+        "sales_start": "2018-10-11T10:45:00Z",
+        "sales_end": "2018-11-03T21:00:00Z",
+        "hidden": False,
+        "include_fee": False,
+        "split_fee": False,
+        "hide_description": True,
+        "auto_hide": False,
+        "variants": [],
+        "has_pdf_ticket": True,
+        "sales_channels": [
+                "online",
+                "atd"
+        ],
+        "short_name": "Ultra VIP",
+        "delivery_methods": [
+            "electronic"
+        ],
+        "event_id": "50607739110",
+        "id": "12345678"
     }
 ]]
