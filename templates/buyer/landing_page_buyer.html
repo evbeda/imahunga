@@ -33,12 +33,24 @@
 	    						</span>
 	        				</div>
 	        			{% endif %}
-	        			{% if event.discount %}
+	        			{% if event.discounts|length == 1 %}
 	        				<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
-	    						<span class="eds-text-color--grey-700">- {{ event.discount }} %
+	    						<span class="eds-text-color--grey-700"> {{ event.max_discount }}% off
 	    						</span>
 	        				</div>
-	        			{% endif %}
+	        			{% elif event.discounts|length > 1  %}
+                            {% if event.min_discount == event.max_discount %}
+                            <div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
+                                <span class="eds-text-color--grey-700"> {{ event.max_discount }}% off
+                                </span>
+                            </div>
+                            {% else %}
+                            <div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
+                                <span class="eds-text-color--grey-700"> {{ event.min_discount }} - {{ event.max_discount }}% off
+                                </span>
+                            </div>
+                            {% endif %}
+                        {% endif %}
         			</aside>
         			<main class="eds-media-card-content__content-container">
         				<div class="eds-media-card-content__content">

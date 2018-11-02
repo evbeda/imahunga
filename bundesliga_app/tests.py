@@ -643,7 +643,7 @@ class CreateDiscountViewTest(TestBase):
         self.assertEqual(self.response.status_code, 200)
         self.assertContains(
             self.response,
-            'Ensure this value is greater than or equal to 0.'
+            'Ensure this value is greater than or equal to 1.'
         )
         self.assertEqual(
             len(Discount.objects.filter(ticket_type=ticket_type)),
@@ -1008,7 +1008,7 @@ class ModifyDiscountViewTest(TestBase):
         self.assertEqual(self.response.status_code, 200)
         self.assertContains(
             self.response,
-            'Ensure this value is greater than or equal to 0.'
+            'Ensure this value is greater than or equal to 1.'
         )
         self.assertEqual(
             len(Discount.objects.filter(ticket_type=ticket_type)),
@@ -1622,9 +1622,52 @@ class LandingPageBuyerViewTest(TestCase):
             '/landing_page/{}/'.format(self.organizer.id)
         )
         self.assertEqual(
-            self.response.context['events'][self.events[0].id]['tickets_type'][str(
-                ticket_type.id)]['discount']['id'],
+            self.response.context['events'][self.events[0].id]['discounts'][discount.id]['id'],
             discount.id,
+        )
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
+    def test_get_discount_if_exists_3(self,
+                                      mock_get_event_tickets_eb_api,
+                                      mock_get_event_eb_api):
+        ticket_type_1 = EventTicketTypeFactory(
+            event=self.events[0],
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
+        )
+        ticket_type_2 = EventTicketTypeFactory(
+            event=self.events[0],
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
+        )
+        ticket_type_3 = EventTicketTypeFactory(
+            event=self.events[0],
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[2]['id']
+        )
+        discount_1 = DiscountFactory(
+            ticket_type=ticket_type_1,
+            value=30.0,
+            value_type="percentage",
+        )
+        discount_2 = DiscountFactory(
+            ticket_type=ticket_type_2,
+            value=80.0,
+            value_type="percentage",
+        )
+        DiscountFactory(
+            ticket_type=ticket_type_3,
+            value=40.0,
+            value_type="percentage",
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/'.format(self.organizer.id)
+        )
+        self.assertEqual(
+            self.response.context['events'][self.events[0].id]['max_discount'],
+            discount_2.value,
+        )
+        self.assertEqual(
+            self.response.context['events'][self.events[0].id]['min_discount'],
+            discount_1.value,
         )
 
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_event_api_free)
