@@ -23,7 +23,7 @@ class DiscountForm(forms.Form):
     discount_name = forms.CharField(max_length=200, required=True, widget=forms.TextInput(
         attrs={
             'class': 'form-control',
-            'placeholder': _('Insert a name code')
+            'placeholder': _('Insert a code name')
         }
     ))
     discount_value = forms.IntegerField(required=True, widget=forms.NumberInput(
@@ -56,7 +56,7 @@ class DiscountForm(forms.Form):
         if valid_free:
             self.add_error(
                 '__all__',
-                _('You cant create a discount in a free event'),
+                _('You can not create a discount in a free event'),
             )
             return False
         valid_free_ticket = get_ticket_type(
@@ -67,7 +67,7 @@ class DiscountForm(forms.Form):
         if valid_free_ticket:
             self.add_error(
                 '__all__',
-                _('You cant create a discount for a free ticket'),
+                _('You can not create a discount for a free ticket'),
             )
             return False
         if not self.discount_id:
@@ -77,7 +77,7 @@ class DiscountForm(forms.Form):
             if len(discount) > 0:
                 self.add_error(
                     '__all__',
-                    _('You already have a discount for this ticket type'),
+                    _('You have already used a discount for this ticket type'),
                 )
                 return False
             return True
@@ -145,12 +145,12 @@ class GetDiscountForm(forms.Form):
             if len(invalid_numbers) == 1:
                 self.add_error(
                     'member_number_1',
-                    _('Invalid number ')+'{}'.format(numbers),
+                    _('Invalid member number ')+'{}'.format(numbers),
                 )
             else:
                 self.add_error(
                     'member_number_1',
-                    _('Invalid numbers ')+'{}'.format(numbers),
+                    _('Invalid member numbers ')+'{}'.format(numbers),
                 )
             return False
         else:
