@@ -1,6 +1,9 @@
 {% block content %}
 	{% load static %}
 	{% load i18n %}
+	<head>
+		<script src='https://www.google.com/recaptcha/api.js'></script>
+	</head>
 		<form id="get_discount_form" class="text-center" id="get_discount_form" method="POST">
 			{% csrf_token %}
 				<div style="padding: 10px" >
@@ -40,6 +43,7 @@
 							</button>
 						</div>
 					</div>
+					<div class="g-recaptcha mx-auto" data-sitekey="6LczwHgUAAAAAFx1D-Uo6shEcbaZO6egFpUo8oL-" style="width: 50%; margin-top: 20px; margin-bottom: 20px;"></div>
 				</div>
 				<div>
 					<button class="eds-btn eds-btn--button eds-btn--fill" id="retry" type="button" onclick="window.open('{{ event.url }}', '_blank')" style="display: none;">
