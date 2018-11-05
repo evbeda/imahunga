@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'social_django',
     'bundesliga_app',
+    'snowpenguin.django.recaptcha2',
 ]
 
 MIDDLEWARE = [
@@ -171,6 +172,11 @@ SOCIAL_AUTH_EVENTBRITE_SECRET = get_env_variable(
 API_KEY_DEUTSCHER_SPORTAUSWEIS = get_env_variable(
     'API_KEY_DEUTSCHER_SPORTAUSWEIS'
 )
+
+#RECAPTCHA PRIVATE KEY
+RECAPTCHA_PRIVATE_KEY = get_env_variable('RECAPTCHA_PRIVATE_KEY')
+#RECAPTCHA PUBLIC KEY
+RECAPTCHA_PUBLIC_KEY = get_env_variable('RECAPTCHA_PUBLIC_KEY')
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'

@@ -35,6 +35,7 @@ from bundesliga_app.utils import (
     check_discount_code_in_eb,
     post_discount_code_to_eb,
     validate_member_number_ds,
+    delete_discount_code_from_eb,
 )
 from .models import (
     Discount,
@@ -1992,8 +1993,10 @@ class ListingPageEventViewTest(TestCase):
             {
                 'tickets_type': ticket_type.id,
                 'member_number_1': '1234',
+                'g-recaptcha-response': '1234567'
             },
         )
+
         self.assertEqual(self.response.status_code, 200)
         member_discount_code = MemberDiscountCode.objects.filter(
             member_number='1234'
@@ -2001,6 +2004,46 @@ class ListingPageEventViewTest(TestCase):
         self.assertEqual(
             len(member_discount_code),
             1
+        )
+
+    @patch(
+        'bundesliga_app.forms.validate_member_number_ds',
+        return_value=MOCK_DS_API_VALID_NUMBER.text,
+    )
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
+    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    def test_post_without_captcha(
+            self,
+            mock_post_discount_code_to_eb,
+            mock_get_event_tickets_eb_api,
+            mock_get_event_eb_api,
+            mock_validate_member_number_ds,
+            mock_get_venue_eb_api):
+        ticket_type = EventTicketTypeFactory(
+            event=self.event,
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
+        )
+        DiscountFactory(
+            ticket_type=ticket_type
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.response = self.client.post(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id),
+            {
+                'tickets_type': ticket_type.id,
+                'member_number_1': '1234',
+                'g-recaptcha-response': ''
+            },
+        )
+
+        self.assertContains(
+            self.response,
+            "Please complete captcha"
         )
 
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_INVALID_NUMBER.text,)
@@ -2031,6 +2074,7 @@ class ListingPageEventViewTest(TestCase):
             {
                 'tickets_type': ticket_type.id,
                 'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
             },
         )
         self.assertEqual(self.response.status_code, 200)
@@ -2044,6 +2088,44 @@ class ListingPageEventViewTest(TestCase):
         self.assertContains(
             self.response,
             "Invalid member number"
+        )
+
+    @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_INVALID_NUMBER.text,)
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
+    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    def test_multiple_invalid_member_numbers(
+        self,
+        mock_post_discount_code_to_eb,
+        mock_get_event_tickets_eb_api,
+        mock_get_event_eb_api,
+        mock_validate_member_number_ds,
+        mock_get_venue_eb_api):
+        ticket_type = EventTicketTypeFactory(
+            event=self.event,
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
+        )
+        DiscountFactory(
+            ticket_type=ticket_type
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.response = self.client.post(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id),
+            {
+                'tickets_type': ticket_type.id,
+                'member_number_1': '1234',
+                'member_number_2': '45678',
+                'g-recaptcha-response': '1234567',
+            },
+        )
+        self.assertEqual(self.response.status_code, 200)
+        self.assertContains(
+            self.response,
+            "Invalid member numbers 1234, 45678"
         )
 
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
@@ -2075,6 +2157,7 @@ class ListingPageEventViewTest(TestCase):
                 'tickets_type': ticket_type.id,
                 'member_number_1': '1234',
                 'member_number_2': '4567',
+                'g-recaptcha-response': '1234567',
             },
         )
         discount_code = DiscountCode.objects.filter(
@@ -2128,6 +2211,7 @@ class ListingPageEventViewTest(TestCase):
             {
                 'tickets_type': ticket_type.id,
                 'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
             },
         )
         self.assertContains(
@@ -2174,6 +2258,7 @@ class ListingPageEventViewTest(TestCase):
             {
                 'tickets_type': ticket_type.id,
                 'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
             },
         )
         self.assertContains(
@@ -2226,6 +2311,7 @@ class ListingPageEventViewTest(TestCase):
             {
                 'tickets_type': ticket_type.id,
                 'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
             },
         )
         canceled_discount = MemberDiscountCode.objects.filter(
@@ -2287,6 +2373,7 @@ class ListingPageEventViewTest(TestCase):
             {
                 'tickets_type': ticket_type.id,
                 'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
             },
         )
         canceled_discount = MemberDiscountCode.objects.filter(
@@ -2319,6 +2406,7 @@ class GetDiscountFormTest(TestCase):
             mock_validate_member_number_ds):
         form = GetDiscountForm({
             'member_number_1': '1234',
+            'g-recaptcha-response': '1234567',
         })
         result = form.is_valid()
         self.assertFalse(result)
