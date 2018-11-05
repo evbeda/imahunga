@@ -19,7 +19,64 @@ CHOICES = (
 )
 
 
-class DiscountForm(forms.Form):
+class DiscountEventForm(forms.Form):
+    discount_name = forms.CharField(max_length=200, required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'form-control',
+            'placeholder': _('Insert a name code')
+        }
+    ))
+    discount_value = forms.IntegerField(required=True, widget=forms.NumberInput(
+        attrs={
+            'class': 'form-control',
+            'placeholder': _('Insert your discount')
+        }),
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(100),
+
+    ])
+
+    def is_valid(self):
+        valid = super(DiscountEventForm, self).is_valid()
+
+        if not valid:
+            return valid
+        valid_free = get_event_eb_api(
+            get_auth_token(self.user),
+            self.event.event_id,
+        )['is_free']
+        if valid_free:
+            self.add_error(
+                '__all__',
+                _('You cant create a discount in a free event'),
+            )
+            return False
+        if not self.discount_id:
+            discount = Discount.objects.filter(
+                event=self.event,
+            )
+            if len(discount) > 0:
+                self.add_error(
+                    '__all__',
+                    _('You already have a discount for this event'),
+                )
+                return False
+            return True
+        return True
+
+    def __init__(self, data=None, *args, **kwargs):
+        event_id = kwargs.pop('event_id', None)
+        self.discount_id = kwargs.pop('discount_id', None)
+        self.user = kwargs.pop('user', None)
+        super(DiscountEventForm, self).__init__(data, *args, **kwargs)
+        self.event = Event.objects.get(
+            id=event_id,
+            is_active=True,
+        )
+
+
+class DiscountTicketForm(forms.Form):
     discount_name = forms.CharField(max_length=200, required=True, widget=forms.TextInput(
         attrs={
             'class': 'form-control',
@@ -45,7 +102,7 @@ class DiscountForm(forms.Form):
     ))
 
     def is_valid(self):
-        valid = super(DiscountForm, self).is_valid()
+        valid = super(DiscountTicketForm, self).is_valid()
 
         if not valid:
             return valid
@@ -88,7 +145,7 @@ class DiscountForm(forms.Form):
         self.ticket_type_id = kwargs.pop('ticket_type_id', None)
         self.discount_id = kwargs.pop('discount_id', None)
         self.user = kwargs.pop('user', None)
-        super(DiscountForm, self).__init__(data, *args, **kwargs)
+        super(DiscountTicketForm, self).__init__(data, *args, **kwargs)
         self.event = Event.objects.get(
             id=event_id,
             is_active=True,

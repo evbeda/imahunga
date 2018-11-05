@@ -11,6 +11,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from .models import (
     Discount,
     DiscountCode,
+    DiscountType,
     EventTicketType,
     StatusMemberDiscountCode,
     MemberDiscountCode,
@@ -32,7 +33,8 @@ from .utils import (
     delete_discount_code_from_eb,
 )
 from .forms import (
-    DiscountForm,
+    DiscountTicketForm,
+    DiscountEventForm,
     GetDiscountForm,
 )
 from django.views.generic.edit import (
@@ -100,10 +102,14 @@ class HomeView(TemplateView, LoginRequiredMixin):
                 events[event.id]['tickets_type'] = {}
                 # Get all tickets type of event from DB
                 tickets_type_own = EventTicketType.objects.filter(
-                    event=event.id
+                    event=event
                 )
                 # Init has discount in false
                 events[event.id]['has_discount'] = False
+
+                if Discount.objects.filter(
+                        event=event).exists():
+                        events[event.id]['has_discount'] = True
 
                 for ticket_type_own in tickets_type_own:
                     """ Add ticket_type to dictionary with the id as key
@@ -423,12 +429,22 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
 
         return tickets_type
 
+    def _get_discount_event(self, event):
+        if Discount.objects.filter(event=event).exists():
+            return Discount.objects.filter(
+                event=event
+            ).get()
+
+
     def get_context_data(self, **kwargs):
         context = super(EventDiscountsView, self).get_context_data(**kwargs)
         # Get event by id in kwargs
         context['event'] = self.get_event()
         # Get event name in EB API
         context['event_id'] = self.kwargs['event_id']
+        context['event_discount'] = self._get_discount_event(
+            context['event']
+        )
         context['tickets_type'] = self._get_tickets_type(context['event'])
         context['event_name'] = get_event_eb_api(
             get_auth_token(self.request.user),
@@ -438,13 +454,113 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
 
 
 @method_decorator(login_required, name='dispatch')
-class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
+class ManageDiscountEvent(FormView, LoginRequiredMixin, DiscountAccessMixin):
 
-    form_class = DiscountForm
-    template_name = 'organizer/create_discount.html'
+    form_class = DiscountEventForm
+    template_name = 'organizer/create_discount_event.html'
 
     def get_form_kwargs(self):
-        kwargs = super(ManageDiscount, self).get_form_kwargs()
+        kwargs = super(ManageDiscountEvent, self).get_form_kwargs()
+        if 'discount_id' in self.kwargs:
+            discount = self.get_discount()
+            if discount:
+                kwargs['initial']['discount_name'] = discount.name
+                kwargs['initial']['discount_type'] = discount.value_type
+                kwargs['initial']['discount_value'] = discount.value
+        kwargs['event_id'] = self.kwargs['event_id']
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        if 'discount_id' in self.kwargs:
+            discount_id = self.kwargs['discount_id']
+        else:
+            discount_id = None
+        form = DiscountEventForm(
+            request.POST,
+            user=request.user,
+            event_id=self.kwargs['event_id'],
+            discount_id=discount_id,
+        )
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        self.delete_discount_ticket_type(self.get_event())
+        self.add_discount(form, self.get_event())
+        return HttpResponseRedirect(
+            reverse(
+                'events_discount',
+                kwargs={
+                    'event_id': self.get_event().id
+                },
+            )
+        )
+
+    def delete_discount_ticket_type(self, event):
+        tickets_type = EventTicketType.objects.filter(
+            event=event,
+        )
+        for ticket_type in tickets_type:
+            if Discount.objects.filter(ticket_type=ticket_type).exists():
+                Discount.objects.filter(ticket_type=ticket_type).delete()
+
+    def add_discount(self, form, event):
+        discount_type = DiscountType.objects.filter(
+            name="Event"
+        ).get()
+        if not ('discount_id' in self.kwargs):
+            Discount.objects.create(
+                name=form['discount_name'].value(),
+                event=event,
+                discount_type=discount_type,
+                value=form['discount_value'].value(),
+                value_type='percentage',
+            )
+        else:
+            Discount.objects.filter(pk=self.kwargs['discount_id']).update(
+                name=form['discount_name'].value(),
+                event=event,
+                discount_type=discount_type,
+                value=form['discount_value'].value(),
+                value_type='percentage',
+            )
+
+    def _verify_discount_ticket_type(self, event):
+        has_discount_ticket_type = False
+        tickets_type = EventTicketType.objects.filter(
+            event=event,
+        )
+        for ticket_type in tickets_type:
+            if Discount.objects.filter(ticket_type=ticket_type).exists():
+                has_discount_ticket_type = True
+        return has_discount_ticket_type
+
+    def get_context_data(self, **kwargs):
+        context = super(ManageDiscountEvent, self).get_context_data(**kwargs)
+        context['event'] = self.get_event()
+        context['has_discount_ticket_type'] = self._verify_discount_ticket_type(
+            context['event']
+        )
+        if 'discount_id' in self.kwargs:
+            context['discount'] = get_object_or_404(
+                Discount,
+                id=self.kwargs['discount_id'],
+            )
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ManageDiscountTicketType(FormView, LoginRequiredMixin, DiscountAccessMixin):
+
+    form_class = DiscountTicketForm
+    template_name = 'organizer/create_discount_ticket_type.html'
+
+    def get_form_kwargs(self):
+        kwargs = super(ManageDiscountTicketType, self).get_form_kwargs()
         if 'discount_id' in self.kwargs:
             discount = self.get_discount()
             if discount:
@@ -462,7 +578,7 @@ class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
             discount_id = self.kwargs['discount_id']
         else:
             discount_id = None
-        form = DiscountForm(
+        form = DiscountTicketForm(
             request.POST,
             user=request.user,
             event_id=self.kwargs['event_id'],
@@ -479,6 +595,7 @@ class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
         ticket_type = EventTicketType.objects.get(
             id=self.kwargs['ticket_type_id']
         )
+        self.delete_discount_event(self.get_event())
         self.add_discount(form, ticket_type)
         return HttpResponseRedirect(
             reverse(
@@ -489,11 +606,19 @@ class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
             )
         )
 
+    def delete_discount_event(self, event):
+        if Discount.objects.filter(event=event).exists():
+            Discount.objects.filter(event=event).delete()
+
     def add_discount(self, form, ticket_type):
+        discount_type = DiscountType.objects.filter(
+            name="Ticket Type"
+        ).get()
         if not ('discount_id' in self.kwargs):
             Discount.objects.create(
                 name=form['discount_name'].value(),
                 ticket_type=ticket_type,
+                discount_type=discount_type,
                 value=form['discount_value'].value(),
                 value_type='percentage',
             )
@@ -501,13 +626,23 @@ class ManageDiscount(FormView, LoginRequiredMixin, DiscountAccessMixin):
             Discount.objects.filter(pk=self.kwargs['discount_id']).update(
                 name=form['discount_name'].value(),
                 ticket_type=ticket_type,
+                discount_type=discount_type,
                 value=form['discount_value'].value(),
                 value_type='percentage',
             )
 
+    def _verify_discount_event(self, event):
+        has_discount_event = False
+        if Discount.objects.filter(event=event).exists():
+            has_discount_event = True
+        return has_discount_event
+
     def get_context_data(self, **kwargs):
-        context = super(ManageDiscount, self).get_context_data(**kwargs)
+        context = super(ManageDiscountTicketType, self).get_context_data(**kwargs)
         context['event'] = self.get_event()
+        context['has_discount_event'] = self._verify_discount_event(
+            context['event']
+        )
         context['ticket_type'] = get_ticket_type(
             self.request.user,
             context['event'].event_id,

@@ -3,13 +3,26 @@
 {% load i18n %}
 {% block content %}
 <div class="mt-5 row">
-    <p><a href="{% url 'index' %}"> {% trans "Home" %} </a>&nbsp;&nbsp;>&nbsp;&nbsp;{% trans "Event tickets type" %}</p>
+    <p><a href="{% url 'index' %}"> {% trans "Home" %} </a>&nbsp;&nbsp;>&nbsp;&nbsp;{% trans "Event discounts" %}</p>
 </div>
 <div>
-	<h1 class="mt-2">{{event_name}}{% trans "'s Tickets Type" %}</h1>
+	<h1 class="mt-2">{{event_name}}{% trans "'s Discounts" %}</h1>
 	<hr>
 </div>
 
+<div class="row">
+	<div class="col-6">
+		<div>
+			<h4 class="mt-2 mb-4">{% trans "Tickets Type Discounts" %}</h1>
+		</div>
+	</div>
+	<div class="col-6">
+		<div>
+			<h4 class="mt-2 mb-4">{% trans "Event Discount" %}</h4>
+
+		</div>
+	</div>
+</div>
 
 {% for ticket_type_id, ticket_type in tickets_type.items %}
 <div class="row">
@@ -39,7 +52,7 @@
 				</div>
 				<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
 					<p>
-						<a href="{% url 'modify_discount' event_id ticket_type_id  ticket_type.discount.id %}">
+						<a href="{% url 'modify_discount_ticket_type' event_id ticket_type_id  ticket_type.discount.id %}">
 							<img style="height:25px"; src="{% static 'images/settings.png' %}">
 						</a>&nbsp;&nbsp;&nbsp;
 						<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' event_id ticket_type.discount.id %}">
@@ -65,7 +78,7 @@
 				</div>
 				<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
 					<p>
-						<a href="{% url 'create_discount' event_id ticket_type_id %}">
+						<a href="{% url 'create_discount_ticket_type' event_id ticket_type_id %}">
 							<img style="height:25px"; src="{% static 'images/add.png' %}">
 						</a>&nbsp;&nbsp;&nbsp;
 					</p>
@@ -75,7 +88,59 @@
 			</div>
 		</div>
 	</div>
+
+	{% if forloop.counter == 1 %}
+	<div class="col-6">
+	{% if event_discount %}
+				<div class="eds-card eds-card--simple" role="presentation">
+			<div class="eds-g-cell eds-g-cell-8-8 eds-g-cell-mn-7-8 eds-l-pad-all-6 eds-text-color--grey-700" data-spec="capacity-card">
+				<span class="eds-l-pad-left-1">
+					<i class="eds-vector-image eds-icon--medium" data-spec="icon" aria-hidden="true">
+						<svg id="eds-icon--ticket_svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+							<path id="eds-icon--ticket_base" fill-rule="evenodd" clip-rule="evenodd" d="M19 21h-3c-.4-1.7-1.6-3-4-3s-3.6 1.3-4 3H5V3h3c.4 1.7 1.5 3.5 4 3.5s3.6-1.8 4-3.5h3v18zM15 2s0 3.5-3 3.5S9 2 9 2H4v20h5s0-3 3-3 3 3 3 3h5V2h-5z"/><g id="eds-icon--ticket_dashes" fill-rule="evenodd" clip-rule="evenodd"><path d="M7 11.5h2v1H7zm4 0h2v1h-2zm4 0h2v1h-2z"/></g>
+						</svg>
+					</i>
+				</span>
+				<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
+					<h5>{{event_discount.name}}</h5>
+					<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-green eds-l-mar-right-2"></span>  {{event_discount.value}} {% trans "% off" %}</p>
+				</div>
+				<div class="modal" id="modal">
+
+				</div>
+				<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
+					<p>
+						<a href="{% url 'modify_discount_event' event_id event_discount.id %}">
+							<img style="height:25px"; src="{% static 'images/settings.png' %}">
+						</a>&nbsp;&nbsp;&nbsp;
+						<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' event_id event_discount.id %}">
+							<img style="height:25px"; src="{% static 'images/garbage-can.png' %}">
+						</a>
+					</p>
+				</div>
+				<script>
+						$('#modal').on('show.bs.modal', function (event) {
+						    var modal = $('#modal')
+						    $.ajax({
+						        url: "{% url 'delete_discount' event_id event_discount.id %}",
+						        context: document.body
+						    }).done(function(response) {
+						        modal.html(response);
+						    });
+						});
+				</script>
+
+			</div>
+		</div>
+		{% else %}
+		<div>
+        	<a class= "btn btn-success" href="{% url 'create_discount_event' event_id %}">{% trans "Add Event Discount" %}</a>
+		</div>
+		{% endif %}
+		</div>
+	{% endif %}
 </div>
+
 {% endfor %}
 
 {% endblock %}
