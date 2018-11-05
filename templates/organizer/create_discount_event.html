@@ -1,0 +1,65 @@
+{% extends '../shared/base.html' %}
+{% load static %}
+{% block content %}
+{% load i18n %}
+<body>
+<div class="mt-5 row">
+    <p><a href="{% url 'index' %}">{% trans "Home" %}</a>&nbsp;&nbsp;>&nbsp;&nbsp;<a href="{% url 'events_discount' event.id %}">{% trans "Event discounts" %}</a>&nbsp;&nbsp;>&nbsp;&nbsp;{% trans "Manage discounts" %}</p>
+</div>
+	<div class="container">
+		<div class="mt-5">
+			{% if discount.id %}
+				<h1 class="row">{% trans "Modify Discount" %}</h1>
+			{% else %}
+				<h1 class="row">{% trans "Create Discount" %}</h1>
+			{% endif %}
+			<hr>
+		</div>
+
+		{% if form.errors %}
+	    {% for field in form %}
+	        {% for error in field.errors %}
+	            <div class="alert alert-danger">
+	                <strong>{{ error|escape }}</strong>
+	            </div>
+	        {% endfor %}
+	    {% endfor %}
+
+	    {% for error in form.non_field_errors %}
+	        <div class="alert alert-danger">
+	            <strong>{{ error|escape }}</strong>
+	        </div>
+	    {% endfor %}
+	{% endif %}
+	{% if has_discount_ticket_type %}
+			<div class="alert alert-warning">
+	            <strong>{% trans "You have tickets type discounts. If you create a discount for an event the tickets type discounts will be deleted" %}</strong>
+	        </div>
+	{% endif %}
+
+		<form action="" method="POST">
+			{% csrf_token %}
+			<div class="form-group">
+				<label class="font-weight-bold">{% trans "Name" %}</label>
+				<div  class="input-group input-group-lg">
+					{{form.discount_name}}
+				</div>
+				<div class="form-group mt-3">
+					<label class="font-weight-bold">{% trans "Discount amount" %}</label>
+				</div>
+				<div class="input-group mb-3">
+					{{form.discount_value}}
+					<div id="percentage_symbol" class="input-group-append">
+						<span class="input-group-text">%</span>
+					</div>
+				</div>
+
+			<div class="float-right mt-5 col-2">
+				<button class="btn btn-success col-12" onclick="this.disabled=true; this.form.submit();">{% trans "Save" %}</button>
+			</div>
+			</div>
+		</form>
+	</div>
+</body>
+{% endblock %}
+

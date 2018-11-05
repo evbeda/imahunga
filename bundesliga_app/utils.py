@@ -46,7 +46,11 @@ class DiscountAccessMixin(EventAccessMixin):
             Discount,
             id=self.kwargs['discount_id'],
         )
-        if discount.ticket_type.event.organizer != self.request.user:
+        if (discount.event and
+                discount.event.organizer != self.request.user):
+            raise PermissionDenied(_("You don't have access to this discount"))
+        if (discount.ticket_type and
+                discount.ticket_type.event.organizer != self.request.user):
             raise PermissionDenied(_("You don't have access to this discount"))
         return discount
 
@@ -79,7 +83,7 @@ def get_events_user_eb_api(token):
     This method will receive a valid token for user of EB,
     and returns a list of events with specific state
     """
-    events = cache.get('events-'+token)
+    events = cache.get('events-' + token)
     if not events:
         eventbrite = Eventbrite(token)
         events = [
@@ -89,7 +93,7 @@ def get_events_user_eb_api(token):
                 '/users/me/owned_events/?status=live'
             )['events']
         ]
-        cache.set('events-'+token, events, timeout=CACHE_TTL)
+        cache.set('events-' + token, events, timeout=CACHE_TTL)
     return events
 
 
@@ -98,13 +102,12 @@ def get_event_eb_api(token, event_id):
     This method will receive an event id and token from logged user
     and returns an event
     """
-    event = cache.get('event-'+event_id)
+    event = cache.get('event-' + event_id)
     if not event:
         eventbrite = Eventbrite(token)
         event = eventbrite.get('/events/{}/'.format(event_id))
-        cache.set('event-'+event_id, event, timeout=CACHE_TTL)
+        cache.set('event-' + event_id, event, timeout=CACHE_TTL)
     return event
-
 
 
 def get_venue_eb_api(token, venue_id):
@@ -112,11 +115,11 @@ def get_venue_eb_api(token, venue_id):
     This method will receive a venue id and token from logged user
     and returns an venue
     """
-    venue = cache.get('venue-'+venue_id)
+    venue = cache.get('venue-' + venue_id)
     if not venue:
         eventbrite = Eventbrite(token)
         venue = eventbrite.get('/venues/{}/'.format(venue_id))
-        cache.set('venue-'+venue_id, venue, timeout=CACHE_TTL)
+        cache.set('venue-' + venue_id, venue, timeout=CACHE_TTL)
     return venue
 
 
@@ -125,7 +128,7 @@ def get_event_tickets_eb_api(token, event_id):
     This method will receive a event id and token from logged user
     and returns a list of tickets
     """
-    tickets = cache.get('tickets-'+event_id)
+    tickets = cache.get('tickets-' + event_id)
     if not tickets:
         eventbrite = Eventbrite(token)
         tickets = [
@@ -134,7 +137,7 @@ def get_event_tickets_eb_api(token, event_id):
                 '/events/{}/ticket_classes/'.format(event_id)
             )['ticket_classes']
         ]
-        cache.set('tickets-'+event_id, tickets, timeout=CACHE_TTL)
+        cache.set('tickets-' + event_id, tickets, timeout=CACHE_TTL)
     return tickets
 
 
@@ -184,6 +187,7 @@ def update_discount_code_to_eb(user, discount_id, uses):
         data
     )
 
+
 def delete_discount_code_from_eb(user, discount_id):
 
     eventbrite = Eventbrite(get_auth_token(user))
@@ -192,6 +196,7 @@ def delete_discount_code_from_eb(user, discount_id):
             discount_id
         )
     )
+
 
 def validate_member_number_ds(member_number):
     """
@@ -224,25 +229,25 @@ def validate_member_number_ds(member_number):
 
 
 def get_ticket_type(user, event_id, ticket_type_id):
+    """
+    This method will receive an user, event_id from EB
+    and ticket_type_id from our BD
+    and returns the ticket type in a dict, the key is the id of ticket type in our DB
+    and the value is the ticket_type from EB
+    """
+    event_ticket_type_own = EventTicketType.objects.get(
+        id=ticket_type_id
+    )
+    # Get ticket type of event from EB
+    tickets_type_eb = get_event_tickets_eb_api(
+        get_auth_token(user),
+        event_id
+    )
+    """ For each event ticket type, get the same ticket from the context
         """
-        This method will receive an user, event_id from EB
-        and ticket_type_id from our BD
-        and returns the ticket type in a dict, the key is the id of ticket type in our DB
-        and the value is the ticket_type from EB
-        """
-        event_ticket_type_own = EventTicketType.objects.get(
-            id=ticket_type_id
-        )
-        # Get ticket type of event from EB
-        tickets_type_eb = get_event_tickets_eb_api(
-            get_auth_token(user),
-            event_id
-        )
-        """ For each event ticket type, get the same ticket from the context
-        """
-        ticket_type = {}
-        for ticket_type_eb in tickets_type_eb:
+    ticket_type = {}
+    for ticket_type_eb in tickets_type_eb:
             # If is the ticket type, save it in a dict a return it
-            if ticket_type_eb['id'] == event_ticket_type_own.ticket_id_eb:
-                ticket_type[str(ticket_type_id)] = ticket_type_eb
-                return ticket_type
+        if ticket_type_eb['id'] == event_ticket_type_own.ticket_id_eb:
+            ticket_type[str(ticket_type_id)] = ticket_type_eb
+            return ticket_type
