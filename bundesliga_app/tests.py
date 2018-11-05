@@ -1712,13 +1712,13 @@ class ListingPageEventViewTest(TestCase):
             organizer=self.organizer,
             is_active=True,
         )
-        self.used_status = StatusMemberDiscountCodeFactory(
+        self.used_status = StatusMemberDiscountCode.objects.get(
             name='Used'
         )
-        self.unknown_status = StatusMemberDiscountCodeFactory(
+        self.unknown_status = StatusMemberDiscountCode.objects.get(
             name='Unknown'
         )
-        self.canceled_status = StatusMemberDiscountCodeFactory(
+        self.canceled_status = StatusMemberDiscountCode.objects.get(
             name='Canceled'
         )
 
