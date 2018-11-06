@@ -93,17 +93,25 @@
 			$("#loading").hide()
 
 			$("#submit_btn").click(function(){
+				var invalidNumber = false
 				if(!($('[name=member_number_1]').val() == "")){
-					$("#submit_btn").hide()
-					$("#loading").show()
-					$("#retry").hide()
+					for (i = 2; i < input_added; i++) {
+    					if($('[name=member_number_' + i +']').val() == ""){
+    						invalidNumber = true
+    					}
+					}
+					if(!invalidNumber){
+						$("#submit_btn").hide()
+						$("#loading").show()
+						$("#retry").hide()
+					}
 				}
 
 			});
 
 			$("#add_field").on('click',function(){
 				if(input_added <= max_member_number){
-					var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder="Insert your member number here"/><input name="remove_number_' + input_added + '" type="button" value="X" onclick="remove('+ input_added +')" style="background: transparent; border: none; margin: 20px"/></div>';
+					var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder="Insert your member number here" required/><input name="remove_number_' + input_added + '" type="button" value="X" onclick="remove('+ input_added +')" style="background: transparent; border: none; margin: 20px"/></div>';
 					// console.log(member_input)
 					$("#form-members-numbers").append(member_input)
 					input_added += 1
