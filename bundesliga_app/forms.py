@@ -180,39 +180,45 @@ class GetDiscountForm(forms.Form):
         and returns a string according to the response
         """
         if self.data['g-recaptcha-response'] != '':
-            invalid_numbers = []
-            for number in range(1, len(self.cleaned_data)):
-                return_api_ds = validate_member_number_ds(
-                    self.cleaned_data['member_number_{}'.format(number)]
-                )
-                if return_api_ds == 'Invalid Request':
-                    self.add_error('member_number_{}'.format(
-                        number), _('Invalid request'))
+            if len(self.cleaned_data.values()) == len(set(self.cleaned_data.values())):
+                invalid_numbers = []
+                for number in range(1, len(self.cleaned_data)):
+                    return_api_ds = validate_member_number_ds(
+                        self.cleaned_data['member_number_{}'.format(number)]
+                    )
+                    if return_api_ds == 'Invalid Request':
+                        self.add_error('member_number_{}'.format(
+                            number), _('Invalid request'))
+                        return False
+                    else:
+                        if not ('Kartentyp' in return_api_ds):
+                            invalid_numbers.append(
+                                str(
+                                    self.cleaned_data['member_number_{}'.format(
+                                        number)]
+                                )
+                            )
+
+                if invalid_numbers:
+                    numbers = ', '.join(invalid_numbers)
+                    if len(invalid_numbers) == 1:
+                        self.add_error(
+                            'member_number_1',
+                            _('Invalid member number ')+'{}'.format(numbers),
+                        )
+                    else:
+                        self.add_error(
+                            'member_number_1',
+                            _('Invalid member numbers ')+'{}'.format(numbers),
+                        )
                     return False
                 else:
-                    if not ('Kartentyp' in return_api_ds):
-                        invalid_numbers.append(
-                            str(
-                                self.cleaned_data['member_number_{}'.format(
-                                    number)]
-                            )
-                        )
-
-            if invalid_numbers:
-                numbers = ', '.join(invalid_numbers)
-                if len(invalid_numbers) == 1:
-                    self.add_error(
-                        'member_number_1',
-                        _('Invalid member number ')+'{}'.format(numbers),
-                    )
-                else:
-                    self.add_error(
-                        'member_number_1',
-                        _('Invalid member numbers ')+'{}'.format(numbers),
-                    )
-                return False
+                    return True
             else:
-                return True
+                self.add_error(
+                            'member_number_1',
+                            _('Verify repetead member number'),
+                        )
         else:
             self.add_error(
                 'member_number_1',
