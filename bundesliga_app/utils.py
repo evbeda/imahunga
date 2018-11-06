@@ -46,12 +46,15 @@ class DiscountAccessMixin(EventAccessMixin):
             Discount,
             id=self.kwargs['discount_id'],
         )
-        if (discount.event and
-                discount.event.organizer != self.request.user):
-            raise PermissionDenied(_("You don't have access to this discount"))
-        if (discount.ticket_type and
-                discount.ticket_type.event.organizer != self.request.user):
-            raise PermissionDenied(_("You don't have access to this discount"))
+        if discount.discount_type.name == 'Event':
+            if discount.eventdiscount.event.organizer != self.request.user:
+                raise PermissionDenied(_(
+                    "You don't have access to this discount")
+                )
+        elif discount.discount_type.name == 'Ticket Type':
+            if discount.tickettypediscount.ticket_type.event.organizer != self.request.user:
+                raise PermissionDenied(_(
+                    "You don't have access to this discount"))
         return discount
 
 

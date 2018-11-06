@@ -26,11 +26,17 @@ class DiscountType(models.Model):
 
 class Discount(models.Model):
     name = models.CharField(max_length=200)
-    ticket_type = models.ForeignKey(EventTicketType, null=True)
-    event = models.ForeignKey(Event, null=True)
     discount_type = models.ForeignKey(DiscountType)
     value = models.IntegerField()
     value_type = models.CharField(max_length=200)
+
+
+class EventDiscount(Discount):
+    event = models.ForeignKey(Event, null=True)
+
+
+class TicketTypeDiscount(Discount):
+    ticket_type = models.ForeignKey(EventTicketType, null=True)
 
 
 class DiscountCode(models.Model):

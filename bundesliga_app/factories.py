@@ -76,11 +76,23 @@ class DiscountFactory(DjangoModelFactory):
         model = models.Discount
 
     name = Sequence(lambda n: u'Discount %d' % n)  # Discount0, Discount1 ...
-    ticket_type = SubFactory(EventTicketTypeFactory)
-    event = SubFactory(EventFactory)
     discount_type = SubFactory(DiscountTypeFactory)
     value = fuzzy.FuzzyFloat(low=0.0)  # Min value 0.0
     value_type = Iterator(["fixed", "percentage"])
+
+
+class EventDiscountFactory(DiscountFactory):
+    class Meta:
+        model = models.EventDiscount
+
+    event = SubFactory(EventFactory)
+
+
+class TicketTypeDiscountFactory(DiscountFactory):
+    class Meta:
+        model = models.TicketTypeDiscount
+
+    ticket_type = SubFactory(EventTicketTypeFactory)
 
 
 class DiscountCodeFactory(DjangoModelFactory):

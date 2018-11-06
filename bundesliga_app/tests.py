@@ -7,6 +7,8 @@ from .factories import (
     AuthFactory,
     DiscountTypeFactory,
     DiscountFactory,
+    EventDiscountFactory,
+    TicketTypeDiscountFactory,
     EventFactory,
     EventTicketTypeFactory,
     OrganizerFactory,
@@ -39,6 +41,8 @@ from bundesliga_app.utils import (
 )
 from .models import (
     Discount,
+    TicketTypeDiscount,
+    EventDiscount,
     DiscountType,
     Event,
     EventTicketType,
@@ -337,7 +341,7 @@ class HomeViewTest(TestBase):
             event=self.events[0],
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=self.tickets_type,
             value=100.0,
             value_type="percentage",
@@ -355,7 +359,7 @@ class HomeViewTest(TestBase):
                                           mock_get_event_tickets_eb_api,
                                           mock_get_event_eb_api,
                                           ):
-        discount = DiscountFactory(
+        EventDiscountFactory(
             event=self.events[0],
             value=100.0,
             value_type="percentage",
@@ -379,14 +383,14 @@ class HomeViewTest(TestBase):
             event=event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=tickets_type,
             value=100.0,
             value_type="percentage",
         )
         self.response = self.client.get('/')
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=tickets_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=tickets_type)),
             0,
         )
         self.assertEqual(
@@ -412,14 +416,14 @@ class HomeViewTest(TestBase):
             event=event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=tickets_type,
             value=100.0,
             value_type="percentage",
         )
         self.response = self.client.get('/')
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=tickets_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=tickets_type)),
             0,
         )
         self.assertEqual(
@@ -491,7 +495,7 @@ class EventDiscountsViewTest(TestBase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -508,7 +512,7 @@ class EventDiscountsViewTest(TestBase):
     def test_events_discount_in_response(self,
                                          mock_get_event_eb_api,
                                          mock_get_event_tickets_eb_api):
-        discount = DiscountFactory(
+        discount = EventDiscountFactory(
             event=self.event,
             value=100.0,
             value_type="percentage",
@@ -528,7 +532,7 @@ class EventDiscountsViewTest(TestBase):
         ticket_type = EventTicketTypeFactory(
             event=self.event,
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -541,7 +545,7 @@ class EventDiscountsViewTest(TestBase):
             0,
         )
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=ticket_type)),
             0,
         )
 
@@ -552,7 +556,7 @@ class EventDiscountsViewTest(TestBase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -566,7 +570,7 @@ class EventDiscountsViewTest(TestBase):
                 ticket_type.id)]['id'],
         )
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=ticket_type)),
             0,
         )
 
@@ -645,7 +649,7 @@ class CreateDiscountEventViewTest(TestBase):
             'Ensure this value is greater than or equal to 1.'
         )
         self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
+            len(EventDiscount.objects.filter(event=self.event)),
             0,
         )
 
@@ -672,7 +676,7 @@ class CreateDiscountEventViewTest(TestBase):
             'Ensure this value is less than or equal to 100.'
         )
         self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
+            len(EventDiscount.objects.filter(event=self.event)),
             0,
         )
 
@@ -696,7 +700,7 @@ class CreateDiscountEventViewTest(TestBase):
         )
 
         self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
+            len(EventDiscount.objects.filter(event=self.event)),
             1,
         )
         self.assertEqual(self.response.status_code, 302)
@@ -707,8 +711,7 @@ class CreateDiscountEventViewTest(TestBase):
         ticket_type = EventTicketTypeFactory(
             event=self.event,
         )
-        DiscountFactory(
-            event=None,
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             discount_type=self.discount_type_ticket,
         )
@@ -729,7 +732,7 @@ class CreateDiscountEventViewTest(TestBase):
         )
 
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=ticket_type)),
             0,
         )
         self.assertEqual(self.response.status_code, 302)
@@ -742,9 +745,8 @@ class CreateDiscountEventViewTest(TestBase):
                 self.event.id,
             )
         )
-        DiscountFactory(
+        EventDiscountFactory(
             event=self.event,
-            ticket_type=None,
             discount_type=self.discount_type_event,
         )
         self.response = self.client.post(
@@ -799,9 +801,8 @@ class ModifyDiscountEventViewTest(TestBase):
         self.discount_type_ticket = DiscountType.objects.get(
             name='Ticket Type'
         )
-        self.discount = DiscountFactory(
+        self.discount = EventDiscountFactory(
             event=self.event,
-            ticket_type=None,
             value=100.0,
             value_type="percentage",
             discount_type=self.discount_type_event,
@@ -876,12 +877,12 @@ class ModifyDiscountEventViewTest(TestBase):
                 'discount_value': 20,
             },
         )
-        updated_discount = Discount.objects.get(id=self.discount.id)
+        updated_discount = EventDiscount.objects.get(id=self.discount.id)
         self.assertEqual(self.response.status_code, 302)
         self.assertEqual(updated_discount.value_type, 'percentage')
         self.assertEqual(updated_discount.value, 20)
         self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
+            len(EventDiscount.objects.filter(event=self.event)),
             1,
         )
 
@@ -911,7 +912,7 @@ class ModifyDiscountEventViewTest(TestBase):
             'Ensure this value is greater than or equal to 1.'
         )
         self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
+            len(EventDiscount.objects.filter(event=self.event)),
             1,
         )
 
@@ -941,7 +942,7 @@ class ModifyDiscountEventViewTest(TestBase):
             'Ensure this value is less than or equal to 100.'
         )
         self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
+            len(EventDiscount.objects.filter(event=self.event)),
             1,
         )
 
@@ -1067,7 +1068,7 @@ class CreateDiscountTicketTypeViewTest(TestBase):
             'Ensure this value is greater than or equal to 1.'
         )
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=ticket_type)),
             0,
         )
 
@@ -1102,7 +1103,7 @@ class CreateDiscountTicketTypeViewTest(TestBase):
             'Ensure this value is less than or equal to 100.'
         )
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=ticket_type)),
             0,
         )
 
@@ -1135,7 +1136,7 @@ class CreateDiscountTicketTypeViewTest(TestBase):
         )
 
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=ticket_type)),
             1,
         )
         self.assertEqual(self.response.status_code, 302)
@@ -1149,9 +1150,8 @@ class CreateDiscountTicketTypeViewTest(TestBase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
-        DiscountFactory(
+        EventDiscountFactory(
             event=self.event,
-            ticket_type=None,
             discount_type=self.discount_type_event,
         )
         self.response = self.client.get(
@@ -1174,7 +1174,7 @@ class CreateDiscountTicketTypeViewTest(TestBase):
         )
 
         self.assertEqual(
-            len(Discount.objects.filter(event=self.event)),
+            len(EventDiscount.objects.filter(event=self.event)),
             0,
         )
         self.assertEqual(self.response.status_code, 302)
@@ -1195,7 +1195,7 @@ class CreateDiscountTicketTypeViewTest(TestBase):
                 ticket_type.id,
             )
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -1301,11 +1301,10 @@ class ModifyDiscountTicketTypeViewTest(TestBase):
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
 
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
-            event=None,
         )
         self.response = self.client.get(
             '/events_discount/{}/ticket_type/{}/{}/'.format(
@@ -1324,11 +1323,10 @@ class ModifyDiscountTicketTypeViewTest(TestBase):
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
 
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
-            event=None,
         )
         self.response = self.client.get(
             '/events_discount/{}/ticket_type/{}/{}/'.format(
@@ -1350,11 +1348,10 @@ class ModifyDiscountTicketTypeViewTest(TestBase):
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
 
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
-            event=None,
         )
         self.response = self.client.get(
             '/events_discount/{}/ticket_type/{}/{}/'.format(
@@ -1376,11 +1373,10 @@ class ModifyDiscountTicketTypeViewTest(TestBase):
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
 
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
-            event=None,
         )
         self.response = self.client.get(
             '/events_discount/{}/ticket_type/{}/{}/'.format(
@@ -1402,7 +1398,7 @@ class ModifyDiscountTicketTypeViewTest(TestBase):
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
 
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -1427,12 +1423,12 @@ class ModifyDiscountTicketTypeViewTest(TestBase):
                 'ticket_type': mock_get_event_tickets_eb_api.return_value[0]['name'],
             },
         )
-        updated_discount = Discount.objects.get(id=discount.id)
+        updated_discount = TicketTypeDiscount.objects.get(id=discount.id)
         self.assertEqual(self.response.status_code, 302)
         self.assertEqual(updated_discount.value_type, 'percentage')
         self.assertEqual(updated_discount.value, 20)
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=ticket_type)),
             1,
         )
 
@@ -1444,7 +1440,7 @@ class ModifyDiscountTicketTypeViewTest(TestBase):
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
 
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -1476,7 +1472,7 @@ class ModifyDiscountTicketTypeViewTest(TestBase):
             'Ensure this value is greater than or equal to 1.'
         )
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=ticket_type)),
             1,
         )
 
@@ -1488,7 +1484,7 @@ class ModifyDiscountTicketTypeViewTest(TestBase):
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
 
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -1520,7 +1516,7 @@ class ModifyDiscountTicketTypeViewTest(TestBase):
             'Ensure this value is less than or equal to 100.'
         )
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=ticket_type)),
             1,
         )
 
@@ -1536,11 +1532,10 @@ class DeleteDiscountViewTest(TestBase):
             event=self.event,
         )
 
-        self.discount = DiscountFactory(
+        self.discount = TicketTypeDiscountFactory(
             ticket_type=self.ticket_type,
             value=100.0,
             value_type="percentage",
-            event=None,
         )
 
         self.response = self.client.get(
@@ -1593,7 +1588,7 @@ class DeleteDiscountViewTest(TestBase):
 
         self.assertEqual(self.response.status_code, 302)
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=self.ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=self.ticket_type)),
             0,
         )
 
@@ -1728,7 +1723,7 @@ class SelectEventsViewTest(TestBase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
-        self.discount = DiscountFactory(
+        self.discount = TicketTypeDiscountFactory(
             ticket_type=self.ticket_type,
         )
         self.response = self.client.post(
@@ -1750,7 +1745,7 @@ class SelectEventsViewTest(TestBase):
             1,
         )
         self.assertEqual(
-            len(Discount.objects.filter(
+            len(TicketTypeDiscount.objects.filter(
                 ticket_type=self.ticket_type)
                 ),
             0,
@@ -1776,7 +1771,7 @@ class SelectEventsViewTest(TestBase):
             event=self.event,
             ticket_id_eb=MOCK_EVENT_TICKETS[0][0]['id']
         )
-        self.discount = DiscountFactory(
+        self.discount = TicketTypeDiscountFactory(
             ticket_type=self.ticket_type,
         )
         self.response = self.client.post(
@@ -1798,7 +1793,7 @@ class SelectEventsViewTest(TestBase):
             0,
         )
         self.assertEqual(
-            len(Discount.objects.filter(
+            len(TicketTypeDiscount.objects.filter(
                 ticket_type=self.ticket_type)
                 ),
             0,
@@ -1840,7 +1835,7 @@ class SelectEventsViewTest(TestBase):
         self.ticket_type = EventTicketTypeFactory(
             event=self.event
         )
-        self.discount = DiscountFactory(
+        self.discount = TicketTypeDiscountFactory(
             ticket_type=self.ticket_type,
         )
         self.response = self.client.post(
@@ -1849,7 +1844,8 @@ class SelectEventsViewTest(TestBase):
         event_in_db = Event.objects.filter(event_id=event_mock_api_eb['id'])
         event_ticket_type_in_db = EventTicketType.objects.filter(
             event=self.event)
-        discount_in_db = Discount.objects.filter(ticket_type=self.ticket_type)
+        discount_in_db = TicketTypeDiscount.objects.filter(
+            ticket_type=self.ticket_type)
         self.assertEqual(self.response.status_code, 302)
         self.assertEqual(
             len(event_in_db),
@@ -1931,6 +1927,9 @@ class DiscountAccessMixinTest(TestBase):
     def setUp(self):
         super(DiscountAccessMixinTest, self).setUp()
         self.view = self.DummyView()
+        self.discount_type_ticket = DiscountType.objects.get(
+            name='Ticket Type'
+        )
 
     def test_raise_exception_permission_denied(self):
         event = EventFactory(
@@ -1944,8 +1943,9 @@ class DiscountAccessMixinTest(TestBase):
         ticket_type = EventTicketTypeFactory(
             event=event,
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type,
+            discount_type=self.discount_type_ticket,
         )
         # Setup request and view.
         self.view.kwargs = {
@@ -1956,7 +1956,6 @@ class DiscountAccessMixinTest(TestBase):
         self.view.request.user = self.organizer
         self.view.response = 'events_discount/{}/{}/'.format(
             event2.id, discount.id)
-
         with self.assertRaises(PermissionDenied) as permission_denied:
             self.view.get_discount()
         self.assertEqual(
@@ -1973,9 +1972,8 @@ class DiscountAccessMixinTest(TestBase):
         event_ticket_type = EventTicketTypeFactory(
             event=event
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=event_ticket_type,
-            event=None,
         )
         # Setup request and view.
         self.view.kwargs = {
@@ -1986,7 +1984,10 @@ class DiscountAccessMixinTest(TestBase):
         self.view.request.user = self.organizer
         self.view.response = 'events_discount/{}/{}/'.format(
             event.id, discount.id)
-        self.assertEqual(self.view.get_discount(), discount)
+        self.assertEqual(
+            self.view.get_discount(),
+            discount.discount_ptr,
+        )
 
     def test_rise_exception_404(self):
         event = EventFactory(
@@ -2083,7 +2084,7 @@ class LandingPageBuyerViewTest(TestCase):
             event=self.events[0],
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -2113,17 +2114,17 @@ class LandingPageBuyerViewTest(TestCase):
             event=self.events[0],
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[2]['id']
         )
-        discount_1 = DiscountFactory(
+        discount_1 = TicketTypeDiscountFactory(
             ticket_type=ticket_type_1,
             value=30.0,
             value_type="percentage",
         )
-        discount_2 = DiscountFactory(
+        discount_2 = TicketTypeDiscountFactory(
             ticket_type=ticket_type_2,
             value=80.0,
             value_type="percentage",
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type_3,
             value=40.0,
             value_type="percentage",
@@ -2149,7 +2150,7 @@ class LandingPageBuyerViewTest(TestCase):
             event=self.events[0],
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -2162,7 +2163,7 @@ class LandingPageBuyerViewTest(TestCase):
             0,
         )
         self.assertEqual(
-            len(Discount.objects.filter(ticket_type=ticket_type)),
+            len(TicketTypeDiscount.objects.filter(ticket_type=ticket_type)),
             0,
         )
 
@@ -2294,7 +2295,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[0]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type,
             value=100.0,
             value_type="percentage",
@@ -2444,7 +2445,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         self.response = self.client.get(
@@ -2488,7 +2489,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         self.response = self.client.get(
@@ -2525,7 +2526,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         self.response = self.client.get(
@@ -2569,7 +2570,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        DiscountFactory(
+        TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         self.response = self.client.get(
@@ -2607,7 +2608,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         self.response = self.client.get(
@@ -2651,7 +2652,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         self.response = self.client.get(
@@ -2691,7 +2692,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         discount_code = DiscountCodeFactory(
@@ -2738,7 +2739,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         discount_code = DiscountCodeFactory(
@@ -2786,7 +2787,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         discount_code = DiscountCodeFactory(
@@ -2848,7 +2849,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         discount_code = DiscountCodeFactory(
@@ -2912,7 +2913,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         discount_code = DiscountCodeFactory(
@@ -2974,7 +2975,7 @@ class ListingPageEventViewTest(TestCase):
                 event=self.event,
                 ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
             )
-            discount = DiscountFactory(
+            discount = TicketTypeDiscountFactory(
                 ticket_type=ticket_type
             )
             discount_code = DiscountCodeFactory(
@@ -3025,7 +3026,7 @@ class ListingPageEventViewTest(TestCase):
             event=self.event,
             ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
         )
-        discount = DiscountFactory(
+        discount = TicketTypeDiscountFactory(
             ticket_type=ticket_type
         )
         discount_code = DiscountCodeFactory(

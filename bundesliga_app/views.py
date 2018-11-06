@@ -10,6 +10,8 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from .models import (
     Discount,
+    EventDiscount,
+    TicketTypeDiscount,
     DiscountCode,
     DiscountType,
     EventTicketType,
@@ -90,7 +92,7 @@ class HomeView(TemplateView, LoginRequiredMixin):
                 )
                 for event_ticket_type in events_tickets_type:
                     # For each ticket type,delete the related discounts
-                    Discount.objects.filter(
+                    TicketTypeDiscount.objects.filter(
                         ticket_type=event_ticket_type
                     ).delete()
                 # Delete tickets type
@@ -107,7 +109,7 @@ class HomeView(TemplateView, LoginRequiredMixin):
                 # Init has discount in false
                 events[event.id]['has_discount'] = False
 
-                if Discount.objects.filter(
+                if EventDiscount.objects.filter(
                         event=event).exists():
                         events[event.id]['has_discount'] = True
 
@@ -122,7 +124,7 @@ class HomeView(TemplateView, LoginRequiredMixin):
                     """ Get the discount of the ticket type and
                     add it to the dictionary of ticket_type """
                     # If the ticket type has a discount
-                    if Discount.objects.filter(
+                    if TicketTypeDiscount.objects.filter(
                             ticket_type=ticket_type_own).exists():
                         # It has a discount, so set in true
                         events[event.id]['has_discount'] = True
@@ -130,11 +132,11 @@ class HomeView(TemplateView, LoginRequiredMixin):
                         its free but has a discount, delete it"""
                         if events[event.id]['tickets_type'][str(
                                 ticket_type_own.id)]['free']:
-                            Discount.objects.filter(
+                            TicketTypeDiscount.objects.filter(
                                 ticket_type=ticket_type_own,
                             ).delete()
                         else:
-                            discount = Discount.objects.get(
+                            discount = TicketTypeDiscount.objects.get(
                                 ticket_type=ticket_type_own
                             )
 
@@ -215,18 +217,26 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                 event_tickets_type = EventTicketType.objects.filter(
                     event=event_in_db
                 )
+
+                # Delete the event discount if exists
+                if EventDiscount.objects.filter(
+                        event=event_in_db):
+                    EventDiscount.objects.filter(
+                        event=event_in_db
+                    ).delete()
+
                 """ For each tycket type
                 delete the discount if exists and delete the ticket type
                 """
                 for ticket_type in event_tickets_type:
-                    ticket_type_discounts = Discount.objects.filter(
+                    ticket_type_discounts = TicketTypeDiscount.objects.filter(
                         ticket_type=ticket_type
                     )
                     if ticket_type_discounts:
-                        Discount.objects.filter(
+                        TicketTypeDiscount.objects.filter(
                             ticket_type=ticket_type
                         ).delete()
-                    ticket_type_discounts.delete()
+                    ticket_type.delete()
 
     def _create_event(self, event_in_api_id):
         """
@@ -284,10 +294,10 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                 event_ticket_type = EventTicketType.objects.filter(
                     ticket_id_eb=ticket['id'],
                 )
-                if ticket['free'] and Discount.objects.filter(
+                if ticket['free'] and TicketTypeDiscount.objects.filter(
                     ticket_type=event_ticket_type,
                 ).exists():
-                    Discount.objects.filter(
+                    TicketTypeDiscount.objects.filter(
                         ticket_type=event_ticket_type,
                     ).delete()
 
@@ -310,10 +320,10 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                     ticket_id_eb=ticket_type_in_db.ticket_id_eb
                 )
                 # If the ticket type has a discount, delete it
-                if Discount.objects.filter(
+                if TicketTypeDiscount.objects.filter(
                     ticket_type=event_ticket_type,
                 ).exists():
-                    Discount.objects.get(
+                    TicketTypeDiscount.objects.get(
                         ticket_type=event_ticket_type
                     ).delete()
                 # Delete event ticket type
@@ -399,9 +409,9 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
                 tickets_type[str(event_ticket_type.id)] = ticket_eb
 
                 # If it has a discount
-                if Discount.objects.filter(
+                if TicketTypeDiscount.objects.filter(
                         ticket_type=event_ticket_type).exists():
-                    discount = Discount.objects.get(
+                    discount = TicketTypeDiscount.objects.get(
                         ticket_type=event_ticket_type
                     )
                     # If its free, delete the discount
@@ -423,18 +433,17 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
             event=event)
         for event_ticket_type_own in event_tickets_type_own:
             if str(event_ticket_type_own.id) not in tickets_type.keys():
-                Discount.objects.filter(
+                TicketTypeDiscount.objects.filter(
                     ticket_type=event_ticket_type_own).delete()
                 event_ticket_type_own.delete()
 
         return tickets_type
 
     def _get_discount_event(self, event):
-        if Discount.objects.filter(event=event).exists():
-            return Discount.objects.filter(
+        if EventDiscount.objects.filter(event=event).exists():
+            return EventDiscount.objects.filter(
                 event=event
             ).get()
-
 
     def get_context_data(self, **kwargs):
         context = super(EventDiscountsView, self).get_context_data(**kwargs)
@@ -505,15 +514,17 @@ class ManageDiscountEvent(FormView, LoginRequiredMixin, DiscountAccessMixin):
             event=event,
         )
         for ticket_type in tickets_type:
-            if Discount.objects.filter(ticket_type=ticket_type).exists():
-                Discount.objects.filter(ticket_type=ticket_type).delete()
+            if TicketTypeDiscount.objects.filter(
+                    ticket_type=ticket_type).exists():
+                TicketTypeDiscount.objects.filter(
+                    ticket_type=ticket_type).delete()
 
     def add_discount(self, form, event):
         discount_type = DiscountType.objects.filter(
             name="Event"
         ).get()
         if not ('discount_id' in self.kwargs):
-            Discount.objects.create(
+            EventDiscount.objects.create(
                 name=form['discount_name'].value(),
                 event=event,
                 discount_type=discount_type,
@@ -521,7 +532,7 @@ class ManageDiscountEvent(FormView, LoginRequiredMixin, DiscountAccessMixin):
                 value_type='percentage',
             )
         else:
-            Discount.objects.filter(pk=self.kwargs['discount_id']).update(
+            EventDiscount.objects.filter(pk=self.kwargs['discount_id']).update(
                 name=form['discount_name'].value(),
                 event=event,
                 discount_type=discount_type,
@@ -535,7 +546,8 @@ class ManageDiscountEvent(FormView, LoginRequiredMixin, DiscountAccessMixin):
             event=event,
         )
         for ticket_type in tickets_type:
-            if Discount.objects.filter(ticket_type=ticket_type).exists():
+            if TicketTypeDiscount.objects.filter(
+                    ticket_type=ticket_type).exists():
                 has_discount_ticket_type = True
         return has_discount_ticket_type
 
@@ -607,15 +619,16 @@ class ManageDiscountTicketType(FormView, LoginRequiredMixin, DiscountAccessMixin
         )
 
     def delete_discount_event(self, event):
-        if Discount.objects.filter(event=event).exists():
-            Discount.objects.filter(event=event).delete()
+        if EventDiscount.objects.filter(event=event).exists():
+            EventDiscount.objects.filter(
+                event=event).delete()
 
     def add_discount(self, form, ticket_type):
         discount_type = DiscountType.objects.filter(
             name="Ticket Type"
         ).get()
         if not ('discount_id' in self.kwargs):
-            Discount.objects.create(
+            TicketTypeDiscount.objects.create(
                 name=form['discount_name'].value(),
                 ticket_type=ticket_type,
                 discount_type=discount_type,
@@ -623,7 +636,7 @@ class ManageDiscountTicketType(FormView, LoginRequiredMixin, DiscountAccessMixin
                 value_type='percentage',
             )
         else:
-            Discount.objects.filter(pk=self.kwargs['discount_id']).update(
+            TicketTypeDiscount.objects.filter(pk=self.kwargs['discount_id']).update(
                 name=form['discount_name'].value(),
                 ticket_type=ticket_type,
                 discount_type=discount_type,
@@ -633,7 +646,7 @@ class ManageDiscountTicketType(FormView, LoginRequiredMixin, DiscountAccessMixin
 
     def _verify_discount_event(self, event):
         has_discount_event = False
-        if Discount.objects.filter(event=event).exists():
+        if EventDiscount.objects.filter(event=event).exists():
             has_discount_event = True
         return has_discount_event
 
@@ -714,12 +727,24 @@ class LandingPageBuyerView(TemplateView):
             events[event.id]['max_discount'] = 0
             events[event.id]['min_discount'] = 0
             events[event.id]['discounts'] = {}
+
+            # Verify if event discount exists
+            if EventDiscount.objects.filter(
+                    event=event).exists():
+                discount = EventDiscount.objects.get(
+                    event=event,
+                )
+                events[event.id]['max_discount'] = discount.value
+                events[event.id]['min_discount'] = discount.value
+                events[event.id]['discounts'][discount.id] = discount.__dict__
+
+
             for ticket_type_own in tickets_type_own:
 
-                if Discount.objects.filter(
+                if TicketTypeDiscount.objects.filter(
                         ticket_type=ticket_type_own.id).exists():
 
-                    discount = Discount.objects.get(
+                    discount = TicketTypeDiscount.objects.get(
                         ticket_type=ticket_type_own.id
                     )
                     events[event.id]['discounts'][discount.id] = discount.__dict__
@@ -742,7 +767,7 @@ class LandingPageBuyerView(TemplateView):
                         )
                         for event_ticket_type in events_tickets_type:
                             # For each ticket type,delete the related discounts
-                            Discount.objects.filter(
+                            TicketTypeDiscount.objects.filter(
                                 ticket_type=event_ticket_type
                             ).delete()
                         # Delete tickets type
@@ -807,8 +832,9 @@ class ListingPageEventView(FormView):
                 event.event_id,
                 ticket_type_in_db.id,
             ))
-            if Discount.objects.filter(ticket_type=ticket_type_in_db).exists():
-                discount = Discount.objects.get(
+            if TicketTypeDiscount.objects.filter(
+                    ticket_type=ticket_type_in_db).exists():
+                discount = TicketTypeDiscount.objects.get(
                     ticket_type=ticket_type_in_db
                 )
                 tickets_type[str(ticket_type_in_db.id)
@@ -824,8 +850,9 @@ class ListingPageEventView(FormView):
         }
 
         for ticket_id in tickets_type.keys():
-            if Discount.objects.filter(ticket_type=ticket_id).exists():
-                discount = Discount.objects.get(
+            if TicketTypeDiscount.objects.filter(
+                    ticket_type=ticket_id).exists():
+                discount = TicketTypeDiscount.objects.get(
                     ticket_type=ticket_id)
                 discounts['available'] = True
                 if discount.value > discounts['max_discount']:
@@ -899,7 +926,7 @@ class ListingPageEventView(FormView):
                 id=form.cleaned_data['tickets_type']
             )
             # Find discount
-            discount = Discount.objects.get(
+            discount = TicketTypeDiscount.objects.get(
                 ticket_type=ticket_type
             )
             eb_event = self.get_context_data()['event']
@@ -955,7 +982,7 @@ class ListingPageEventView(FormView):
                     discount_code = DiscountCode.objects.get(
                         id=existing_discount_code[i].discount_code.id
                     )
-                    discount = Discount.objects.get(
+                    discount = TicketTypeDiscount.objects.get(
                         id=discount_code.discount.id
                     )
                     ticket_type = EventTicketType.objects.get(
@@ -1022,7 +1049,7 @@ class ListingPageEventView(FormView):
                                     discount_code = DiscountCode.objects.get(
                                         id=discount_codes_related[i].discount_code.id
                                     )
-                                    discount = Discount.objects.get(
+                                    discount = TicketTypeDiscount.objects.get(
                                         id=discount_code.discount.id
                                     )
                                     ticket_type = EventTicketType.objects.get(
@@ -1083,7 +1110,7 @@ class ListingPageEventView(FormView):
                             discount_code = DiscountCode.objects.get(
                                 id=used_discount_code[i].discount_code.id
                             )
-                            discount = Discount.objects.get(
+                            discount = TicketTypeDiscount.objects.get(
                                 id=discount_code.discount.id
                             )
                             ticket_type = EventTicketType.objects.get(
@@ -1110,7 +1137,7 @@ class ListingPageEventView(FormView):
                         discount_code = DiscountCode.objects.get(
                             id=used_discount_code[i].discount_code.id
                         )
-                        discount = Discount.objects.get(
+                        discount = TicketTypeDiscount.objects.get(
                             id=discount_code.discount.id
                         )
                         ticket_type = EventTicketType.objects.get(
