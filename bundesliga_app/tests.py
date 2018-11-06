@@ -107,6 +107,7 @@ class TestBase(TestCase):
                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
             }
         })
+        setattr(settings, "CACHE_TTL", 0)
         return login
 
 
@@ -148,14 +149,18 @@ class UtilsApiEBTest(TestCase):
             '/users/me/owned_events/?status=live',
         )
 
-    @skip("Test not working - finds object in CACHE")
     def test_get_event_eb_api(self, mock_api_call):
-        get_event_eb_api('TEST', '1')
-        mock_api_call.assert_called_once()
-        self.assertEquals(
-            mock_api_call.call_args_list[0][0][0],
-            '/events/1/',
-        )
+        with self.settings(
+                CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
+                CACHE_TTL=0,
+            ):
+            mock_api_call.return_value = {'id': 1}
+            get_event_eb_api('TEST', '1')
+            mock_api_call.assert_called_once()
+            self.assertEquals(
+                mock_api_call.call_args_list[0][0][0],
+                '/events/1/',
+            )
 
     def test_get_venue_eb_api(self, mock_api_call):
         get_venue_eb_api('TEST', '1')
@@ -2999,22 +3004,47 @@ class ListingPageEventViewTest(TestCase):
                 1
             )
 
-class GetDiscountFormTest(TestCase):
-
     @patch(
         'bundesliga_app.forms.validate_member_number_ds',
         return_value='Invalid Request',
     )
-    @skip("No works for demo test")
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
+    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_ONE_USE_NOT_USED)
     def test_invalid_request(
             self,
-            mock_validate_member_number_ds):
-        form = GetDiscountForm({
-            'member_number_1': '1234',
-            'g-recaptcha-response': '1234567',
-        })
-        result = form.is_valid()
-        self.assertFalse(result)
+            mock_check_discount_code_in_eb,
+            mock_post_discount_code_to_eb,
+            mock_get_event_tickets_eb_api,
+            mock_get_event_eb_api,
+            mock_validate_member_number_ds,
+            mock_get_venue_eb_api
+        ):
+        ticket_type = EventTicketTypeFactory(
+            event=self.event,
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
+        )
+        discount = DiscountFactory(
+            ticket_type=ticket_type
+        )
+        discount_code = DiscountCodeFactory(
+            discount=discount
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.response = self.client.post(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id),
+            {
+                'tickets_type': ticket_type.id,
+                'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
+            },
+        )
+        self.assertContains(self.response, "Invalid request")
 
 
 class ActivateLanguageViewTest(TestBase):
