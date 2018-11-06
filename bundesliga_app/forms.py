@@ -5,6 +5,9 @@ from .models import (
     Event,
     EventTicketType,
     Discount,
+    TicketTypeDiscount,
+    EventDiscount,
+    TicketTypeDiscount,
 )
 from .utils import (
     get_event_eb_api,
@@ -53,7 +56,7 @@ class DiscountEventForm(forms.Form):
             )
             return False
         if not self.discount_id:
-            discount = Discount.objects.filter(
+            discount = EventDiscount.objects.filter(
                 event=self.event,
             )
             if len(discount) > 0:
@@ -128,7 +131,7 @@ class DiscountTicketForm(forms.Form):
             )
             return False
         if not self.discount_id:
-            discount = Discount.objects.filter(
+            discount = TicketTypeDiscount.objects.filter(
                 ticket_type=self.ticket_type_id
             )
             if len(discount) > 0:
@@ -250,7 +253,8 @@ class GetDiscountForm(forms.Form):
         tickets_with_discount = {}
 
         for ticket_in_db in tickets_in_db:
-            if Discount.objects.filter(ticket_type=ticket_in_db).exists():
+            if TicketTypeDiscount.objects.filter(
+                    ticket_type=ticket_in_db).exists():
                 tickets_with_discount[ticket_in_db.id] = ticket_in_db.__dict__
 
         tickets_types_name = ()
