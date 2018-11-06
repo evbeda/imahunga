@@ -6,6 +6,9 @@
     <p><a href="{% url 'index' %}"> {% trans "Home" %} </a>&nbsp;&nbsp;>&nbsp;&nbsp;{% trans "Select events" %}</p>
 </div>
 {% if events %}
+    {% if already_selected_id %}
+        <p class="alert alert-warning mt-3" >If you deselect an event, all its created discounts will be deleted.</p>
+    {% endif %}
 <form class="mt-5" action="" method="POST">
     {% csrf_token %}
     {% for event in events %}
