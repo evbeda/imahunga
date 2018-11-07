@@ -103,20 +103,27 @@
 											</span>
 										</div>
 									{% endif %}
-									{% if discounts.available %}
-										{% if discounts.max_discount == discounts.min_discount  %}
+									{% if tickets_discounts.available %}
+										{% if tickets_discounts.max_discount == tickets_discounts.min_discount  %}
 										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
 											<span class="eds-text-color--grey-700">
-												{{ discounts.max_discount }} % {% trans "discount available for members" %}
+												{{ tickets_discounts.max_discount }} % {% trans "discount available for members" %}
 											</span>
 										</div>
 										{% else %}
 										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
 											<span class="eds-text-color--grey-700">
-												{{ discounts.min_discount }} - {{ discounts.max_discount }} % {% trans "discount available for members" %}
+												{{tickets_discounts.min_discount }} - {{tickets_discounts.max_discount }} % {% trans "discount available for members" %}
 											</span>
 										</div>
 										{% endif %}
+									{% elif event_discount.available %}
+										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
+											<span class="eds-text-color--grey-700">
+												{{event_discount.value}} % {% trans "discount available for members" %}
+											</span>
+										</div>
+
 									{% else %}
 										<div class="eds-media-card-content__flag eds-align--center eds-text-bs eds-text-color--grey-600">
 											<span class="eds-text-color--grey-700">{% trans "This event doesn't have any available discount" %}
@@ -147,11 +154,19 @@
 							{% if tickets_value.min_value_display == tickets_value.max_value_display %}
 								{{ tickets_value.min_value_display}}
 							{% else %}
-								{{ tickets_value.min_value_display}} - {{tickets_value.max_value_display}}
+								{{tickets_value.min_value_display}} - {{tickets_value.max_value_display}}
 							{% endif %}
 						</div>
-						{% if event.discount %}
-							<div> {{ event.discount }} % {% trans "discount available for members" %} </div>
+						{% if tickets_discounts.available %}
+							{% if tickets_discounts.max_discount == tickets_discounts.min_discount  %}
+								<div>
+									{{ tickets_discounts.max_discount }} % {% trans "discount available for members" %}
+								</div>
+							{% else %}
+								<div> {{tickets_discounts.min_discount }} - {{tickets_discounts.max_discount }} % {% trans "discount available for members" %}</div>
+							{% endif %}
+						{% elif event_discount.available %}
+							<div> {{event_discount.value}} % {% trans "discount available for members" %}</div>
 						{% else %}
 							<div> {% trans "This event doesn't have any available discount" %} </div>
 						{% endif %}
@@ -163,7 +178,7 @@
 					<div class="eds-media-card-content__content__principal">
 						<div class="eds-media-card-content__primary-content">
 							<div id="get_discount_box" class="eds-media-card-content__primary-content">
-									{% if discounts.available %}
+									{% if tickets_discounts.available or event_discount.available %}
 		                                <button id="btn_get_discount"class="eds-btn eds-btn--button eds-btn--fill" type="button" style="width: 100%">
 												{% trans "Check Available Discount" %}
 		                                </button>
