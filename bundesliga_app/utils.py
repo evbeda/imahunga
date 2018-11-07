@@ -51,10 +51,18 @@ class DiscountAccessMixin(EventAccessMixin):
                 raise PermissionDenied(_(
                     "You don't have access to this discount")
                 )
+            if str(discount.eventdiscount.event.id) != self.kwargs['event_id']:
+                raise PermissionDenied(_(
+                    "This discount does not match with the event")
+                )
         elif discount.discount_type.name == 'Ticket Type':
             if discount.tickettypediscount.ticket_type.event.organizer != self.request.user:
                 raise PermissionDenied(_(
                     "You don't have access to this discount"))
+            if str(discount.tickettypediscount.ticket_type.event.id) != self.kwargs['event_id']:
+                raise PermissionDenied(_(
+                    "This discount does not match with the event")
+                )
         return discount
 
 
