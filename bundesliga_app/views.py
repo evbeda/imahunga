@@ -440,10 +440,20 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
         return tickets_type
 
     def _get_discount_event(self, event):
+        """ Get the event discount if exists"""
         if EventDiscount.objects.filter(event=event).exists():
             return EventDiscount.objects.filter(
                 event=event
             ).get()
+
+    def _verify_discount(self, event_discount, tickets_type):
+        """ This method will return what type of discount the event has """
+        if event_discount:
+            return 'Event'
+        for ticket_id, ticket in tickets_type.items():
+            if 'discount' in ticket:
+                return 'Ticket'
+        return None
 
     def get_context_data(self, **kwargs):
         context = super(EventDiscountsView, self).get_context_data(**kwargs)
@@ -455,6 +465,10 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
             context['event']
         )
         context['tickets_type'] = self._get_tickets_type(context['event'])
+        context['has_discount'] = self._verify_discount(
+            context['event_discount'],
+            context['tickets_type'],
+        )
         context['event_name'] = get_event_eb_api(
             get_auth_token(self.request.user),
             context['event'].event_id,

@@ -7,7 +7,7 @@
 </div>
 {% if events %}
     {% if already_selected_id %}
-        <p class="alert alert-warning mt-3" >If you deselect an event, all its created discounts will be deleted.</p>
+        <p class="alert alert-warning mt-3" >{% trans "If you deselect an event, all its created discounts will be deleted." %}</p>
     {% endif %}
 <form class="mt-5" action="" method="POST">
     {% csrf_token %}
