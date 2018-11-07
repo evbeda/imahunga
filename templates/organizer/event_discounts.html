@@ -2,145 +2,217 @@
 {% load static %}
 {% load i18n %}
 {% block content %}
-<div class="mt-5 row">
-    <p><a href="{% url 'index' %}"> {% trans "Home" %} </a>&nbsp;&nbsp;>&nbsp;&nbsp;{% trans "Event discounts" %}</p>
-</div>
-<div>
-	<h1 class="mt-2">{{event_name}}{% trans "'s Discounts" %}</h1>
-	<hr>
-</div>
-
-<div class="row">
-	<div class="col-6">
-		<div>
-			<h4 class="mt-2 mb-4">{% trans "Tickets Type Discounts" %}</h1>
-		</div>
+	<div class="mt-5 row">
+		<p><a href="{% url 'index' %}"> {% trans "Home" %} </a>&nbsp;&nbsp;>&nbsp;&nbsp;{% trans "Event discounts" %}</p>
 	</div>
-	<div class="col-6">
-		<div>
-			<h4 class="mt-2 mb-4">{% trans "Event Discount" %}</h4>
-
+	<div>
+		<h1 class="mt-2">{{event_name}}{% trans "'s Discounts" %}</h1>
+		<hr>
+	</div>
+	<div class="row">
+		<div class="col-6">
+			<div class="eds-field-styled eds-l-mar-bot-2 eds-field-styled--static" data-automation="select-field-wrapper" data-spec="select-field"><div class="eds-field-styled__border-simulation">
+				<div class="eds-field-styled__internal">
+					<div class="eds-field-styled__input-container">
+						<div class="eds-field-styled__label-wrapper">
+							<label class="eds-field-styled__label eds-label-primary" id="eds-select-label" for="eds-select" data-spec="label-label">{% trans "Discount Type" %}</label>
+						</div>
+						<div class="eds-field-styled__select-wrapper">
+							<span id="selected_value_discount_type" class="eds-field-styled__select-value">{% trans "Select a discount type" %}</span>
+							<span class="eds-field-styled__select-icon">
+								<i class="eds-vector-image eds-icon--small" data-spec="icon" aria-hidden="true">
+								<svg id="eds-icon--chevron-down-chunky_svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+									<path id="eds-icon--chevron-down-chunky_base" fill-rule="evenodd" clip-rule="evenodd" d="M7 10.2l5 5 5-5-1.4-1.4-3.6 3.6-3.6-3.6z"/>
+								</svg>
+								</i>
+							</span>
+							<select class="eds-field-styled__input eds-field-styled__select" role="listbox" id="discount_type_select">
+								<option selected="" disabled="" value="" data-spec="select-option">{% trans "Select a discount type" %}</option>
+								<option value="event_discount" data-spec="select-option">{% trans "For Event" %}</option>
+								<option value="ticket_discount" data-spec="select-option">{% trans "For Ticket Type" %}</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="eds-field__sub">
+				<div class="eds-field__sub--left">
+				</div>
+				<div class="eds-field__sub--right">
+				</div>
+			</div>
 		</div>
+		<script>
+			$(function() {
+			$('#discount_type_select').change(function(){
+			$('#event_discount').hide();
+			$('#ticket_discount').hide();
+			$('#' + $(this).val()).show();
+			$('#selected_value_discount_type').text($("#discount_type_select option:selected").text());
+			});
+			});
+			$(function() {
+				if( "{{has_discount}}" == 'Event' ){
+				$('#ticket_discount').hide();
+				$('#discount_type_select').val("event_discount")
+				}else if( "{{has_discount}}" == 'Ticket' ){
+					$('#event_discount').hide();
+					$('#discount_type_select').val("ticket_discount")
+				}else{
+					$('#ticket_discount').hide();
+					$('#event_discount').hide();
+				}
+				$('#selected_value_discount_type').text($("#discount_type_select option:selected").text());
+			});
+		</script>
 	</div>
 </div>
-
-{% for ticket_type_id, ticket_type in tickets_type.items %}
-<div class="row">
-	<div class="col-6">
-		<div class="eds-card eds-card--simple" role="presentation">
-			<div class="eds-g-cell eds-g-cell-8-8 eds-g-cell-mn-7-8 eds-l-pad-all-6 eds-text-color--grey-700" data-spec="capacity-card">
-				<span class="eds-l-pad-left-1">
-					<i class="eds-vector-image eds-icon--medium" data-spec="icon" aria-hidden="true">
-						<svg id="eds-icon--ticket_svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-							<path id="eds-icon--ticket_base" fill-rule="evenodd" clip-rule="evenodd" d="M19 21h-3c-.4-1.7-1.6-3-4-3s-3.6 1.3-4 3H5V3h3c.4 1.7 1.5 3.5 4 3.5s3.6-1.8 4-3.5h3v18zM15 2s0 3.5-3 3.5S9 2 9 2H4v20h5s0-3 3-3 3 3 3 3h5V2h-5z"/><g id="eds-icon--ticket_dashes" fill-rule="evenodd" clip-rule="evenodd"><path d="M7 11.5h2v1H7zm4 0h2v1h-2zm4 0h2v1h-2z"/></g>
-						</svg>
-					</i>
-				</span>
-				{% if ticket_type.free %}
-				<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
-					<h5>{{ticket_type.name}}</h5>
-					<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-red eds-l-mar-right-2"></span> {% trans "Free Ticket" %}</p>
-				</div>
-				{% elif ticket_type.discount %}
-				<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
-					<h5>{{ticket_type.name}}</h5>
-					<p class="eds-text-bm--fixed eds-text-color--grey-700 "> {{ticket_type.discount.name}} </p>
-					<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-green eds-l-mar-right-2"></span>  {{ticket_type.discount.value}} {% trans "% discount" %}</p>
-				</div>
-				<div class="modal" id="modal">
-
-				</div>
-				<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
-					<p>
-						<a href="{% url 'modify_discount_ticket_type' event_id ticket_type_id  ticket_type.discount.id %}">
-							<img style="height:25px"; src="{% static 'images/settings.png' %}">
-						</a>&nbsp;&nbsp;&nbsp;
-						<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' event_id ticket_type.discount.id %}">
-							<img style="height:25px"; src="{% static 'images/garbage-can.png' %}">
-						</a>
-					</p>
-				</div>
-				<script>
-						$('#modal').on('show.bs.modal', function (event) {
-						    var modal = $('#modal')
-						    $.ajax({
-						        url: "{% url 'delete_discount' event_id ticket_type.discount.id %}",
-						        context: document.body
-						    }).done(function(response) {
-						        modal.html(response);
-						    });
-						});
-				</script>
-				{% else %}
-				<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
-					<h5>{{ticket_type.name}}</h5>
-					<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--tropical-yellow-400 eds-l-mar-right-2"></span>  {% trans "No discount" %}</p>
-				</div>
-				<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
-					<p>
-						<a href="{% url 'create_discount_ticket_type' event_id ticket_type_id %}">
-							<img style="height:25px"; src="{% static 'images/add.png' %}">
-						</a>&nbsp;&nbsp;&nbsp;
-					</p>
-				</div>
-				{% endif %}
-
+<div id="ticket_discount">
+	<div class="row">
+		<div class="col-6">
+			<div>
+				<h4 class="mt-2 mb-4">{% trans "Tickets Discounts" %}</h4>
 			</div>
 		</div>
 	</div>
-
-	{% if forloop.counter == 1 %}
-	<div class="col-6">
-	{% if event_discount %}
-				<div class="eds-card eds-card--simple" role="presentation">
-			<div class="eds-g-cell eds-g-cell-8-8 eds-g-cell-mn-7-8 eds-l-pad-all-6 eds-text-color--grey-700" data-spec="capacity-card">
-				<span class="eds-l-pad-left-1">
-					<i class="eds-vector-image eds-icon--medium" data-spec="icon" aria-hidden="true">
-						<svg id="eds-icon--ticket_svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-							<path id="eds-icon--ticket_base" fill-rule="evenodd" clip-rule="evenodd" d="M19 21h-3c-.4-1.7-1.6-3-4-3s-3.6 1.3-4 3H5V3h3c.4 1.7 1.5 3.5 4 3.5s3.6-1.8 4-3.5h3v18zM15 2s0 3.5-3 3.5S9 2 9 2H4v20h5s0-3 3-3 3 3 3 3h5V2h-5z"/><g id="eds-icon--ticket_dashes" fill-rule="evenodd" clip-rule="evenodd"><path d="M7 11.5h2v1H7zm4 0h2v1h-2zm4 0h2v1h-2z"/></g>
-						</svg>
-					</i>
-				</span>
-				<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
-					<h5>{{event_discount.name}}</h5>
-					<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-green eds-l-mar-right-2"></span>  {{event_discount.value}} {% trans "% off" %}</p>
+	{% if has_discount == 'Event' %}
+		<div class="row">
+			<div class="col-6">
+				<div class="alert alert-warning">
+					<strong>{% trans "You have an event discount. If you create a discount for a ticket the event discount will be deleted" %}</strong>
 				</div>
-				<div class="modal" id="modal">
-
-				</div>
-				<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
-					<p>
-						<a href="{% url 'modify_discount_event' event_id event_discount.id %}">
-							<img style="height:25px"; src="{% static 'images/settings.png' %}">
-						</a>&nbsp;&nbsp;&nbsp;
-						<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' event_id event_discount.id %}">
-							<img style="height:25px"; src="{% static 'images/garbage-can.png' %}">
-						</a>
-					</p>
-				</div>
-				<script>
-						$('#modal').on('show.bs.modal', function (event) {
-						    var modal = $('#modal')
-						    $.ajax({
-						        url: "{% url 'delete_discount' event_id event_discount.id %}",
-						        context: document.body
-						    }).done(function(response) {
-						        modal.html(response);
-						    });
-						});
-				</script>
-
 			</div>
-		</div>
-		{% else %}
-		<div>
-        	<a class= "btn btn-success" href="{% url 'create_discount_event' event_id %}">{% trans "Add Event Discount" %}</a>
-		</div>
-		{% endif %}
 		</div>
 	{% endif %}
+	{% for ticket_type_id, ticket_type in tickets_type.items %}
+		<div class="row">
+			<div class="col-6">
+				<div class="eds-card eds-card--simple" role="presentation">
+					<div class="eds-g-cell eds-g-cell-8-8 eds-g-cell-mn-7-8 eds-l-pad-all-6 eds-text-color--grey-700" data-spec="capacity-card">
+						<span class="eds-l-pad-left-1">
+							<i class="eds-vector-image eds-icon--medium" data-spec="icon" aria-hidden="true">
+							<svg id="eds-icon--ticket_svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+								<path id="eds-icon--ticket_base" fill-rule="evenodd" clip-rule="evenodd" d="M19 21h-3c-.4-1.7-1.6-3-4-3s-3.6 1.3-4 3H5V3h3c.4 1.7 1.5 3.5 4 3.5s3.6-1.8 4-3.5h3v18zM15 2s0 3.5-3 3.5S9 2 9 2H4v20h5s0-3 3-3 3 3 3 3h5V2h-5z"/><g id="eds-icon--ticket_dashes" fill-rule="evenodd" clip-rule="evenodd"><path d="M7 11.5h2v1H7zm4 0h2v1h-2zm4 0h2v1h-2z"/></g>
+							</svg>
+							</i>
+						</span>
+						{% if ticket_type.free %}
+							<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
+								<h5>{{ticket_type.name}}</h5>
+								<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-red eds-l-mar-right-2"></span> {% trans "Free Ticket" %}</p>
+							</div>
+							{% elif ticket_type.discount %}
+							<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
+								<h5>{{ticket_type.name}}</h5>
+								<p class="eds-text-bm--fixed eds-text-color--grey-700 "> {{ticket_type.discount.name}} </p>
+								<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-green eds-l-mar-right-2"></span>  {{ticket_type.discount.value}} {% trans "% discount" %}</p>
+							</div>
+							<div class="modal" id="modal">
+							</div>
+							<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
+								<p>
+									<a href="{% url 'modify_discount_ticket_type' event_id ticket_type_id  ticket_type.discount.id %}">
+										<img style="height:25px"; src="{% static 'images/settings.png' %}">
+									</a>&nbsp;&nbsp;&nbsp;
+									<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' event_id ticket_type.discount.id %}">
+										<img style="height:25px"; src="{% static 'images/garbage-can.png' %}">
+									</a>
+								</p>
+							</div>
+							<script>
+									$('#modal').on('show.bs.modal', function (event) {
+									var modal = $('#modal')
+									$.ajax({
+									url: "{% url 'delete_discount' event_id ticket_type.discount.id %}",
+									context: document.body
+									}).done(function(response) {
+									modal.html(response);
+									});
+									});
+							</script>
+						{% else %}
+							<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
+								<h5>{{ticket_type.name}}</h5>
+								<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--tropical-yellow-400 eds-l-mar-right-2"></span>  {% trans "No discount" %}</p>
+							</div>
+							<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
+								<p>
+									<a href="{% url 'create_discount_ticket_type' event_id ticket_type_id %}">
+										<img style="height:25px"; src="{% static 'images/add.png' %}">
+									</a>&nbsp;&nbsp;&nbsp;
+								</p>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
 </div>
-
-{% endfor %}
-
+<div id="event_discount">
+	<div class="row">
+		<div class="col-6">
+			<div>
+				<h4 class="mt-2 mb-4">{% trans "Event Discount" %}</h4>
+			</div>
+		</div>
+	</div>
+	{% if has_discount == 'Ticket' %}
+		<div class="row">
+			<div class="col-6">
+				<div class="alert alert-warning">
+					<strong>{% trans "You have tickets discounts. If you create a discount for an event the tickets discounts will be deleted" %}</strong>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	<div class="row">
+		<div class="col-6">
+			{% if event_discount %}
+				<div class="eds-card eds-card--simple" role="presentation">
+					<div class="eds-g-cell eds-g-cell-8-8 eds-g-cell-mn-7-8 eds-l-pad-all-6 eds-text-color--grey-700" data-spec="capacity-card">
+						<span class="eds-l-pad-left-1">
+							<i class="eds-vector-image eds-icon--medium" data-spec="icon" aria-hidden="true">
+							<svg id="eds-icon--ticket_svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+								<path id="eds-icon--ticket_base" fill-rule="evenodd" clip-rule="evenodd" d="M19 21h-3c-.4-1.7-1.6-3-4-3s-3.6 1.3-4 3H5V3h3c.4 1.7 1.5 3.5 4 3.5s3.6-1.8 4-3.5h3v18zM15 2s0 3.5-3 3.5S9 2 9 2H4v20h5s0-3 3-3 3 3 3 3h5V2h-5z"/><g id="eds-icon--ticket_dashes" fill-rule="evenodd" clip-rule="evenodd"><path d="M7 11.5h2v1H7zm4 0h2v1h-2zm4 0h2v1h-2z"/></g>
+							</svg>
+							</i>
+						</span>
+						<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
+							<h5>{{event_discount.name}}</h5>
+							<p class="eds-text-bm--fixed eds-text-color--grey-700 "> <span class="eds-show-up-mn eds-ticket-card-status-icon eds-text-color--ui-green eds-l-mar-right-2"></span>  {{event_discount.value}} {% trans "% off" %}</p>
+						</div>
+						<div class="modal" id="modal">
+						</div>
+						<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
+							<p>
+								<a href="{% url 'modify_discount_event' event_id event_discount.id %}">
+									<img style="height:25px"; src="{% static 'images/settings.png' %}">
+								</a>&nbsp;&nbsp;&nbsp;
+								<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' event_id event_discount.id %}">
+									<img style="height:25px"; src="{% static 'images/garbage-can.png' %}">
+								</a>
+							</p>
+						</div>
+						<script>
+								$('#modal').on('show.bs.modal', function (event) {
+								var modal = $('#modal')
+								$.ajax({
+								url: "{% url 'delete_discount' event_id event_discount.id %}",
+								context: document.body
+								}).done(function(response) {
+								modal.html(response);
+								});
+								});
+						</script>
+					</div>
+				</div>
+			{% else %}
+				<div class="mt-2">
+					<a class= "btn btn-success" href="{% url 'create_discount_event' event_id %}">{% trans "Add Event Discount" %}</a>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+</div>
 {% endblock %}
