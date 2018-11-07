@@ -28,11 +28,12 @@ from .utils import (
     get_auth_token,
     get_event_eb_api,
     get_events_user_eb_api,
+    get_ticket_type,
     get_user_eb_api,
     get_venue_eb_api,
     get_event_tickets_eb_api,
-    get_ticket_type,
-    post_discount_code_to_eb,
+    post_event_discount_code_to_eb,
+    post_ticket_discount_code_to_eb,
     update_discount_code_to_eb,
 )
 from .forms import (
@@ -913,7 +914,7 @@ class ListingPageEventView(FormView):
 
         return tickets_type
 
-    def _get_discounts(self, tickets_type):
+    def _get_tickets_discounts(self, tickets_type):
         discounts = {
             'max_discount': 0,
             'min_discount': 0,
@@ -935,6 +936,7 @@ class ListingPageEventView(FormView):
                 if discount.value < discounts['min_discount']:
                         discounts['min_discount'] = discount.value
         return discounts
+
 
     def _get_tickets(self, tickets):
         ticket_values = {
@@ -977,6 +979,24 @@ class ListingPageEventView(FormView):
 
         return ticket_values
 
+    def _get_event_discount(self, event_id):
+        event_discount = {
+            'value': 0,
+            'available': False,
+        }
+        event = Event.objects.get(
+            id=event_id
+        )
+        if EventDiscount.objects.filter(
+            event=event
+        ).exists():
+            event_discount['value'] = EventDiscount.objects.get(
+                event=event
+            ).value
+            event_discount['available'] = True
+
+        return event_discount
+
     def _generate_discount_code(self, form):
         event = Event.objects.get(
             id=self.kwargs['event_id'])
@@ -987,34 +1007,56 @@ class ListingPageEventView(FormView):
             uknown_status = StatusMemberDiscountCode.objects.get(
                 name="Unknown"
             )
+            if 'tickets_type' in form.cleaned_data.keys():
+                iterator = range(1, len(form.cleaned_data))
+            else:
+                iterator = range(1, len(form.cleaned_data) + 1)
             member_numbers = []
-            for i in range(1, len(form.cleaned_data)):
+
+            for i in iterator:
                 member_numbers.append(
                     str(form.cleaned_data['member_number_{}'.format(i)]))
+
             discount_code += '_'.join(member_numbers)
-            # Find ticket type
-            ticket_type = EventTicketType.objects.get(
-                id=form.cleaned_data['tickets_type']
-            )
-            # Find discount
-            discount = TicketTypeDiscount.objects.get(
-                ticket_type=ticket_type
-            )
+
             eb_event = self.get_context_data()['event']
 
-            post_discount_code_to_eb(
-                organizer,
-                event.event_id,
-                discount_code,
-                discount.value,
-                ticket_type.ticket_id_eb,
-                uses=len(form.cleaned_data) - 1,
-            )
+            tickets_discounts = self.get_context_data()['tickets_discounts']
+            event_discount = self.get_context_data()['event_discount']
+            if tickets_discounts['available']:
+                # Find ticket type
+                ticket_type = EventTicketType.objects.get(
+                    id=form.cleaned_data['tickets_type']
+                )
+                # Find discount
+                discount = TicketTypeDiscount.objects.get(
+                    ticket_type=ticket_type
+                )
+                post_ticket_discount_code_to_eb(
+                    organizer,
+                    event.event_id,
+                    discount_code,
+                    discount.value,
+                    ticket_type.ticket_id_eb,
+                    uses=len(form.cleaned_data) - 1,
+                )
+            elif event_discount['available']:
+                discount = EventDiscount.objects.get(
+                    event=event
+                )
+                post_event_discount_code_to_eb(
+                    organizer,
+                    event.event_id,
+                    discount_code,
+                    discount.value,
+                    uses=len(form.cleaned_data)
+                )
             discount_code_object = DiscountCode.objects.create(
                 discount=discount,
                 discount_code=discount_code,
             )
-            for number in range(1, len(form.cleaned_data)):
+
+            for number in iterator:
                 MemberDiscountCode.objects.create(
                     discount_code=discount_code_object,
                     member_number=form.cleaned_data['member_number_{}'.format(
@@ -1038,7 +1080,13 @@ class ListingPageEventView(FormView):
             name="Used"
         )
         # for each sent number
-        for number in range(1, len(form.cleaned_data)):
+        ticket_discount = 'tickets_type' in form.cleaned_data.keys()
+        if ticket_discount:
+            iterator = range(1, len(form.cleaned_data))
+        else:
+            iterator = range(1, len(form.cleaned_data) + 1)
+
+        for number in iterator:
             # verify if a discount_code with uknown status exists
             existing_discount_code = MemberDiscountCode.objects.filter(
                 member_number=form.cleaned_data[
@@ -1046,20 +1094,27 @@ class ListingPageEventView(FormView):
                 ]).filter(
                     status=uknown_status
             )
-
+            condition = False
             # If exists
             if existing_discount_code:
                 for i in range(len(existing_discount_code)):
                     discount_code = DiscountCode.objects.get(
                         id=existing_discount_code[i].discount_code.id
                     )
-                    discount = TicketTypeDiscount.objects.get(
-                        id=discount_code.discount.id
-                    )
-                    ticket_type = EventTicketType.objects.get(
-                        id=discount.ticket_type.id
-                    )
-                    if event.id == ticket_type.event.id:
+                    if self.get_context_data()['tickets_discounts']['available']:
+                        discount = TicketTypeDiscount.objects.get(
+                            id=discount_code.discount.id
+                        )
+                        ticket_type = EventTicketType.objects.get(
+                            id=discount.ticket_type.id
+                        )
+                        condition = event.id == ticket_type.event.id
+                    else:
+                        discount = EventDiscount.objects.get(
+                            id=discount_code.discount.id
+                        )
+                        condition = event.id == discount.event_id
+                    if condition:
                         # Verify if discount already exists in EB
                         discount_code_eb_api = check_discount_code_in_eb(
                             organizer,
@@ -1120,13 +1175,21 @@ class ListingPageEventView(FormView):
                                     discount_code = DiscountCode.objects.get(
                                         id=discount_codes_related[i].discount_code.id
                                     )
-                                    discount = TicketTypeDiscount.objects.get(
-                                        id=discount_code.discount.id
-                                    )
-                                    ticket_type = EventTicketType.objects.get(
-                                        id=discount.ticket_type.id
-                                    )
-                                    if event.id == ticket_type.event.id:
+
+                                    if self.get_context_data()['tickets_discounts']['available']:
+                                        discount = TicketTypeDiscount.objects.get(
+                                            id=discount_code.discount.id
+                                        )
+                                        ticket_type = EventTicketType.objects.get(
+                                            id=discount.ticket_type.id
+                                        )
+                                        condition = event.id == ticket_type.event.id
+                                    else:
+                                        discount = EventDiscount.objects.get(
+                                            id=discount_code.discount.id
+                                        )
+                                        condition = event.id == discount.event_id
+                                    if condition:
                                         # If there are no more uses
                                         if uses_left == 0:
                                             update_discount = MemberDiscountCode.objects.filter(
@@ -1181,13 +1244,21 @@ class ListingPageEventView(FormView):
                             discount_code = DiscountCode.objects.get(
                                 id=used_discount_code[i].discount_code.id
                             )
-                            discount = TicketTypeDiscount.objects.get(
-                                id=discount_code.discount.id
-                            )
-                            ticket_type = EventTicketType.objects.get(
-                                id=discount.ticket_type.id
-                            )
-                            if event.id == ticket_type.event.id:
+                            if self.get_context_data()['tickets_discounts']['available']:
+                                discount = TicketTypeDiscount.objects.get(
+                                    id=discount_code.discount.id
+                                )
+                                ticket_type = EventTicketType.objects.get(
+                                    id=discount.ticket_type.id
+                                )
+                                condition = event.id == ticket_type.event.id
+                            else:
+                                discount = EventDiscount.objects.get(
+                                    id=discount_code.discount.id
+                                )
+                                condition = event.id == discount.event_id
+
+                            if condition:
                                 form.add_error('member_number_1',
                                            _('Number {} has already used the discount for this event'.format(
                                                form.cleaned_data[
@@ -1208,13 +1279,21 @@ class ListingPageEventView(FormView):
                         discount_code = DiscountCode.objects.get(
                             id=used_discount_code[i].discount_code.id
                         )
-                        discount = TicketTypeDiscount.objects.get(
-                            id=discount_code.discount.id
-                        )
-                        ticket_type = EventTicketType.objects.get(
-                            id=discount.ticket_type.id
-                        )
-                        if event.id == ticket_type.event.id:
+                        if self.get_context_data()['tickets_discounts']['available']:
+                            discount = TicketTypeDiscount.objects.get(
+                                id=discount_code.discount.id
+                            )
+                            ticket_type = EventTicketType.objects.get(
+                                id=discount.ticket_type.id
+                            )
+                            condition = event.id == ticket_type.event.id
+                        else:
+                            discount = EventDiscount.objects.get(
+                                id=discount_code.discount.id
+                            )
+                            condition = event.id == discount.event_id
+
+                        if condition:
                             form.add_error('member_number_1',
                                            _('Number {} has already used the discount for this event'.format(
                                                form.cleaned_data[
@@ -1222,9 +1301,12 @@ class ListingPageEventView(FormView):
                                                        number)
                                                ])))
                             return False
-
-            if number == len(form.cleaned_data) - 1:
-                return True
+            if 'tickets_type' in form.cleaned_data.keys():
+                if number == len(form.cleaned_data) - 1:
+                    return True
+            else:
+                if number == len(form.cleaned_data):
+                    return True
 
     def _generate_url(self, eb_event, event_id, discount_code):
         self.url = 'https://www.eventbrite.com/e/' + \
@@ -1263,7 +1345,8 @@ class ListingPageEventView(FormView):
             context['event_id'],
             context['organizer'],
         )
-        context['discounts'] = self._get_discounts(context['tickets_type'])
+        context['tickets_discounts'] = self._get_tickets_discounts(context['tickets_type'])
+        context['event_discount'] = self._get_event_discount(context['event_id'])
         context['tickets_value'] = self._get_tickets(
             context['tickets_type']
         )

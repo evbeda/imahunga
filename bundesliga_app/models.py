@@ -32,11 +32,11 @@ class Discount(models.Model):
 
 
 class EventDiscount(Discount):
-    event = models.ForeignKey(Event, null=True)
+    event = models.ForeignKey(Event)
 
 
 class TicketTypeDiscount(Discount):
-    ticket_type = models.ForeignKey(EventTicketType, null=True)
+    ticket_type = models.ForeignKey(EventTicketType)
 
 
 class DiscountCode(models.Model):

@@ -185,7 +185,11 @@ class GetDiscountForm(forms.Form):
         if self.data['g-recaptcha-response'] != '':
             if len(self.cleaned_data.values()) == len(set(self.cleaned_data.values())):
                 invalid_numbers = []
-                for number in range(1, len(self.cleaned_data)):
+                if 'tickets_type' in self.cleaned_data.keys():
+                    iterator = range(1, len(self.cleaned_data))
+                else:
+                    iterator = range(1, len(self.cleaned_data) + 1)
+                for number in iterator :
                     return_api_ds = validate_member_number_ds(
                         self.cleaned_data['member_number_{}'.format(number)]
                     )
@@ -207,21 +211,22 @@ class GetDiscountForm(forms.Form):
                     if len(invalid_numbers) == 1:
                         self.add_error(
                             'member_number_1',
-                            _('Invalid member number ')+'{}'.format(numbers),
+                            _('Invalid member number ') + '{}'.format(numbers),
                         )
                     else:
                         self.add_error(
                             'member_number_1',
-                            _('Invalid member numbers ')+'{}'.format(numbers),
+                            _('Invalid member numbers ') +
+                            '{}'.format(numbers),
                         )
                     return False
                 else:
                     return True
             else:
                 self.add_error(
-                            'member_number_1',
-                            _('Verify repetead member number'),
-                        )
+                    'member_number_1',
+                    _('Verify repetead member number'),
+                )
         else:
             self.add_error(
                 'member_number_1',
@@ -256,6 +261,9 @@ class GetDiscountForm(forms.Form):
             if TicketTypeDiscount.objects.filter(
                     ticket_type=ticket_in_db).exists():
                 tickets_with_discount[ticket_in_db.id] = ticket_in_db.__dict__
+                tickets_with_discount[ticket_in_db.id]['discount'] = TicketTypeDiscount.objects.get(
+                    ticket_type=ticket_in_db
+                )
 
         tickets_types_name = ()
         for ticket in tickets_with_discount:
@@ -264,5 +272,7 @@ class GetDiscountForm(forms.Form):
                 event.event_id,
                 ticket,
             )
-            tickets_types_name = ((ticket, ticket_type_eb[str(ticket)]['name']),) + tickets_types_name
+            value = ticket_type_eb[str(ticket)]['name'] + " - " + str(tickets_with_discount[ticket]['discount'].value) + "%"
+            tickets_types_name = (
+                (ticket, value),) + tickets_types_name
         return tickets_types_name

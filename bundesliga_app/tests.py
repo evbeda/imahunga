@@ -35,7 +35,7 @@ from bundesliga_app.utils import (
     get_venue_eb_api,
     get_event_tickets_eb_api,
     check_discount_code_in_eb,
-    post_discount_code_to_eb,
+    post_ticket_discount_code_to_eb,
     validate_member_number_ds,
     delete_discount_code_from_eb,
 )
@@ -209,7 +209,7 @@ class UtilsApiEBTest(TestCase):
         mock_api_get_call
     ):
         mock_api_get_call.return_value = {'id': 1}
-        result = post_discount_code_to_eb('TEST', '1', '1', '20', '1', '1')
+        result = post_ticket_discount_code_to_eb('TEST', '1', '1', '20', '1', '1')
         mock_api_post_call.assert_called_once()
         self.assertEquals(result['id'], '1')
 
@@ -2450,10 +2450,10 @@ class ListingPageEventViewTest(TestCase):
     )
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
-    def test_valid_member_number(
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
+    def test_valid_member_number_ticket_discount(
             self,
-            mock_post_discount_code_to_eb,
+            mock_post_ticket_discount_code_to_eb,
             mock_get_event_tickets_eb_api,
             mock_get_event_eb_api,
             mock_validate_member_number_ds,
@@ -2494,10 +2494,10 @@ class ListingPageEventViewTest(TestCase):
     )
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     def test_post_without_captcha(
             self,
-            mock_post_discount_code_to_eb,
+            mock_post_ticket_discount_code_to_eb,
             mock_get_event_tickets_eb_api,
             mock_get_event_eb_api,
             mock_validate_member_number_ds,
@@ -2531,10 +2531,10 @@ class ListingPageEventViewTest(TestCase):
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_INVALID_NUMBER.text,)
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     def test_invalid_member_number(
         self,
-        mock_post_discount_code_to_eb,
+        mock_post_ticket_discount_code_to_eb,
         mock_get_event_tickets_eb_api,
         mock_get_event_eb_api,
         mock_validate_member_number_ds,
@@ -2575,10 +2575,10 @@ class ListingPageEventViewTest(TestCase):
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_INVALID_NUMBER.text,)
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     def test_multiple_invalid_member_numbers(
         self,
-        mock_post_discount_code_to_eb,
+        mock_post_ticket_discount_code_to_eb,
         mock_get_event_tickets_eb_api,
         mock_get_event_eb_api,
         mock_validate_member_number_ds,
@@ -2613,10 +2613,10 @@ class ListingPageEventViewTest(TestCase):
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
-    def test_multiple_valid_numbers(
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
+    def test_multiple_valid_numbers_tickets_discounts(
         self,
-        mock_post_discount_code_to_eb,
+        mock_post_ticket_discount_code_to_eb,
         mock_get_event_tickets_eb_api,
         mock_get_event_eb_api,
         mock_validate_member_number_ds,
@@ -2657,10 +2657,10 @@ class ListingPageEventViewTest(TestCase):
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     def test_duplicate_member_numbers(
         self,
-        mock_post_discount_code_to_eb,
+        mock_post_ticket_discount_code_to_eb,
         mock_get_event_tickets_eb_api,
         mock_get_event_eb_api,
         mock_validate_member_number_ds,
@@ -2694,12 +2694,12 @@ class ListingPageEventViewTest(TestCase):
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
     def test_get_discount_for_used_member_number(
         self,
         mock_check_discount_code_in_eb,
-        mock_post_discount_code_to_eb,
+        mock_post_ticket_discount_code_to_eb,
         mock_get_event_tickets_eb_api,
         mock_get_event_eb_api,
         mock_validate_member_number_ds,
@@ -2741,12 +2741,12 @@ class ListingPageEventViewTest(TestCase):
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
     def test_get_discount_for_used_member_number_in_db(
         self,
         mock_check_discount_code_in_eb,
-        mock_post_discount_code_to_eb,
+        mock_post_ticket_discount_code_to_eb,
         mock_get_event_tickets_eb_api,
         mock_get_event_eb_api,
         mock_validate_member_number_ds,
@@ -2789,12 +2789,12 @@ class ListingPageEventViewTest(TestCase):
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES)
     def test_get_discount_for_unused_discount_multiple_uses(
         self,
         mock_check_discount_code_in_eb,
-        mock_post_discount_code_to_eb,
+        mock_post_ticket_discount_code_to_eb,
         mock_get_event_tickets_eb_api,
         mock_get_event_eb_api,
         mock_validate_member_number_ds,
@@ -2849,14 +2849,14 @@ class ListingPageEventViewTest(TestCase):
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES_ONE_USED)
     @patch('bundesliga_app.views.update_discount_code_to_eb', return_value=MOCK_UPDATE_DISCOUNT_CODE_TO_EB)
     def test_get_discount_for_one_used_discount_multiple_uses(
         self,
         mock_update_discount_code_to_eb,
         mock_check_discount_code_in_eb,
-        mock_post_discount_code_to_eb,
+        mock_post_ticket_discount_code_to_eb,
         mock_get_event_tickets_eb_api,
         mock_get_event_eb_api,
         mock_validate_member_number_ds,
@@ -2913,14 +2913,14 @@ class ListingPageEventViewTest(TestCase):
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES_ONE_USED)
     @patch('bundesliga_app.views.update_discount_code_to_eb', return_value=MOCK_UPDATE_DISCOUNT_CODE_TO_EB_USES_LEFT)
     def test_get_discount_multiple_uses_with_uses_left(
         self,
         mock_update_discount_code_to_eb,
         mock_check_discount_code_in_eb,
-        mock_post_discount_code_to_eb,
+        mock_post_ticket_discount_code_to_eb,
         mock_get_event_tickets_eb_api,
         mock_get_event_eb_api,
         mock_validate_member_number_ds,
@@ -2977,12 +2977,12 @@ class ListingPageEventViewTest(TestCase):
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_ONE_USE_NOT_USED)
     def test_get_discount_not_used(
         self,
         mock_check_discount_code_in_eb,
-        mock_post_discount_code_to_eb,
+        mock_post_ticket_discount_code_to_eb,
         mock_get_event_tickets_eb_api,
         mock_get_event_eb_api,
         mock_validate_member_number_ds,
@@ -3028,12 +3028,12 @@ class ListingPageEventViewTest(TestCase):
     )
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
     @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_ONE_USE_NOT_USED)
     def test_invalid_request(
             self,
             mock_check_discount_code_in_eb,
-            mock_post_discount_code_to_eb,
+            mock_post_ticket_discount_code_to_eb,
             mock_get_event_tickets_eb_api,
             mock_get_event_eb_api,
             mock_validate_member_number_ds,
@@ -3063,6 +3063,396 @@ class ListingPageEventViewTest(TestCase):
             },
         )
         self.assertContains(self.response, "Invalid request")
+
+    @patch(
+        'bundesliga_app.forms.validate_member_number_ds',
+        return_value=MOCK_DS_API_VALID_NUMBER.text,
+    )
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.views.post_event_discount_code_to_eb', return_value={})
+    def test_valid_member_number_event_discount(
+            self,
+            mock_post_event_discount_code_to_eb,
+            mock_get_event_eb_api,
+            mock_validate_member_number_ds,
+            mock_get_venue_eb_api):
+
+        EventDiscountFactory(
+            event=self.event,
+            value=100.0,
+            value_type="percentage",
+        )
+
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.response = self.client.post(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id),
+            {
+                'member_number_1': '1234',
+                'g-recaptcha-response': '1234567'
+            },
+        )
+
+        self.assertEqual(self.response.status_code, 200)
+        member_discount_code = MemberDiscountCode.objects.filter(
+            member_number='1234'
+        )
+        self.assertEqual(
+            len(member_discount_code),
+            1
+        )
+
+    @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.views.post_event_discount_code_to_eb', return_value={})
+    def test_multiple_valid_numbers_event_discount(
+        self,
+        mock_post_event_discount_code_to_eb,
+        mock_get_event_eb_api,
+        mock_validate_member_number_ds,
+        mock_get_venue_eb_api):
+
+        discount = EventDiscountFactory(
+            event=self.event,
+            value=100.0,
+            value_type="percentage",
+        )
+
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.response = self.client.post(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id),
+            {
+                'member_number_1': '1234',
+                'member_number_2': '4567',
+                'g-recaptcha-response': '1234567',
+            },
+        )
+        discount_code = DiscountCode.objects.filter(
+            discount=discount
+        )
+        members_discount_code = MemberDiscountCode.objects.filter(
+            discount_code=discount_code
+        )
+        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(
+            len(members_discount_code),
+            2
+        )
+
+    @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.views.post_event_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_ONE_USE_NOT_USED)
+    def test_get_discount_not_used_event_discount(
+        self,
+        mock_check_discount_code_in_eb,
+        mock_post_event_discount_code_to_eb,
+        mock_get_event_eb_api,
+        mock_validate_member_number_ds,
+        mock_get_venue_eb_api):
+
+            discount = EventDiscountFactory(
+                event=self.event,
+                value=100.0,
+                value_type="percentage",
+            )
+
+            discount_code = DiscountCodeFactory(
+                discount=discount
+            )
+            MemberDiscountCodeFactory(
+                member_number=1234,
+                discount_code=discount_code,
+                status=self.unknown_status
+            )
+            self.response = self.client.get(
+                '/landing_page/{}/event/{}/'.format(
+                    self.organizer.id, self.event.id)
+            )
+            self.response = self.client.post(
+                '/landing_page/{}/event/{}/'.format(
+                    self.organizer.id, self.event.id),
+                {
+                    'member_number_1': '1234',
+                    'g-recaptcha-response': '1234567',
+                },
+            )
+            member_discount_codes = MemberDiscountCode.objects.all()
+            self.assertEqual(
+                len(member_discount_codes),
+                1
+            )
+
+    @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.views.post_event_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
+    def test_get_discount_for_used_member_number_event_discount(
+        self,
+        mock_check_discount_code_in_eb,
+        mock_post_event_discount_code_to_eb,
+        mock_get_event_eb_api,
+        mock_validate_member_number_ds,
+        mock_get_venue_eb_api):
+
+        discount = EventDiscountFactory(
+                event=self.event,
+                value=100.0,
+                value_type="percentage",
+        )
+
+        discount_code = DiscountCodeFactory(
+            discount=discount
+        )
+
+        MemberDiscountCodeFactory(
+            member_number=1234,
+            discount_code=discount_code,
+            status=self.unknown_status
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.response = self.client.post(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id),
+            {
+                'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
+            },
+        )
+        self.assertContains(
+            self.response,
+            'Number 1234 has already used the discount for this event'
+        )
+
+    @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
+    def test_get_discount_for_used_member_number_in_db_event_discount(
+        self,
+        mock_check_discount_code_in_eb,
+        mock_post_event_discount_code_to_eb,
+        mock_get_event_eb_api,
+        mock_validate_member_number_ds,
+        mock_get_venue_eb_api):
+
+        discount = EventDiscountFactory(
+                event=self.event,
+                value=100.0,
+                value_type="percentage",
+        )
+
+        discount_code = DiscountCodeFactory(
+            discount=discount
+        )
+
+        MemberDiscountCodeFactory(
+            member_number=1234,
+            discount_code=discount_code,
+            status=self.unknown_status
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.response = self.client.post(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id),
+            {
+                'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
+            },
+        )
+        self.assertContains(
+            self.response,
+            'Number 1234 has already used the discount for this event'
+        )
+
+    @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.views.post_event_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES)
+    def test_get_discount_for_unused_discount_multiple_uses_event_discount(
+        self,
+        mock_check_discount_code_in_eb,
+        mock_post_event_discount_code_to_eb,
+        mock_get_event_eb_api,
+        mock_validate_member_number_ds,
+        mock_get_venue_eb_api):
+
+        discount = EventDiscountFactory(
+                event=self.event,
+                value=100.0,
+                value_type="percentage",
+        )
+
+        discount_code = DiscountCodeFactory(
+            discount=discount
+        )
+
+        member_discount_code = MemberDiscountCodeFactory(
+            member_number=1234,
+            discount_code=discount_code,
+            status=self.unknown_status
+        )
+        member_discount_code_2 = MemberDiscountCodeFactory(
+            member_number=4567,
+            discount_code=discount_code,
+            status=self.unknown_status
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.response = self.client.post(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id),
+            {
+                'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
+            },
+        )
+        canceled_discount = MemberDiscountCode.objects.filter(
+            id=member_discount_code.id
+        )
+        self.assertEqual(
+            canceled_discount[0].status.id,
+            self.canceled_status.id
+        )
+        self.assertEqual(
+            member_discount_code_2.status.id,
+            self.unknown_status.id
+        )
+
+    @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.views.post_event_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES_ONE_USED)
+    @patch('bundesliga_app.views.update_discount_code_to_eb', return_value=MOCK_UPDATE_DISCOUNT_CODE_TO_EB)
+    def test_get_discount_for_one_used_discount_multiple_uses_event_discount(
+        self,
+        mock_update_discount_code_to_eb,
+        mock_check_discount_code_in_eb,
+        mock_post_event_discount_code_to_eb,
+        mock_get_event_eb_api,
+        mock_validate_member_number_ds,
+        mock_get_venue_eb_api):
+
+        discount = EventDiscountFactory(
+                event=self.event,
+                value=100.0,
+                value_type="percentage",
+        )
+
+        discount_code = DiscountCodeFactory(
+            discount=discount
+        )
+        member_discount_code = MemberDiscountCodeFactory(
+            member_number=1234,
+            discount_code=discount_code,
+            status=self.unknown_status
+        )
+        member_discount_code_2 = MemberDiscountCodeFactory(
+            member_number=4567,
+            discount_code=discount_code,
+            status=self.unknown_status
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.response = self.client.post(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id),
+            {
+                'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
+            },
+        )
+        canceled_discount = MemberDiscountCode.objects.filter(
+            id=member_discount_code.id
+        )
+        used_discount_code = MemberDiscountCode.objects.filter(
+            id=member_discount_code_2.id
+        )
+        self.assertEqual(
+            canceled_discount[0].status.id,
+            self.canceled_status.id
+        )
+        self.assertEqual(
+            used_discount_code[0].status.id,
+            self.used_status.id
+        )
+
+    @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.views.post_event_discount_code_to_eb', return_value={})
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES_ONE_USED)
+    @patch('bundesliga_app.views.update_discount_code_to_eb', return_value=MOCK_UPDATE_DISCOUNT_CODE_TO_EB_USES_LEFT)
+    def test_get_discount_multiple_uses_with_uses_left_event_discount(
+        self,
+        mock_update_discount_code_to_eb,
+        mock_check_discount_code_in_eb,
+        mock_post_event_discount_code_to_eb,
+        mock_get_event_eb_api,
+        mock_validate_member_number_ds,
+        mock_get_venue_eb_api):
+
+        discount = EventDiscountFactory(
+                event=self.event,
+                value=100.0,
+                value_type="percentage",
+        )
+
+        discount_code = DiscountCodeFactory(
+            discount=discount
+        )
+        member_discount_code = MemberDiscountCodeFactory(
+            member_number=1234,
+            discount_code=discount_code,
+            status=self.unknown_status
+        )
+        member_discount_code_2 = MemberDiscountCodeFactory(
+            member_number=4567,
+            discount_code=discount_code,
+            status=self.unknown_status
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id)
+        )
+        self.response = self.client.post(
+            '/landing_page/{}/event/{}/'.format(
+                self.organizer.id, self.event.id),
+            {
+                'member_number_1': '1234',
+                'g-recaptcha-response': '1234567',
+            },
+        )
+        canceled_discount = MemberDiscountCode.objects.filter(
+            id=member_discount_code.id
+        )
+        used_discount_code = MemberDiscountCode.objects.filter(
+            id=member_discount_code_2.id
+        )
+        self.assertEqual(
+            canceled_discount[0].status.id,
+            self.canceled_status.id
+        )
+        self.assertEqual(
+            used_discount_code[0].status.id,
+            self.used_status.id
+        )
 
 
 class ActivateLanguageViewTest(TestBase):

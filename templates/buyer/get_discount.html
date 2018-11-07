@@ -7,7 +7,7 @@
 		<form id="get_discount_form" class="text-center" id="get_discount_form" method="POST">
 			{% csrf_token %}
 				<div style="padding: 10px" >
-					<h4>{% trans "Get Discount" %}</h4>
+					<h4>{% trans "Check Available Discount" %}</h4>
 				</div>
 				<div>
 					<span id="errors">
@@ -28,12 +28,14 @@
 							</div>
 						{% endfor %}
 					{% endif %}
-					<div class="form-group">
-						<label class="font-weight-bold">{% trans "Tickets with discount" %}</label>
-						<div id="select_ticket_type" class="input-group input-group-lg mx-auto" style="width: 50%">
-							{{ form.tickets_type }}
+					{% if tickets_discounts.available %}
+						<div class="form-group">
+							<label class="font-weight-bold">{% trans "Choose an available discount" %}</label>
+							<div id="select_ticket_type" class="input-group input-group-lg mx-auto" style="width: 50%">
+								{{ form.tickets_type }}
+							</div>
 						</div>
-					</div>
+					{% endif %}
 					<div id="form-members-numbers" class="form-group">
 						<label class="font-weight-bold">{% trans "Enter your member number" %}</label>
 						<div id="input_field" class="input-group input-group-lg mx-auto" style="width: 50%;">
