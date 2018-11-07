@@ -75,7 +75,6 @@ from bundesliga_app.mocks import (
     get_mock_event_tickets_api_free,
     get_mock_event_tickets_api_paid,
     get_mock_event_tickets_api_paid_inverse_position,
-    get_mock_event_ticket,
 )
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
@@ -2311,7 +2310,7 @@ class ListingPageEventViewTest(TestCase):
         )
 
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
-    @patch('bundesliga_app.views.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_free)
+    @patch('bundesliga_app.views.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_free())
     def test_get_tickets_free_event(self,
                                     mock_get_venue_eb_api,
                                     mock_get_event_eb_api,

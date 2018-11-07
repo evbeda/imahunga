@@ -19,13 +19,6 @@ def get_mock_event_api_free(*args, **kwargs):
     return MOCK_EVENT_API_COPY
 
 
-def get_mock_event_ticket(*args, **kwargs):
-    ticket = {}
-    ticket[MOCK_EVENT_TICKETS[0][2]['id']] = copy.deepcopy(
-        MOCK_EVENT_TICKETS[0][2])
-    return ticket
-
-
 def get_mock_event_tickets_api_free(*args, **kwargs):
     return []
 
