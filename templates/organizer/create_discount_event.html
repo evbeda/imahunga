@@ -17,20 +17,12 @@
 		</div>
 
 		{% if form.errors %}
-	    {% for field in form %}
-	        {% for error in field.errors %}
-	            <div class="alert alert-danger">
-	                <strong>{{ error|escape }}</strong>
-	            </div>
-	        {% endfor %}
-	    {% endfor %}
-
-	    {% for error in form.non_field_errors %}
-	        <div class="alert alert-danger">
-	            <strong>{{ error|escape }}</strong>
-	        </div>
-	    {% endfor %}
-	{% endif %}
+		    {% for error in form.non_field_errors %}
+		        <div class="alert alert-danger">
+		            <strong>{{ error|escape }}</strong>
+		        </div>
+		    {% endfor %}
+		{% endif %}
 	{% if has_discount_ticket_type %}
 			<div class="alert alert-warning">
 	            <strong>{% trans "You have ticket discounts. If you create a discount for an event the ticket discounts will be deleted." %}</strong>
@@ -44,6 +36,11 @@
 				<div  class="input-group input-group-lg">
 					{{form.discount_name}}
 				</div>
+					{% if form.discount_name.errors %}
+					<div class="alert alert-danger mt-3">
+	                	<strong>{{ form.discount_name.errors|escape }}</strong>
+	            	</div>
+	            	{% endif %}
 				<div class="form-group mt-3">
 					<label class="font-weight-bold">{% trans "Discount amount" %}</label>
 				</div>
@@ -53,8 +50,13 @@
 						<span class="input-group-text">%</span>
 					</div>
 				</div>
+				{% if form.discount_value.errors %}
+					<div class="alert alert-danger mt-3">
+	                	<strong>{{ form.discount_value.errors|escape }}</strong>
+	            	</div>
+	            {% endif %}
 
-			<div class="float-right mt-5 col-2">
+			<div class="float-right mt-3 col-2">
 				<button class="btn btn-success col-12" onclick="this.disabled=true; this.form.submit();">{% trans "Save" %}</button>
 			</div>
 			</div>
