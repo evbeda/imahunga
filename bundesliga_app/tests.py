@@ -2076,6 +2076,24 @@ class LandingPageBuyerViewTest(TestCase):
 
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
+    def test_get_discount_event(self,
+                                mock_get_event_tickets_eb_api,
+                                mock_get_event_eb_api):
+        discount = EventDiscountFactory(
+            event=self.events[0],
+            value=100.0,
+            value_type="percentage",
+        )
+        self.response = self.client.get(
+            '/landing_page/{}/'.format(self.organizer.id)
+        )
+        self.assertEqual(
+            self.response.context['events'][self.events[0].id]['discounts'][discount.id]['id'],
+            discount.id,
+        )
+
+    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
+    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
     def test_get_discount_if_exists_2(self,
                                       mock_get_event_tickets_eb_api,
                                       mock_get_event_eb_api):
