@@ -2,40 +2,7 @@
 {% block content %}
 {% load static %}
 {% load i18n %}
-<head>
-	<script type="text/javascript">
-		$(document).ready(function(){
-			$("#event_name_box").hide()
-			$("#event_name_box").css({'font-size':'1.3em'})
-			$("#event_tickets").hide()
-			$("#get_discount").hide()
-
-			$("#btn_get_discount").click(function(event){
-				event.preventDefault();
-				if($("#get_discount").is(":visible")){
-					$("#get_discount").hide()
-				}else{
-					$("#get_discount").show()
-				}
-			});
-		});
-		$(window).scroll(function(e){
-			  var $el = $('.fixedElement');
-			  var isPositionFixed = ($el.css('position') == 'fixed');
-			  if ($(this).scrollTop() > 450 && !isPositionFixed){
-			    $el.css({'position': 'fixed', 'top': '0px', 'width':'75%', 'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)','z-index':'100'});
-			    	$("#event_name_box").show()
-			    	$("#event_tickets").show()
-			  }
-			  if ($(this).scrollTop() < 450 && isPositionFixed){
-			    $el.css({'position': 'static', 'top': '0px','width':'100%', 'box-shadow':'none' });
-			    $("#event_name_box").hide()
-			    $("#event_tickets").hide()
-			  }
-		});
-	</script>
-</head>
-<body style=" background: linear-gradient(to bottom,#EBDCE6 20%, #EEEDF2 80% ); background-repeat: no-repeat;">
+<body class="listing-page-body">
 	<div class="container mt-5 mb-3 justify-content-center">
 		<div >
 			<!-- Listing Header -->
@@ -44,7 +11,7 @@
 					<div tabindex="-1" class="eds-media-card-content__action-link">
 						<div class="eds-media-card-content__image-wrapper">
 							<div class="eds-media-card-content__image-content">
-								<div class="eds-media-card-content__image-placeholder" style="background-color:#EEEDF2;">
+								<div class="eds-media-card-content__image-placeholder card-background-color">
 								</div>
 								{% if event.logo %}
 									<img class="eds-media-card-content__image eds-max-img" src="{{event.logo.original.url}}" alt="{% trans "Event image" %}"/>
@@ -55,11 +22,11 @@
 						</div>
 					</div>
 				</aside>
-				<main class="eds-media-card-content__content-container" style="background-color:#ffffff;">
+				<main class="eds-media-card-content__content-container landing-body">
 					<div class="eds-media-card-content__content" >
 						<div class="eds-media-card-content__extra-content">
 							<div class="eds-media-card-content__extra-content">
-								<div class="date-thumbnail eds-text--left eds-l-mar-top-1" style="top: 30; position: absolute">
+								<div class="date-thumbnail eds-text--left eds-l-mar-top-1 date-thumnail-listing">
 									<p class="date-thumbnail__month eds-text-color--ui-orange eds-text-bs">
 										{{ event.start_date | date:"M" | upper}}
 									</p>
@@ -85,10 +52,10 @@
 								</div>
 							</div>
 							<div class="eds-media-card-content__sub-content">
-								<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-bot-4" style="bottom: 0;position: absolute">
+								<div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-bot-4 card-subcontent-listing">
 									{% if event.is_free %}
 										<div class="eds-media-card-content__flag eds-text-bs eds-text-color--grey-600">
-											<span class="eds-text-color--grey-700" style="color: green">{% trans "Free" %}
+											<span class="eds-text-color--grey-700 msg-listing-free">{% trans "Free" %}
 											</span>
 										</div>
 									{% else %}
@@ -138,14 +105,14 @@
 			</section>
 		</div>
 		<!-- Listing Get Discount -->
-		<div class="fixedElement" style="background-color: #ffffff">
+		<div class="fixedElement landing-body">
 		<hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
-		<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--absolute eds-l-pad-all-2" role="presentation" style="background-color: #ffffff">
+		<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--absolute eds-l-pad-all-2 landing-body" role="presentation">
 			<aside class="eds-media-card-content__image-container" >
 				<div id="event_name_box" >
 					<p>{{event.name.text}}</p>
 				</div>
-				<div id="event_tickets" style="margin-left: 30px" >
+				<div id="event_tickets" class="ml-5">
 					{% if event.is_free%}
 						<div> {% trans "Free" %} </div>
 					{% else %}
@@ -179,11 +146,11 @@
 						<div class="eds-media-card-content__primary-content">
 							<div id="get_discount_box" class="eds-media-card-content__primary-content">
 									{% if tickets_discounts.available or event_discount.available %}
-		                                <button id="btn_get_discount"class="eds-btn eds-btn--button eds-btn--fill" type="button" style="width: 100%">
+		                                <button id="btn_get_discount" class="eds-btn eds-btn--button eds-btn--fill width-100" type="button" >
 												{% trans "Check Available Discount" %}
 		                                </button>
                                     {% else %}
-		                                <button class="eds-btn eds-btn--button eds-btn--fill" type="button" onclick="window.open('{{ event.url }}', '_blank')" style="width: 100%">
+		                                <button class="eds-btn eds-btn--button eds-btn--fill width-100" type="button" onclick="window.open('{{ event.url }}', '_blank')" >
 		                                     {% trans "Tickets" %}
 		                                </button>
                                     {% endif %}
@@ -196,21 +163,21 @@
 		<hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
 		</div>
 		<!-- Get Discount -->
-		<div id="get_discount" style="background-color: #ffffff">
+		<div id="get_discount" class="landing-body">
 			{% include 'buyer/get_discount.html' with organizer_id=organizer.id event_id=event_id %}
 		</div>
 		 <!-- Listing Body -->
-        <section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--fixed eds-l-pad-top-10" role="presentation" style="background-color: #ffffff; padding-bottom:20px;">
+        <section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--fixed eds-l-pad-top-10 landing-body pb-4" role="presentation">
             <aside class="eds-media-card-content__image-container" >
                 <div class="eds-media-card-content__content">
-                    <div class="eds-media-card-content__content__principal" style="top: 0; padding-left: 20px ">
+                    <div class="eds-media-card-content__content__principal listing-card-content">
                         <div class="eds-media-card-content__primary-content">
-                            <div class="eds-field-styled__input" style="color:black;">
+                            <div class="eds-field-styled__input listing-title-color">
                             <strong>{% trans "DESCRIPTION" %}</strong>
                             </div>
                         </div>
                         <div class="eds-media-card-content__sub-content">
-                            <div class="eds-text-bs--fixed eds-l-mar-top-4" style="line-height: 200%;">
+                            <div class="eds-text-bs--fixed eds-l-mar-top-4 listing-description">
                                 {% if event.description.text %}
                                 		{{ event.description.html | safe}}
                                 {% else %}
@@ -224,13 +191,13 @@
             <main class="eds-media-card-content__content-container">
                 <div class="eds-media-card-content__content">
                 	{% if event.description.text %}
-                    <div class="eds-media-card-content__content__principal" style="top: 40; position: absolute;">
+                    <div class="eds-media-card-content__content__principal top-40-absolute">
                     {% else %}
-                    <div class="eds-media-card-content__content__principal" style="top: 40; position: static;">
+                    <div class="eds-media-card-content__content__principal top-40-static">
                     {% endif %}
                         <div class="eds-media-card-content__primary-content">
                             <div class="eds-media-card-content__primary-content" >
-                            <div class="eds-field-styled__input" style="color:black">
+                            <div class="eds-field-styled__input listing-title-color">
                             <strong >{% trans "DATE AND TIME" %}</strong>
                             </div>
                         </div>
@@ -250,10 +217,10 @@
         <hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
         <!-- Maps -->
         {% if event.venue_id %}
-        <div style="background-color: #ffffff; padding-left: 20px; padding-top: 10px">
+        <div class="landing-body pl-3 pt-2">
 	        <div class="eds-align--left">
 	            <div class="eds-media-card-content__sub-content">
-	                <div class="eds-field-styled__input" style="color:black;">
+	                <div class="eds-field-styled__input listing-title-color">
 	                <strong>{% trans "LOCATION" %}</strong>
 	                {% if venue.name %}
 	                    <div class="eds-text-bs--fixed eds-text-color--grey-600 eds-l-mar-top-1">
@@ -269,20 +236,20 @@
 	            </div>
 			</div>
 		</div>
-       		<div class="eds-align--center" style="background-color: #ffffff; padding-top: 10px; padding-bottom: 10px">
+       		<div class="eds-align--center landing-body pt-2 pb-2">
 	        	{% if venue.name %}
-	        		<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.name}},{{venue.address.city}},{{venue.address.country}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.name}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="{% trans "Event's venue map" %}" style="">
+	        		<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.name}},{{venue.address.city}},{{venue.address.country}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.name}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="{% trans "Event's venue map" %}">
 	        	{% elif venue.address.localized_address_display %}
-					<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.address.localized_address_display}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.address.localized_address_display}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="{% trans "Event's venue map" %}" style="">
+					<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.address.localized_address_display}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.address.localized_address_display}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="{% trans "Event's venue map" %}" >
 	        	{% else %}
-	        		<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.address.city}},{{venue.address.country}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.address.city}},{{venue.address.country}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="{% trans "Event's venue map" %}" style="">
+	        		<img src="https://maps.googleapis.com/maps/api/staticmap?center={{venue.address.city}},{{venue.address.country}}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7Clabel:%7C{{venue.address.city}},{{venue.address.country}}&key=AIzaSyCsKvO5sQRznZIbbKJ1u_XOiiQrOTY6PxY" alt="{% trans "Event's venue map" %}">
 	        	{% endif %}
 	        </div>
         {% endif %}
         <!-- Listing details -->
         <hr class="eds-divider__hr eds-bg-color--grey-200 eds-divider--horizontal" data-spec="divider-hr" aria-hidden="true"/>
-		<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--absolute eds-l-pad-all-2 eds-align--center " role="presentation" style="background-color: #ffffff">
-			<div style="text-align: center">
+		<section class="eds-media-card-content eds-media-card-content--grid eds-media-card-content--hero eds-media-card-content--absolute eds-l-pad-all-2 eds-align--center landing-body" role="presentation" >
+			<div class="text-center">
 				<strong>{{event.name.text}}</strong>
 				<br>
 				<p>By</p>
@@ -299,6 +266,36 @@
 			</div>
 		</section>
     </div>
+    <script>
+        $(document).ready(function(){
+            $("#event_name_box").hide()
+            $("#event_name_box").css({'font-size':'1.3em'})
+            $("#event_tickets").hide()
+            $("#get_discount").hide()
+            $("#btn_get_discount").click(function(event){
+                event.preventDefault();
+                if($("#get_discount").is(":visible")){
+                    $("#get_discount").hide()
+                }else{
+                    $("#get_discount").show()
+                }
+            });
+        });
+        $(window).scroll(function(e){
+              var $el = $('.fixedElement');
+              var isPositionFixed = ($el.css('position') == 'fixed');
+              if ($(this).scrollTop() > 450 && !isPositionFixed){
+                $el.css({'position': 'fixed', 'top': '0px', 'width':'75%', 'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)','z-index':'100'});
+                    $("#event_name_box").show()
+                    $("#event_tickets").show()
+              }
+              if ($(this).scrollTop() < 450 && isPositionFixed){
+                $el.css({'position': 'static', 'top': '0px','width':'100%', 'box-shadow':'none' });
+                $("#event_name_box").hide()
+                $("#event_tickets").hide()
+              }
+        });
+    </script>
 </body>
 {% endblock %}
 
