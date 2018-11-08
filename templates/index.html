@@ -2,6 +2,7 @@
 {% block content %}
 {% load static %}
 {% load i18n %}
+{% load pagination_tags %}
 
 <script>
 	$(document).ready(function(){
@@ -127,6 +128,9 @@
 		</div>
 	</div>
 	{% endif %}
+	<div class="mx-auto" style="width: 50%">
+		{% paginate using "pagination.html" %}
+	</div>
 </div>
 {% endblock %}
 

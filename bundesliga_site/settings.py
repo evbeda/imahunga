@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'social_django',
     'bundesliga_app',
     'snowpenguin.django.recaptcha2',
+    'dj_pagination',
 ]
 
 MIDDLEWARE = [
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'bundesliga_site.middleware.SocialAuthExceptionMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'dj_pagination.middleware.PaginationMiddleware',
 ]
 
 ROOT_URLCONF = 'bundesliga_site.urls'
