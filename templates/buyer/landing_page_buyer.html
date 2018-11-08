@@ -2,10 +2,10 @@
 {% block content %}
 {% load static %}
 {% load i18n %}
-<body style="background-color: #ffffff">
+<body class="landing-body">
 <div class="container mt-5 mb-3 justify-content-center">
 		<h1>
-		{{ organizer.first_name }} {{ organizer.last_name }}'s Events
+		{{ organizer.first_name }} {{ organizer.last_name }}{% trans "'s Events" %}
 		</h1>
 		<hr>
 
@@ -17,8 +17,7 @@
         			<aside class="eds-media-card-content__image-container">
         				<div class="eds-media-card-content__image-wrapper eds-media-card-content__image-wrapper--with-width">
         					<div class="eds-media-card-content__image-content">
-        						<div class="eds-media-card-content__image-placeholder" style="background-color:#EEEDF2;">
-
+        						<div class="eds-media-card-content__image-placeholder card-background-color">
         						</div>
         						{% if event.logo %}
         							<img class="eds-media-card-content__image eds-max-img" src={{event.logo.url}} alt="Event image"/>

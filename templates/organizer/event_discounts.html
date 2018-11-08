@@ -42,27 +42,27 @@
 				</div>
 			</div>
 		</div>
-		<script>
+		<script type="text/javascript">
 			$(function() {
-			$('#discount_type_select').change(function(){
-			$('#event_discount').hide();
-			$('#ticket_discount').hide();
-			$('#' + $(this).val()).show();
-			$('#selected_value_discount_type').text($("#discount_type_select option:selected").text());
-			});
+			    $('#discount_type_select').change(function(){
+			        $('#event_discount').hide();
+			        $('#ticket_discount').hide();
+			        $('#' + $(this).val()).show();
+			        $('#selected_value_discount_type').text($("#discount_type_select option:selected").text());
+			    });
 			});
 			$(function() {
-				if( "{{has_discount}}" == 'Event' ){
-				$('#ticket_discount').hide();
-				$('#discount_type_select').val("event_discount")
-				}else if( "{{has_discount}}" == 'Ticket' ){
-					$('#event_discount').hide();
-					$('#discount_type_select').val("ticket_discount")
-				}else{
-					$('#ticket_discount').hide();
-					$('#event_discount').hide();
-				}
-				$('#selected_value_discount_type').text($("#discount_type_select option:selected").text());
+			    if( "{{has_discount}}" == 'Event' ){
+			        $('#ticket_discount').hide();
+			        $('#discount_type_select').val("event_discount")
+			    }else if( "{{has_discount}}" == 'Ticket' ){
+			        $('#event_discount').hide();
+			        $('#discount_type_select').val("ticket_discount")
+			    }else{
+			        $('#ticket_discount').hide();
+			        $('#event_discount').hide();
+			    }
+			    $('#selected_value_discount_type').text($("#discount_type_select option:selected").text());
 			});
 		</script>
 	</div>
@@ -112,23 +112,23 @@
 							<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
 								<p>
 									<a href="{% url 'modify_discount_ticket_type' event_id ticket_type_id  ticket_type.discount.id %}">
-										<img style="height:25px"; src="{% static 'images/settings.png' %}">
+										<img class="navbar-header-img" src="{% static 'images/settings.png' %}">
 									</a>&nbsp;&nbsp;&nbsp;
 									<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' event_id ticket_type.discount.id %}">
-										<img style="height:25px"; src="{% static 'images/garbage-can.png' %}">
+										<img class="navbar-header-img" src="{% static 'images/garbage-can.png' %}">
 									</a>
 								</p>
 							</div>
-							<script>
-									$('#modal').on('show.bs.modal', function (event) {
-									var modal = $('#modal')
-									$.ajax({
-									url: "{% url 'delete_discount' event_id ticket_type.discount.id %}",
-									context: document.body
-									}).done(function(response) {
-									modal.html(response);
-									});
-									});
+							<script type="text/javascript">
+								$('#modal').on('show.bs.modal', function (event) {
+								    var modal = $('#modal')
+								    $.ajax({
+								        url: "{% url 'delete_discount' event_id ticket_type.discount.id %}",
+								        context: document.body
+								    }).done(function(response) {
+								        modal.html(response);
+								    });
+								});
 							</script>
 						{% else %}
 							<div class="eds-l-pad-hor-4 eds-g-cell eds-g-cell-8-12">
@@ -138,7 +138,7 @@
 							<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
 								<p>
 									<a href="{% url 'create_discount_ticket_type' event_id ticket_type_id %}">
-										<img style="height:25px"; src="{% static 'images/add.png' %}">
+										<img class="navbar-header-img" src="{% static 'images/add.png' %}">
 									</a>&nbsp;&nbsp;&nbsp;
 								</p>
 							</div>
@@ -187,23 +187,23 @@
 						<div class="eds-g-cell eds-g-cell-3-12 eds-g-cell-mn-2-12 eds-g-cell--has-overflow">
 							<p>
 								<a href="{% url 'modify_discount_event' event_id event_discount.id %}">
-									<img style="height:25px"; src="{% static 'images/settings.png' %}">
+									<img class="navbar-header-img" src="{% static 'images/settings.png' %}">
 								</a>&nbsp;&nbsp;&nbsp;
 								<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' event_id event_discount.id %}">
-									<img style="height:25px"; src="{% static 'images/garbage-can.png' %}">
+									<img class="navbar-header-img" src="{% static 'images/garbage-can.png' %}">
 								</a>
 							</p>
 						</div>
-						<script>
-								$('#modal').on('show.bs.modal', function (event) {
-								var modal = $('#modal')
-								$.ajax({
-								url: "{% url 'delete_discount' event_id event_discount.id %}",
-								context: document.body
-								}).done(function(response) {
-								modal.html(response);
-								});
-								});
+						<script type="text/javascript">
+							$('#modal').on('show.bs.modal', function (event) {
+							    var modal = $('#modal')
+							    $.ajax({
+							        url: "{% url 'delete_discount' event_id event_discount.id %}",
+							        context: document.body
+							    }).done(function(response) {
+							        modal.html(response);
+							    });
+							});
 						</script>
 					</div>
 				</div>

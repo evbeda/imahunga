@@ -208,6 +208,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CACHE_TTL = 60 * 30
+CACHE_TTL_TICKETS = 60 * 10
 
 REDIS_URL = get_env_variable('REDIS_URL')
 CACHES = {

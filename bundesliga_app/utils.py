@@ -15,7 +15,7 @@ from json import loads
 from django.core.cache import cache
 from django.conf import settings
 CACHE_TTL = getattr(settings, "CACHE_TTL")
-
+CACHE_TTL_TICKETS = getattr(settings, "CACHE_TTL_TICKETS")
 
 class EventAccessMixin(object):
     """
@@ -148,7 +148,7 @@ def get_event_tickets_eb_api(token, event_id):
                 '/events/{}/ticket_classes/'.format(event_id)
             )['ticket_classes']
         ]
-        cache.set('tickets-' + event_id, tickets, timeout=CACHE_TTL)
+        cache.set('tickets-' + event_id, tickets, timeout=CACHE_TTL_TICKETS)
     return tickets
 
 

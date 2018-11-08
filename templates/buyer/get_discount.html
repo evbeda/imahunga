@@ -1,12 +1,9 @@
 {% block content %}
 	{% load static %}
 	{% load i18n %}
-	<head>
-		<script src='https://www.google.com/recaptcha/api.js'></script>
-	</head>
 		<form id="get_discount_form" class="text-center" id="get_discount_form" method="POST">
 			{% csrf_token %}
-				<div style="padding: 10px" >
+				<div class="p-3" >
 					<h4>{% trans "Check Available Discount" %}</h4>
 				</div>
 				<div>
@@ -16,7 +13,7 @@
 						{% for field in form %}
 							<span id="errors_form">
 							{% for error in field.errors %}
-								<div class="alert alert-danger mx-auto" style="width: 50%">
+								<div class="alert alert-danger mx-auto width-50-percentage">
 									<strong>{{ error|escape }}</strong>
 								</div>
 							{% endfor %}
@@ -31,31 +28,31 @@
 					{% if tickets_discounts.available %}
 						<div class="form-group">
 							<label class="font-weight-bold">{% trans "Choose an available discount" %}</label>
-							<div id="select_ticket_type" class="input-group input-group-lg mx-auto" style="width: 50%">
+							<div id="select_ticket_type" class="input-group input-group-lg mx-auto width-50-percentage">
 								{{ form.tickets_type }}
 							</div>
 						</div>
 					{% endif %}
 					<div id="form-members-numbers" class="form-group">
 						<label class="font-weight-bold">{% trans "Enter your member number" %}</label>
-						<div id="input_field" class="input-group input-group-lg mx-auto" style="width: 50%;">
+						<div id="input_field" class="input-group input-group-lg mx-auto width-50-percentage">
 							{{ form.member_number_1 }}
-							<button  id="add_field" type="button" style="margin-left: 15px; background: transparent; border:none">
-								<img src="{% static 'images/add.png' %}" style="width: 20px">
+							<button  id="add_field" type="button">
+								<img id="add_field_img" src="{% static 'images/add.png' %}">
 							</button>
 						</div>
 					</div>
-					<div class="g-recaptcha mx-auto" data-sitekey="6LczwHgUAAAAAFx1D-Uo6shEcbaZO6egFpUo8oL-" style="width: 50%; margin-top: 20px; margin-bottom: 20px;"></div>
+					<div class="g-recaptcha mx-auto captcha-style" data-sitekey="6LczwHgUAAAAAFx1D-Uo6shEcbaZO6egFpUo8oL-"></div>
 				</div>
 				<div>
-					<button class="eds-btn eds-btn--button eds-btn--fill" id="retry" type="button" onclick="window.open('{{ event.url }}', '_blank')" style="display: none;">
+					<button class="eds-btn eds-btn--button eds-btn--fill" id="retry" type="button" onclick="window.open('{{ event.url }}', '_blank')">
 					{% trans "Continue without discount" %}
 					</button>
 					<input type="submit" id="submit_btn" class="eds-btn eds-btn--button eds-btn--fill" value="{% trans "Ok" %}"/>
 				</div>
 				<div id="loading">
 					<div>
-						<svg class="eds-progress-indicator--circular eds-fx--rotate" viewBox="0 0 100 100" style="width:20px;height:20px;" aria-valuetext="In progress">
+						<svg class="eds-progress-indicator--circular eds-fx--rotate" viewBox="0 0 100 100" id="spinner" aria-valuetext="In progress">
 						  <defs>
 							<linearGradient id="stroke-small-chunky-gradient-indeterminate">
 							  <stop offset="0%" stop-color="#4BE1A0"></stop>
@@ -69,49 +66,46 @@
 					</div>
 				</div>
 		</form>
+		<script src='https://www.google.com/recaptcha/api.js'></script>
 		<script>
-		var input_added = 2
-		$(document).ready(function(){
-			var form_options = {
-				target: '#get_discount_form',
-				dataType: 'json',
-				success: function(response) {
-					window.location.href=response.url
-					$("#loading").hide()
-					$("#submit_btn").show()
-				},
-				error: function(response){
-					document.getElementById('errors').innerHTML=$($.parseHTML(response.responseText)).find("#errors_form")[1].innerHTML;
-					$('#retry').show();
-					$('#submit_btn').val('Retry');
-					$("#loading").hide()
-					$("#submit_btn").show()
-					console.log(response)
-				}
-			}
-			$('#get_discount_form').ajaxForm(form_options);
-			var max_member_number = 10
-
-			$("#loading").hide()
-
-			$("#submit_btn").click(function(){
-				var invalidNumber = false
-				if(!($('[name=member_number_1]').val() == "")){
-					for (i = 2; i < input_added; i++) {
-    					if($('[name=member_number_' + i +']').val() == ""){
-    						invalidNumber = true
-    					}
-					}
-					if(!invalidNumber){
-						$("#submit_btn").hide()
-						$("#loading").show()
-						$("#retry").hide()
+			var input_added = 2
+			$(document).ready(function(){
+				var form_options = {
+					target: '#get_discount_form',
+					dataType: 'json',
+					success: function(response) {
+						window.location.href=response.url
+						$("#loading").hide()
+						$("#submit_btn").show()
+					},
+					error: function(response){
+						document.getElementById('errors').innerHTML=$($.parseHTML(response.responseText)).find("#errors_form")[1].innerHTML;
+						$('#retry').show();
+						$('#submit_btn').val('Retry');
+						$("#loading").hide()
+						$("#submit_btn").show()
+						console.log(response)
 					}
 				}
-
-			});
-
-			$("#add_field").on('click',function(){
+				$('#get_discount_form').ajaxForm(form_options);
+				var max_member_number = 10
+				$("#loading").hide()
+				$("#submit_btn").click(function(){
+					var invalidNumber = false
+					if(!($('[name=member_number_1]').val() == "")){
+						for (i = 2; i < input_added; i++) {
+	    					if($('[name=member_number_' + i +']').val() == ""){
+	    						invalidNumber = true
+	    					}
+						}
+						if(!invalidNumber){
+							$("#submit_btn").hide()
+							$("#loading").show()
+							$("#retry").hide()
+						}
+					}
+				});
+				$("#add_field").on('click',function(){
 				if(input_added <= max_member_number){
 					var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder="Insert your member number here" required/><input name="remove_number_' + input_added + '" type="button" value="X" onclick="remove('+ input_added +')" style="background: transparent; border: none; margin: 20px"/></div>';
 					// console.log(member_input)

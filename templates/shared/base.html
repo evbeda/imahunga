@@ -18,30 +18,30 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.evbstatic.com/s3-build/30226-rc2018-10-03_16.04-d2023ac/js/node_modules/eventbrite_design_system/css/eds.css">
 </head>
 <body>
-    <div class= "navbar-wrapper" style="background-color: #1E0A3C">
+    <div class= "navbar-wrapper navbar-div">
         <nav class="navbar navbar-expand-lg" id="navbar_whole">
-            <div class="navbar-header" style="height: 35px;">
+            <div class="navbar-header navbar-header-own">
             </div>
             {% if user.is_authenticated %}
-            <div class="navbar-header" style="height: 35px;">
+            <div class="navbar-header navbar-header-own">
                 <a href="{% url 'index' %}" class="navbar-brand">
-                    <img class="mr-5 ml-2 mt-1" style="width: 25px; height: 25px;"src="{% static 'images/home-button.png'%}">
+                    <img class="mr-5 ml-2 mt-1 navbar-header-img" src="{% static 'images/home-button.png'%}">
                 </a>
             </div>
             <div class="nav navbar-nav ml-auto">
-                <a class="row" style="color: #FFFFFF" href="{% url 'logout' %}">
+                <a class="row a-navbar-logout" href="{% url 'logout' %}">
                     <p class="mr-1">{% trans "Logout" %}</p>
-                    <img class="mr-5 ml-2 mt-1"style="width: 15px; height: 15px;"src="{% static 'images/logout.png'%}">
+                    <img class="mr-5 ml-2 mt-1 img-w15-h15" src="{% static 'images/logout.png'%}">
                 </a>
             </div>
             {% endif %}
         </nav>
     </div>
-    <div class="container" style="margin-bottom: 60px;">
+    <div class="container m-bottom">
         {% block content %}
         {% endblock %}
     </div>
-    <footer class="eds-global-footer eds-g-grid l-mar-top-2" style="z-index: 99;">
+    <footer class="eds-global-footer eds-g-grid l-mar-top-2 footer-z-index">
         <h2 class="eds-is-hidden-accessible">{% trans "Site Navigation" %}</h2>
         <div class="eds-global-footer__base eds-g-grid eds-l-pad-hor-6">
             <div class="eds-global-footer__copyright eds-g-cell eds-g-cell-12-12 eds-g-cell-mn-2-12 eds-l-pad-vert-4"></div>
@@ -54,13 +54,13 @@
                         <div class="eds-text--left">
                             <ul id="language-list">
                                 <a href="{% url 'activate_language' 'en' %}" >
-                                    <img src="{% static 'images/en-flag.png'%}" name="en" style="height: 15px;">
+                                    <img src="{% static 'images/en-flag.png'%}" name="en" class="img-w15-h15">
                                 </a>&nbsp;&nbsp;
                                 <a href="{% url 'activate_language' 'es' %}" >
-                                    <img src="{% static 'images/es-flag.png'%}" name="es" style="height: 15px;">
+                                    <img src="{% static 'images/es-flag.png'%}" name="es" class="img-w15-h15">
                                 </a>&nbsp;&nbsp;
                                 <a href="{% url 'activate_language' 'de' %}">
-                                    <img src="{% static 'images/ge-flag.png'%}" name="de" style="height: 15px;">
+                                    <img src="{% static 'images/ge-flag.png'%}" name="de" class="img-w15-h15">
                                 </a>
                             </ul>
                         </div>

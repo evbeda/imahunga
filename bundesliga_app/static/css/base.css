@@ -1,11 +1,206 @@
 footer{
-	width: 100%;
-	height: 50px;
-	background-color: #1E0A3C;
-	position: fixed;
-	bottom: 0;
+    width: 100%;
+    height: 50px;
+    background-color: #1E0A3C;
+    position: fixed;
+    bottom: 0;
 }
 
 body{
-	background-color: #F8F7FA;
+    background-color: #F8F7FA;
+}
+
+.width-50-percentage{
+    width: 50%
+}
+
+#add_field{
+    margin-left: 15px;
+    background: transparent;
+    border:none;
+}
+
+#add_field_img{
+    width: 20px;
+}
+
+.captcha-style{
+    width: 50%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#retry{
+    display: none;
+}
+
+.height-100{
+    height:100px;
+}
+
+.width-100{
+    width: 100px;
+}
+
+#spinner{
+    width:20px;
+    height:20px;
+}
+
+.input_added{
+    background: transparent;
+    border: none;
+    margin: 20px;
+}
+
+.navbar-div{
+    background-color: #1E0A3C;
+}
+
+.navbar-header-own{
+    height: 35px;
+}
+
+.navbar-header-img{
+    width: 25px;
+    height: 25px;
+}
+
+.a-navbar-logout{
+    color: #FFFFFF;
+}
+
+.img-w15-h15{
+    width: 15px;
+    height: 15px;
+}
+
+.m-bottom{
+    margin-bottom: 60px;
+}
+
+.footer-z-index{
+    z-index: 99;
+}
+
+.landing-body{
+    background-color: #ffffff;
+}
+
+.card-background-color{
+    background-color:#EEEDF2;
+}
+
+.listing-page-body{
+    background: linear-gradient(to bottom,#EBDCE6 20%, #EEEDF2 80% );
+    background-repeat: no-repeat;
+}
+
+.date-thumnail-listing{
+    top: 30;
+    position: absolute;
+}
+
+.card-subcontent-listing{
+    bottom: 0;
+    position: absolute;
+}
+
+.msg-listing-free{
+    color: green;
+}
+
+.width-100{
+    width: 100%;
+}
+
+.listing-card-content{
+    top: 0;
+    padding-left: 20px;
+}
+
+.listing-title-color{
+    color:black;
+}
+
+.listing-description{
+    line-height: 200%;
+}
+
+.top-40-absolute{
+    top: 40;
+    position: absolute;
+}
+
+.top-40-static{
+    top: 40;
+    position: static;
+}
+
+.height-25{
+    height:25px;
+}
+
+.cursor-initial{
+    cursor: initial;
+}
+
+.a-login-button{
+    background-color:#F45204;
+    border-color: #F45204;
+    color: white;
+    box-shadow: none;
+}
+
+.a-login-button:not(:disabled):not(.disabled):active {
+    background-color:#E04700;
+    border-color: #E04700;
+    color: white;
+    box-shadow: none;
+    text-decoration: none;
+}
+
+.a-login-button:not(:disabled):not(.disabled):active:focus{
+    box-shadow: none;
+}
+
+.a-login-button:focus {
+    background-color:#E04700;
+    border-color: #E04700;
+    color: white;
+    box-shadow: none;
+    text-decoration: none;
+
+}
+
+.a-login-button:hover {
+    background-color:#E04700;
+    border-color:#E04700;
+    color: white;
+}
+
+.popover{
+    max-width: 500px;
+    width: 310px;
+    z-index: 1060;
+    display: block;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: start;
+    text-decoration: none;
+    text-shadow: none;
+    text-transform: none;
+    letter-spacing: normal;
+    word-break: normal;
+    word-spacing: normal;
+    white-space: normal;
+    line-break: auto;
+    font-size: .875rem;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: .3rem;
 }

@@ -2,11 +2,9 @@
 {% load static %}
 {% block content %}
 {% load i18n %}
-  <head>
     <script type="text/javascript" src="{% static 'js/double_click.js' %}"></script>
-  </head>
-	<div class="modal-dialog" style="background-color: #ffffff;" >
-		<div class="modal-content mx-auto" style="padding-left: 10%;padding-right: 10%;">
+	<div class="modal-dialog landing-body">
+		<div class="modal-content mx-auto pl-5 pr-5">
 		<form id="discount_form" action="{% url 'delete_discount' event.id discount.id %}" method="post">
 			<div class="modal-body">
 
