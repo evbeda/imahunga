@@ -2,23 +2,15 @@ from django.test import (
     TestCase,
     RequestFactory,
 )
-from unittest import skip
 from .factories import (
     AuthFactory,
-    DiscountTypeFactory,
-    DiscountFactory,
-    EventDiscountFactory,
-    TicketTypeDiscountFactory,
-    EventFactory,
-    EventTicketTypeFactory,
-    OrganizerFactory,
     DiscountCodeFactory,
-    StatusMemberDiscountCodeFactory,
+    EventFactory,
+    EventDiscountFactory,
+    EventTicketTypeFactory,
     MemberDiscountCodeFactory,
-)
-from .views import (
-    SelectEvents,
-    ActivateLanguageView,
+    OrganizerFactory,
+    TicketTypeDiscountFactory,
 )
 from django.views.generic.base import TemplateView
 from mock import patch
@@ -26,49 +18,43 @@ from django.apps import apps
 from urllib.parse import urlencode
 from bundesliga_app.apps import BundesligaAppConfig
 from bundesliga_app.utils import (
-    get_auth_token,
     EventAccessMixin,
     DiscountAccessMixin,
+    check_discount_code_in_eb,
+    get_auth_token,
     get_user_eb_api,
     get_events_user_eb_api,
     get_event_eb_api,
     get_venue_eb_api,
     get_event_tickets_eb_api,
-    check_discount_code_in_eb,
     post_ticket_discount_code_to_eb,
+    post_event_discount_code_to_eb,
     validate_member_number_ds,
-    delete_discount_code_from_eb,
 )
 from .models import (
-    Discount,
-    TicketTypeDiscount,
-    EventDiscount,
+    DiscountCode,
     DiscountType,
+    EventDiscount,
     Event,
     EventTicketType,
     MemberDiscountCode,
-    DiscountCode,
     StatusMemberDiscountCode,
+    TicketTypeDiscount,
 )
-from .forms import GetDiscountForm
 from bundesliga_app.mocks import (
+    MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES,
+    MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES_ONE_USED,
+    MOCK_DISCOUNT_EXISTS_IN_EB_ONE_USE_NOT_USED,
+    MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE,
     MOCK_DS_API_VALID_NUMBER,
     MOCK_DS_API_INVALID_NUMBER,
     MOCK_DS_API_INVALID_REQUEST,
-    MOCK_EVENT_API,
-    MOCK_USER_API,
-    MOCK_LIST_EVENTS_API,
-    MOCK_VENUE_API,
     MOCK_EVENT_TICKETS,
-    MOCK_DISCOUNT_DOESNT_EXIST_IN_EB,
-    MOCK_POST_DISCOUNT_CODE_TO_EB,
-    MOCK_DISCOUNT_EXISTS_IN_EB_NO_USAGE,
-    MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE,
-    MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES,
-    MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES_ONE_USED,
+    MOCK_LIST_EVENTS_API,
+    MOCK_USER_API,
+    MOCK_VENUE_API,
     MOCK_UPDATE_DISCOUNT_CODE_TO_EB_USES_LEFT,
     MOCK_UPDATE_DISCOUNT_CODE_TO_EB,
-    MOCK_DISCOUNT_EXISTS_IN_EB_ONE_USE_NOT_USED,
     get_mock_events_api,
     get_mock_event_api_without_venue,
     get_mock_event_api_free,
@@ -201,15 +187,30 @@ class UtilsApiEBTest(TestCase):
     @patch('bundesliga_app.utils.Eventbrite.post', return_value={'id': '1'})
     @patch('bundesliga_app.views.get_user_eb_api', return_value=MOCK_USER_API)
     @patch('bundesliga_app.utils.get_auth_token', return_value={})
-    def test_post_discount_code_to_eb(
+    def test_post_ticket_discount_code_to_eb(
         self,
-        mock_get_auth_toke,
+        mock_get_auth_token,
         mock_get_user_eb_api,
         mock_api_post_call,
         mock_api_get_call
     ):
         mock_api_get_call.return_value = {'id': 1}
         result = post_ticket_discount_code_to_eb('TEST', '1', '1', '20', '1', '1')
+        mock_api_post_call.assert_called_once()
+        self.assertEquals(result['id'], '1')
+
+    @patch('bundesliga_app.utils.Eventbrite.post', return_value={'id': '1'})
+    @patch('bundesliga_app.views.get_user_eb_api', return_value=MOCK_USER_API)
+    @patch('bundesliga_app.utils.get_auth_token', return_value={})
+    def test_post_event_discount_code_to_eb(
+        self,
+        mock_get_auth_token,
+        mock_get_user_eb_api,
+        mock_api_post_call,
+        mock_api_get_call
+    ):
+        mock_api_get_call.return_value = {'id': 1}
+        result = post_event_discount_code_to_eb('TEST', '1', '1', '20', '1')
         mock_api_post_call.assert_called_once()
         self.assertEquals(result['id'], '1')
 
@@ -1798,6 +1799,36 @@ class SelectEventsViewTest(TestBase):
             0,
         )
 
+    @patch('bundesliga_app.views.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
+    def test_post_event_update_delete_event_discount(self,
+                                                     mock_get_event_tickets_eb_api,
+                                                     mock_get_events_user_eb_api,
+                                                     mock_get_user_eb_api,
+                                                     ):
+        event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+            event_id=event_mock_api_eb['id'],
+        )
+        self.discount = EventDiscountFactory(
+            event=self.event,
+        )
+        self.response = self.client.post(
+            path='/select_events/',
+        )
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(Event.objects.filter(event_id=event_mock_api_eb['id'])),
+            1,
+        )
+        self.assertEqual(
+            len(EventDiscount.objects.filter(
+                event=self.event)
+                ),
+            0,
+        )
+
     def test_post_event_update_unselect(self,
                                         mock_get_events_user_eb_api,
                                         mock_get_user_eb_api,
@@ -1929,8 +1960,11 @@ class DiscountAccessMixinTest(TestBase):
         self.discount_type_ticket = DiscountType.objects.get(
             name='Ticket Type'
         )
+        self.discount_type_event = DiscountType.objects.get(
+            name='Event'
+        )
 
-    def test_raise_exception_permission_denied(self):
+    def test_raise_exception_ticket_discount_permission_denied(self):
         event = EventFactory(
             organizer=OrganizerFactory(),
             is_active=True,
@@ -1986,6 +2020,96 @@ class DiscountAccessMixinTest(TestBase):
         self.assertEqual(
             self.view.get_discount(),
             discount.discount_ptr,
+        )
+
+    def test_raise_exception_event_discount_permission_denied(self):
+        event = EventFactory(
+            organizer=OrganizerFactory(),
+            is_active=True,
+        )
+        event2 = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        discount = EventDiscountFactory(
+            event=event,
+            discount_type=self.discount_type_event,
+        )
+        # Setup request and view.
+        self.view.kwargs = {
+            'event_id': event2.id,
+            'discount_id': discount.id,
+        }
+        # the logged user is user 0 and the organizer of the event is user 1
+        self.view.request.user = self.organizer
+        self.view.response = 'events_discount/{}/{}/'.format(
+            event2.id, discount.id)
+        with self.assertRaises(PermissionDenied) as permission_denied:
+            self.view.get_discount()
+        self.assertEqual(
+            permission_denied.exception.args[0],
+            "You don't have access to this discount"
+        )
+
+    def test_invalid_discount_event(self):
+        event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        event2 = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        discount = EventDiscountFactory(
+            event=event,
+            discount_type=self.discount_type_event,
+        )
+        # Setup request and view.
+        self.view.kwargs = {
+            'event_id': event2.id,
+            'discount_id': discount.id,
+        }
+        # the logged user is user 0 and the organizer of the event is user 1
+        self.view.request.user = self.organizer
+        self.view.response = 'events_discount/{}/{}/'.format(
+            event2.id, discount.id)
+        with self.assertRaises(PermissionDenied) as permission_denied:
+            self.view.get_discount()
+        self.assertEqual(
+            permission_denied.exception.args[0],
+            "This discount does not match with the event"
+        )
+
+    def test_invalid_ticket_discount_event(self):
+        event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        event2 = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        event_ticket_type = EventTicketTypeFactory(
+            event=event
+        )
+        discount = TicketTypeDiscountFactory(
+            ticket_type=event_ticket_type,
+            discount_type=self.discount_type_ticket,
+        )
+        # Setup request and view.
+        self.view.kwargs = {
+            'event_id': event2.id,
+            'discount_id': discount.id,
+        }
+        # the logged user is user 0 and the organizer of the event is user 1
+        self.view.request.user = self.organizer
+        self.view.response = 'events_discount/{}/{}/'.format(
+            event2.id, discount.id)
+        with self.assertRaises(PermissionDenied) as permission_denied:
+            self.view.get_discount()
+        self.assertEqual(
+            permission_denied.exception.args[0],
+            "This discount does not match with the event"
         )
 
     def test_rise_exception_404(self):
