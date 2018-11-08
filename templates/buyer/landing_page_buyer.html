@@ -2,6 +2,7 @@
 {% block content %}
 {% load static %}
 {% load i18n %}
+{% load pagination_tags %}
 <body class="landing-body">
 <div class="container mt-5 mb-3 justify-content-center">
 		<h1>
@@ -95,6 +96,9 @@
 		</div>
         </div>
         {% endfor %}
+    </div>
+    <div >
+        {% paginate using "pagination.html" %}
     </div>
 </div>
 </body>

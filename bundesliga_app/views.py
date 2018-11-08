@@ -1,7 +1,9 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView, View
+from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
@@ -56,24 +58,29 @@ CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 
 @method_decorator(login_required, name='dispatch')
-class HomeView(TemplateView, LoginRequiredMixin):
+class HomeView(ListView, LoginRequiredMixin):
 
     """ This is the home view.
     Here we show all the events of the user in our app """
 
     template_name = 'index.html'
+    model = Event
+    context_object_name = 'own_events'
+    paginate_by = 5
 
-    def _get_events(self):
+    def get_queryset(self):
+        return Event.objects.filter(
+            organizer=self.request.user,
+        ).filter(is_active=True)
+
+    def _get_events(self, own_events):
         """ Get all the data of organizer events from EB API
         Also, each event has their tickets type and
         a boolean with the info about their discounts"""
 
         events = {}
 
-        events_own = Event.objects.filter(
-            organizer=self.request.user).filter(is_active=True)
-
-        for event in events_own:
+        for event in own_events:
             """ Add event to dictionary with the id as key
             and event from API as value """
             events[event.id] = get_event_eb_api(
@@ -153,7 +160,7 @@ class HomeView(TemplateView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
-        context['events'] = self._get_events()
+        context['events'] = self._get_events(context['own_events'])
         context['organizer'] = self.request.user
         context['attendee_url'] = self.request.get_host() + reverse(
             'landing_page_buyer',
@@ -170,9 +177,7 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
     """ This is the select events view. Here we display all the events
         of the organizer from EB
     """
-
     template_name = 'organizer/select_events.html'
-
     def _get_event(self):
         return get_events_user_eb_api(
             get_auth_token(self.request.user)
@@ -744,22 +749,28 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
 
 """ -- Buyer Views -- """
 
-class LandingPageBuyerView(TemplateView):
+class LandingPageBuyerView(ListView):
 
     """ This is the landing page of an organizer for the buyer
     here the buyer can visualize the events with its discounts """
 
     template_name = 'buyer/landing_page_buyer.html'
+    model = Event
+    context_object_name = 'own_events'
+    paginate_by = 6
 
-    def _get_events(self, organizer):
+    def get_queryset(self):
+        organizer = get_user_model().objects.get(
+            id=self.kwargs['organizer_id'])
+        return Event.objects.filter(
+            organizer=organizer).filter(is_active=True)
+
+    def _get_events(self, organizer, events_own):
         """ Get all the data of organizer events from EB API
         Also, each event has their tickets type and
          the info about their discounts"""
 
         events = {}
-
-        events_own = Event.objects.filter(
-            organizer=organizer).filter(is_active=True)
 
         for event in events_own:
             """ Add event to dictionary with the id as key
@@ -852,7 +863,8 @@ class LandingPageBuyerView(TemplateView):
         context['organizer'] = get_user_model().objects.get(
             id=self.kwargs['organizer_id'])
         context['events'] = self._get_events(
-            context['organizer']
+            context['organizer'],
+            context['own_events']
         )
         return context
 
