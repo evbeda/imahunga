@@ -9,7 +9,10 @@ from .models import (
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
-from bundesliga_site.settings import API_KEY_DEUTSCHER_SPORTAUSWEIS
+from bundesliga_site.settings import (
+    API_KEY_DEUTSCHER_SPORTAUSWEIS,
+    DS_API_URL,
+)
 from requests import request
 from json import loads
 from django.core.cache import cache
@@ -231,7 +234,8 @@ def validate_member_number_ds(member_number):
     This method will receive a possible member number of Deutscher Sportausweis
     and return a json with the info
     """
-    url = "https://admin.sportausweis.de/DSARestWs/RestController.php"
+    url = DS_API_URL
+    # "https://admin.sportausweis.de/DSARestWs/RestController.php"
 
     querystring = {
         "request": "validateCard",
@@ -249,6 +253,7 @@ def validate_member_number_ds(member_number):
         headers=headers,
         params=querystring
     )
+
     if response.status_code == 200:
         # Return the text of response as JSON
         return loads(response.text)
