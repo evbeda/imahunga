@@ -784,7 +784,7 @@ class CreateDiscountEventViewTest(TestBase):
 
         self.assertContains(
             self.response,
-            'You cant create a discount in a free event'
+            'You can not create a discount in a free event'
         )
 
 @patch('bundesliga_app.forms.get_event_eb_api', side_effect=get_mock_events_api)
@@ -2812,7 +2812,7 @@ class ListingPageEventViewTest(TestCase):
         )
         self.assertContains(
             self.response,
-            'Verify repetead member number'
+            'Repeated member number'
         )
 
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_VALID_NUMBER.text)

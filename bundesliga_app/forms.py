@@ -26,7 +26,7 @@ class DiscountEventForm(forms.Form):
     discount_name = forms.CharField(max_length=200, required=True, widget=forms.TextInput(
         attrs={
             'class': 'form-control',
-            'placeholder': _('Insert a name code')
+            'placeholder': _('Insert a code name')
         }
     ))
     discount_value = forms.IntegerField(required=True, widget=forms.NumberInput(
@@ -52,7 +52,7 @@ class DiscountEventForm(forms.Form):
         if valid_free:
             self.add_error(
                 '__all__',
-                _('You cant create a discount in a free event'),
+                _('You can not create a discount in a free event'),
             )
             return False
         if not self.discount_id:
@@ -225,7 +225,7 @@ class GetDiscountForm(forms.Form):
             else:
                 self.add_error(
                     'member_number_1',
-                    _('Verify repetead member number'),
+                    _('Repeated member number'),
                 )
         else:
             self.add_error(

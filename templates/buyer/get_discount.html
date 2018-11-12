@@ -81,7 +81,7 @@
 					error: function(response){
 						document.getElementById('errors').innerHTML=$($.parseHTML(response.responseText)).find("#errors_form")[1].innerHTML;
 						$('#retry').show();
-						$('#submit_btn').val('Retry');
+						$('#submit_btn').val("{% trans 'Retry' %}");
 						$("#loading").hide()
 						$("#submit_btn").show()
 						console.log(response)
@@ -107,8 +107,7 @@
 				});
 				$("#add_field").on('click',function(){
 				if(input_added <= max_member_number){
-					var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder="Insert your member number here" required/><input name="remove_number_' + input_added + '" type="button" value="X" onclick="remove('+ input_added +')" style="background: transparent; border: none; margin: 20px"/></div>';
-					// console.log(member_input)
+					var member_input = '<div class="input-group input-group-lg mx-auto" style="width:50%"><input name="member_number_' + input_added+ '" type="number" class="form-control" style="margin-top: 10px;" placeholder= ' + "{% trans 'Insert&#32;your&#32;member&#32;number&#32;here' %}" +  ' required/><input name="remove_number_' + input_added + '" type="button" value="X" onclick="remove('+ input_added +')" style="background: transparent; border: none; margin: 20px"/></div>';
 					$("#form-members-numbers").append(member_input)
 					input_added += 1
 				}else{
