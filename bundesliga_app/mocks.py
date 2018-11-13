@@ -69,6 +69,12 @@ MOCK_DISCOUNT_DOESNT_EXIST_IN_EB = {
     }
 }
 
+# Mock response of delete discount from eb
+MOCK_DELETE_DISCOUNT_EB = {
+    'discount_id': '12345689',
+    'deleted': True
+}
+
 # Mock response post discount code to EB
 MOCK_POST_DISCOUNT_CODE_TO_EB = {
     "resource_uri": "https://www.eventbriteapi.com/v3/discounts/380502040/",

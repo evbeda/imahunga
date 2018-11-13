@@ -42,9 +42,11 @@ from .models import (
     TicketTypeDiscount,
 )
 from bundesliga_app.mocks import (
+    MOCK_DELETE_DISCOUNT_EB,
     MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES,
     MOCK_DISCOUNT_EXISTS_IN_EB_MULTIPLE_USAGES_ONE_USED,
     MOCK_DISCOUNT_EXISTS_IN_EB_ONE_USE_NOT_USED,
+    MOCK_DISCOUNT_EXISTS_IN_EB_NO_USAGE,
     MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE,
     MOCK_DS_API_VALID_NUMBER,
     MOCK_DS_API_INVALID_NUMBER,
@@ -509,6 +511,31 @@ class EventDiscountsViewTest(TestBase):
                 ticket_type.id)]['id'],
         )
 
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
+    def test_events_ticket_type_discounts_no_deleteable(self,
+                                                        mock_check_discount_code_in_eb,
+                                                        mock_get_event_eb_api,
+                                                        mock_get_event_tickets_eb_api):
+        ticket_type = EventTicketTypeFactory(
+            event=self.event,
+            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
+        )
+        discount = TicketTypeDiscountFactory(
+            ticket_type=ticket_type,
+            value=100.0,
+            value_type="percentage",
+        )
+        DiscountCodeFactory(
+            discount=discount,
+        )
+        self.response = self.client.get(
+            '/events_discount/{}/'.format(self.event.id)
+        )
+        self.assertFalse(
+            self.response.context_data['tickets_type'][str(
+                ticket_type.id)]['discount']['deleteable'],
+        )
+
     def test_events_discount_in_response(self,
                                          mock_get_event_eb_api,
                                          mock_get_event_tickets_eb_api):
@@ -522,7 +549,7 @@ class EventDiscountsViewTest(TestBase):
         )
         self.assertEqual(
             discount.id,
-            self.response.context_data['event_discount'].id,
+            self.response.context_data['event_discount']['id'],
         )
 
     def test_events_ticket_type_delete(self,
@@ -1592,6 +1619,43 @@ class DeleteDiscountViewTest(TestBase):
             0,
         )
 
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
+    def test_not_delete_discount_used(self,
+                                      mock_check_discount_code_in_eb):
+        DiscountCodeFactory(
+            discount=self.discount,
+        )
+        self.response = self.client.post(
+            '/events_discount/{}/{}/delete/'.format(
+                self.event.id,
+                self.discount.id,
+            ),
+        )
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(TicketTypeDiscount.objects.filter(ticket_type=self.ticket_type)),
+            1,
+        )
+
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_NO_USAGE)
+    @patch('bundesliga_app.views.delete_discount_code_from_eb', return_value=MOCK_DELETE_DISCOUNT_EB)
+    def test_delete_discount_not_used(self,
+                                      mock_delete_discount_code_from_eb,
+                                      mock_check_discount_code_in_eb):
+        DiscountCodeFactory(
+            discount=self.discount,
+        )
+        self.response = self.client.post(
+            '/events_discount/{}/{}/delete/'.format(
+                self.event.id,
+                self.discount.id,
+            ),
+        )
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(TicketTypeDiscount.objects.filter(ticket_type=self.ticket_type)),
+            0,
+        )
 
 @patch('bundesliga_app.views.get_user_eb_api', return_value=MOCK_USER_API)
 @patch('bundesliga_app.views.get_events_user_eb_api',
