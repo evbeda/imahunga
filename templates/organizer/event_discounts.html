@@ -47,6 +47,7 @@
 			    $('#discount_type_select').change(function(){
 			        $('#event_discount').hide();
 			        $('#ticket_discount').hide();
+			        $('#messages').hide();
 			        $('#' + $(this).val()).show();
 			        $('#selected_value_discount_type').text($("#discount_type_select option:selected").text());
 			    });
@@ -67,6 +68,15 @@
 		</script>
 	</div>
 </div>
+{% if messages %}
+<div id="messages" class="messages">
+    {% for message in messages %}
+    	<div class="alert alert-danger">
+            <strong>{{ message|escape }}</strong>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
 <div id="ticket_discount">
 	<div class="row">
 		<div class="col-6">
@@ -114,9 +124,18 @@
 									<a href="{% url 'modify_discount_ticket_type' event_id ticket_type_id  ticket_type.discount.id %}">
 										<img class="navbar-header-img" src="{% static 'images/settings.png' %}">
 									</a>&nbsp;&nbsp;&nbsp;
+									{% if ticket_type.discount.deleteable %}
 									<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' event_id ticket_type.discount.id %}">
 										<img class="navbar-header-img" src="{% static 'images/garbage-can.png' %}">
 									</a>
+									{% else %}
+									<script>
+										$(function () {
+										  $('[data-toggle="tooltip"]').tooltip()
+										})
+									</script>
+										<img data-toggle="tooltip" data-html="true" data-placement="right" title="<div>{% trans 'You can not delete this discount, because it was already used by a member' %} </div> " class="navbar-header-img" src="{% static 'images/garbage-light.png' %}">
+									{% endif %}
 								</p>
 							</div>
 							<script type="text/javascript">
@@ -189,9 +208,18 @@
 								<a href="{% url 'modify_discount_event' event_id event_discount.id %}">
 									<img class="navbar-header-img" src="{% static 'images/settings.png' %}">
 								</a>&nbsp;&nbsp;&nbsp;
+								{% if event_discount.deleteable %}
 								<a data-toggle="modal" data-target="#modal" href="{% url 'delete_discount' event_id event_discount.id %}">
 									<img class="navbar-header-img" src="{% static 'images/garbage-can.png' %}">
 								</a>
+								{% else %}
+								<script>
+									$(function () {
+									  $('[data-toggle="tooltip"]').tooltip()
+									})
+								</script>
+									<img data-toggle="tooltip" data-html="true" data-placement="right" title="<div>{% trans 'You can not delete this discount, because it was already used by a member' %} </div> " class="navbar-header-img" src="{% static 'images/garbage-light.png' %}">
+								{% endif %}
 							</p>
 						</div>
 						<script type="text/javascript">

@@ -4,6 +4,7 @@ from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
@@ -439,6 +440,11 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
                     else:
                         tickets_type[str(event_ticket_type.id)
                                      ]['discount'] = discount.__dict__
+                        self._verify_if_discount_was_used(
+                            tickets_type[
+                                str(event_ticket_type.id)]['discount'],
+                            event,
+                        )
 
             else:
 
@@ -466,9 +472,31 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
         """ Get the event discount if exists"""
 
         if EventDiscount.objects.filter(event=event).exists():
-            return EventDiscount.objects.filter(
+            event_discount = EventDiscount.objects.filter(
                 event=event
-            ).get()
+            ).get().__dict__
+            self._verify_if_discount_was_used(
+                event_discount,
+                event,
+            )
+            return event_discount
+
+    def _verify_if_discount_was_used(self, discount, event):
+        """ This method verify if the discount has been used in EB """
+
+        discount['deleteable'] = True
+        if DiscountCode.objects.filter(
+                discount=discount['id']).exists():
+            discount_codes = DiscountCode.objects.filter(
+                discount=discount['id'])
+            for discount_code in discount_codes:
+                discount_in_eb = check_discount_code_in_eb(
+                    self.request.user,
+                    event.event_id,
+                    discount_code.discount_code,
+                )
+                if not discount_in_eb['discounts'][0]['quantity_sold'] == 0:
+                    discount['deleteable'] = False
 
     def _verify_discount(self, event_discount, tickets_type):
         """ This method will return what type of discount the event has """
@@ -741,6 +769,43 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
 
     def get_object(self):
         return self.get_discount()
+
+    def post(self, request, *args, **kwargs):
+        if DiscountCode.objects.filter(
+                discount=self.kwargs['discount_id']).exists():
+            event = Event.objects.get(id=self.kwargs['event_id'])
+            discount_codes = DiscountCode.objects.filter(
+                discount=self.kwargs['discount_id'])
+            for discount_code in discount_codes:
+                discount_in_eb = check_discount_code_in_eb(
+                    self.request.user,
+                    event.event_id,
+                    discount_code.discount_code,
+                )
+                if not discount_in_eb['discounts'][0]['quantity_sold'] == 0:
+                    messages.error(
+                        self.request,
+                        _(
+                            "You can not delete '{}' discount, because it was already used by a member").format(
+                            Discount.objects.get(id=self.kwargs['discount_id']).name))
+                    return HttpResponseRedirect(
+                        reverse(
+                            'events_discount',
+                            kwargs={
+                                'event_id': self.get_event().id
+                            },
+                        )
+                    )
+
+            # Delete the discount from EB
+            for discount_code in discount_codes:
+                delete_discount_code_from_eb(
+                    self.request.user,
+                    discount_in_eb['discounts'][0]['id'],
+                )
+            return self.delete(request, *args, **kwargs)
+        else:
+            return self.delete(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(DeleteDiscountView, self).get_context_data(**kwargs)
