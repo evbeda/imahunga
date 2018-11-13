@@ -71,7 +71,7 @@ class HomeView(ListView, LoginRequiredMixin):
     def get_queryset(self):
         return Event.objects.filter(
             organizer=self.request.user,
-        ).filter(is_active=True)
+        ).filter(is_active=True).order_by('id')
 
     def _get_events(self, own_events):
         """ Get all the data of organizer events from EB API
@@ -763,7 +763,7 @@ class LandingPageBuyerView(ListView):
         organizer = get_user_model().objects.get(
             id=self.kwargs['organizer_id'])
         return Event.objects.filter(
-            organizer=organizer).filter(is_active=True)
+            organizer=organizer).filter(is_active=True).order_by('id')
 
     def _get_events(self, organizer, events_own):
         """ Get all the data of organizer events from EB API
