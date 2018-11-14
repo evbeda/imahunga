@@ -15,9 +15,7 @@ body{
 }
 
 #add_field{
-    margin-left: 15px;
-    background: transparent;
-    border:none;
+    font-weight: 600;
 }
 
 #add_field_img{
@@ -41,6 +39,7 @@ body{
 .width-100{
     width: 100px;
 }
+
 #spinner{
     width:20px;
     height:20px;

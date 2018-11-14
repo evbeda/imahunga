@@ -2571,11 +2571,12 @@ class ListingPageEventViewTest(TestCase):
 
     @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
     @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    def test_get_tickets_paid_event(self,
-                                    mock_get_event_tickets_eb_api,
-                                    mock_get_event_eb_api,
-                                    mock_get_venue_eb_api,
-                                    ):
+    def test_get_tickets_paid_event(
+        self,
+        mock_get_event_tickets_eb_api,
+        mock_get_event_eb_api,
+        mock_get_venue_eb_api,
+    ):
 
         EventTicketTypeFactory(
             event=self.event,
@@ -2674,46 +2675,6 @@ class ListingPageEventViewTest(TestCase):
         self.assertEqual(
             len(member_discount_code),
             1
-        )
-
-    @patch(
-        'bundesliga_app.forms.validate_member_number_ds',
-        return_value=MOCK_DS_API_VALID_NUMBER.text,
-    )
-    @patch('bundesliga_app.views.get_event_eb_api', side_effect=get_mock_events_api)
-    @patch('bundesliga_app.utils.get_event_tickets_eb_api', return_value=get_mock_event_tickets_api_paid())
-    @patch('bundesliga_app.views.post_ticket_discount_code_to_eb', return_value={})
-    def test_post_without_captcha(
-            self,
-            mock_post_ticket_discount_code_to_eb,
-            mock_get_event_tickets_eb_api,
-            mock_get_event_eb_api,
-            mock_validate_member_number_ds,
-            mock_get_venue_eb_api):
-        ticket_type = EventTicketTypeFactory(
-            event=self.event,
-            ticket_id_eb=mock_get_event_tickets_eb_api.return_value[1]['id']
-        )
-        TicketTypeDiscountFactory(
-            ticket_type=ticket_type
-        )
-        self.response = self.client.get(
-            '/landing_page/{}/event/{}/'.format(
-                self.organizer.id, self.event.id)
-        )
-        self.response = self.client.post(
-            '/landing_page/{}/event/{}/'.format(
-                self.organizer.id, self.event.id),
-            {
-                'tickets_type': ticket_type.id,
-                'member_number_1': '1234',
-                'g-recaptcha-response': ''
-            },
-        )
-
-        self.assertContains(
-            self.response,
-            "Please complete captcha"
         )
 
     @patch('bundesliga_app.forms.validate_member_number_ds', return_value=MOCK_DS_API_INVALID_NUMBER.text,)
