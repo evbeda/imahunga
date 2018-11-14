@@ -182,55 +182,49 @@ class GetDiscountForm(forms.Form):
         """ This method calls the API of DS in utils
         and returns a string according to the response
         """
-        if self.data['g-recaptcha-response'] != '':
-            if len(self.cleaned_data.values()) == len(set(self.cleaned_data.values())):
-                invalid_numbers = []
-                if 'tickets_type' in self.cleaned_data.keys():
-                    iterator = range(1, len(self.cleaned_data))
-                else:
-                    iterator = range(1, len(self.cleaned_data) + 1)
-                for number in iterator :
-                    return_api_ds = validate_member_number_ds(
-                        self.cleaned_data['member_number_{}'.format(number)]
-                    )
-                    if return_api_ds == 'Invalid Request':
-                        self.add_error('member_number_{}'.format(
-                            number), _('Invalid request'))
-                        return False
-                    else:
-                        if not ('Kartentyp' in return_api_ds):
-                            invalid_numbers.append(
-                                str(
-                                    self.cleaned_data['member_number_{}'.format(
-                                        number)]
-                                )
-                            )
-
-                if invalid_numbers:
-                    numbers = ', '.join(invalid_numbers)
-                    if len(invalid_numbers) == 1:
-                        self.add_error(
-                            'member_number_1',
-                            _('Invalid member number ') + '{}'.format(numbers),
-                        )
-                    else:
-                        self.add_error(
-                            'member_number_1',
-                            _('Invalid member numbers ') +
-                            '{}'.format(numbers),
-                        )
+        if len(self.cleaned_data.values()) == len(set(self.cleaned_data.values())):
+            invalid_numbers = []
+            if 'tickets_type' in self.cleaned_data.keys():
+                iterator = range(1, len(self.cleaned_data))
+            else:
+                iterator = range(1, len(self.cleaned_data) + 1)
+            for number in iterator :
+                return_api_ds = validate_member_number_ds(
+                    self.cleaned_data['member_number_{}'.format(number)]
+                )
+                if return_api_ds == 'Invalid Request':
+                    self.add_error('member_number_{}'.format(
+                        number), _('Invalid request'))
                     return False
                 else:
-                    return True
+                    if not ('Kartentyp' in return_api_ds):
+                        invalid_numbers.append(
+                            str(
+                                self.cleaned_data['member_number_{}'.format(
+                                    number)]
+                            )
+                        )
+
+            if invalid_numbers:
+                numbers = ', '.join(invalid_numbers)
+                if len(invalid_numbers) == 1:
+                    self.add_error(
+                        'member_number_1',
+                        _('Invalid member number ') + '{}'.format(numbers),
+                    )
+                else:
+                    self.add_error(
+                        'member_number_1',
+                        _('Invalid member numbers ') +
+                        '{}'.format(numbers),
+                    )
+                return False
             else:
-                self.add_error(
-                    'member_number_1',
-                    _('Repeated member number'),
-                )
+                return True
         else:
             self.add_error(
                 'member_number_1',
-                _('Please complete captcha')
+                _('Repeated member number'),
             )
 
     def __init__(self, data=None, *args, **kwargs):
