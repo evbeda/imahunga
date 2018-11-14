@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-12 09:31-0300\n"
+"POT-Creation-Date: 2018-11-14 16:10-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,28 +66,40 @@ msgstr "Número de socio repetido"
 msgid "Please complete captcha"
 msgstr "Por favor, complete el captcha"
 
-#: bundesliga_app/utils.py:33
+#: bundesliga_app/utils.py:40
 msgid "You don't have access to this event"
 msgstr "No tienes acceso a este evento"
 
-#: bundesliga_app/utils.py:52 bundesliga_app/utils.py:61
+#: bundesliga_app/utils.py:86 templates/organizer/event_discounts.html:193
+msgid "You have an used ticket discount so you can not manage event discount for this event."
+msgstr Ya tienes un descuento por evento. Si creas un descuento para una entrada, el descuento del evento se eliminará."
+
+#: bundesliga_app/utils.py:99 templates/organizer/event_discounts.html:92
+msgid "You have an used event discount so you can not manage ticket discounts for this event."
+msgstr "Ya tienes un descuento por evento. Si creas un descuento para una entrada, el descuento del evento se eliminará."
+
+#: bundesliga_app/utils.py:111 bundesliga_app/utils.py:121
 msgid "You don't have access to this discount"
 msgstr "No tienes acceso a este descuento"
 
-#: bundesliga_app/utils.py:56 bundesliga_app/utils.py:64
+#: bundesliga_app/utils.py:115 bundesliga_app/utils.py:124
 msgid "This discount does not match with the event"
 msgstr "Este descuento no coincide con el evento"
 
-#: bundesliga_app/utils.py:79
+#: bundesliga_app/utils.py:140
 msgid "UserSocialAuth does not exists!"
 msgstr "UserSocialAuth does not exists!"
 
-#: bundesliga_app/utils.py:256
+#: bundesliga_app/utils.py:320
 msgid "Invalid Request"
 msgstr "Pedido invalido"
 
-#: bundesliga_app/views.py:1145 bundesliga_app/views.py:1275
-#: bundesliga_app/views.py:1310
+#: bundesliga_app/views.py:783
+msgid "You can not delete '{}' discount, because it was already used by a member"
+msgstr "No puedes eliminar el descuento '{}', ya que ya fué utilizado por un miembro"
+
+#: bundesliga_app/views.py:1208 bundesliga_app/views.py:1342
+#: bundesliga_app/views.py:1377
 msgid "Number {} has already used the discount for this event"
 msgstr "Ya has usado el descuento {} para este evento"
 
@@ -237,7 +249,7 @@ msgstr "EVENTO GRATUITO"
 msgid "Discount created"
 msgstr "Descuento creado"
 
-#: templates/index.html:90 templates/organizer/event_discounts.html:136
+#: templates/index.html:90 templates/organizer/event_discounts.html:164
 msgid "No discount"
 msgstr "Sin descuento"
 
@@ -270,7 +282,7 @@ msgid "Create Discount"
 msgstr "Crear Descuento"
 
 #: templates/organizer/create_discount_event.html:28
-#: templates/organizer/event_discounts.html:164
+#: templates/organizer/event_discounts.html:202
 msgid ""
 "You have ticket discounts. If you create a discount for an event the ticket "
 "discounts will be deleted."
@@ -334,37 +346,38 @@ msgstr "Descuento por evento"
 msgid "Ticket discount"
 msgstr "Descuento por entrada"
 
-#: templates/organizer/event_discounts.html:74
+#: templates/organizer/event_discounts.html:84
 msgid "Tickets Discounts"
 msgstr "Descuentos por entrada"
 
-#: templates/organizer/event_discounts.html:82
-msgid ""
-"You have an event discount. If you create a discount for a ticket the event "
-"discount will be deleted."
-msgstr ""
-"Ya tienes un descuento por evento. Si creas un descuento para una entrada, "
-"el descuento del evento se eliminará."
+#: templates/organizer/event_discounts.html:101
+msgid "You have an event discount. If you create a discount for a ticket the event discount will be deleted."
+msgstr " Ya tienes un descuento por evento. Si creas un descuento para una entrada, el descuento del evento se eliminará."
 
-#: templates/organizer/event_discounts.html:102
+#: templates/organizer/event_discounts.html:121
 msgid "Free Ticket"
 msgstr "Entrada Gratuita"
 
-#: templates/organizer/event_discounts.html:108
+#: templates/organizer/event_discounts.html:127
 #, python-format
 msgid "%% discount"
 msgstr "%% de descuento"
 
-#: templates/organizer/event_discounts.html:156
+#: templates/organizer/event_discounts.html:146
+#: templates/organizer/event_discounts.html:241
+msgid "You can not delete this discount, because it was already used by a member"
+msgstr "No puedes eliminar este descuento, ya que fué utilizado por un miembro"
+
+#: templates/organizer/event_discounts.html:185
 msgid "Event Discount"
 msgstr "Descuento por evento"
 
-#: templates/organizer/event_discounts.html:183
+#: templates/organizer/event_discounts.html:222
 #, python-format
 msgid "%% off"
 msgstr "%% off"
 
-#: templates/organizer/event_discounts.html:212
+#: templates/organizer/event_discounts.html:260
 msgid "Add Event Discount"
 msgstr "Crear descuento por evento"
 

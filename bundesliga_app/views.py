@@ -115,7 +115,7 @@ class HomeView(ListView, LoginRequiredMixin):
                 # If has a event discount, set has discount in true
                 if EventDiscount.objects.filter(
                         event=event).exists():
-                        events[event.id]['has_discount'] = True
+                    events[event.id]['has_discount'] = True
 
                 self._set_tickets_type(events[event.id], event)
         return events
@@ -179,6 +179,7 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
         of the organizer from EB
     """
     template_name = 'organizer/select_events.html'
+
     def _get_event(self):
         return get_events_user_eb_api(
             get_auth_token(self.request.user)
@@ -440,7 +441,8 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
                     else:
                         tickets_type[str(event_ticket_type.id)
                                      ]['discount'] = discount.__dict__
-                        self._verify_if_discount_was_used(
+                        tickets_type[str(event_ticket_type.id)][
+                            'discount']['deleteable'] = self._verify_if_discount_was_used(
                             tickets_type[
                                 str(event_ticket_type.id)]['discount'],
                             event,
@@ -475,37 +477,26 @@ class EventDiscountsView(TemplateView, LoginRequiredMixin, EventAccessMixin):
             event_discount = EventDiscount.objects.filter(
                 event=event
             ).get().__dict__
-            self._verify_if_discount_was_used(
+            event_discount['deleteable'] = self._verify_if_discount_was_used(
                 event_discount,
                 event,
             )
             return event_discount
 
-    def _verify_if_discount_was_used(self, discount, event):
-        """ This method verify if the discount has been used in EB """
-
-        discount['deleteable'] = True
-        if DiscountCode.objects.filter(
-                discount=discount['id']).exists():
-            discount_codes = DiscountCode.objects.filter(
-                discount=discount['id'])
-            for discount_code in discount_codes:
-                discount_in_eb = check_discount_code_in_eb(
-                    self.request.user,
-                    event.event_id,
-                    discount_code.discount_code,
-                )
-                if not discount_in_eb['discounts'][0]['quantity_sold'] == 0:
-                    discount['deleteable'] = False
-
     def _verify_discount(self, event_discount, tickets_type):
         """ This method will return what type of discount the event has """
 
         if event_discount:
-            return 'Event'
+            if event_discount['deleteable']:
+                return 'Event deleteable'
+            else:
+                return 'Event not deleteable'
         for ticket_id, ticket in tickets_type.items():
             if 'discount' in ticket:
-                return 'Ticket'
+                if ticket['discount']['deleteable']:
+                    return 'Ticket deleteable'
+                else:
+                    return 'Ticket not deleteable'
         return None
 
     def get_context_data(self, **kwargs):
@@ -627,6 +618,7 @@ class ManageDiscountEvent(FormView, LoginRequiredMixin, DiscountAccessMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ManageDiscountEvent, self).get_context_data(**kwargs)
+        self.verify_deleteable_discount('Event')
         context['event'] = self.get_event()
         context['has_discount_ticket_type'] = self._verify_discount_ticket_type(
             context['event']
@@ -735,7 +727,9 @@ class ManageDiscountTicketType(FormView, LoginRequiredMixin, DiscountAccessMixin
         return has_discount_event
 
     def get_context_data(self, **kwargs):
-        context = super(ManageDiscountTicketType, self).get_context_data(**kwargs)
+        context = super(ManageDiscountTicketType,
+                        self).get_context_data(**kwargs)
+        self.verify_deleteable_discount('Ticket')
         context['event'] = self.get_event()
         context['has_discount_event'] = self._verify_discount_event(
             context['event']
@@ -812,7 +806,9 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
         context['event'] = self.get_event()
         return context
 
+
 """ -- Buyer Views -- """
+
 
 class LandingPageBuyerView(ListView):
 
@@ -1005,15 +1001,14 @@ class ListingPageEventView(FormView):
                     ticket_type=ticket_id)
                 discounts['available'] = True
                 if discount.value > discounts['max_discount']:
-                        discounts['max_discount'] = discount.value
+                    discounts['max_discount'] = discount.value
 
                 if discounts['min_discount'] == 0:
-                        discounts['min_discount'] = discount.value
+                    discounts['min_discount'] = discount.value
 
                 if discount.value < discounts['min_discount']:
-                        discounts['min_discount'] = discount.value
+                    discounts['min_discount'] = discount.value
         return discounts
-
 
     def _get_tickets(self, tickets):
         ticket_values = {
@@ -1344,11 +1339,11 @@ class ListingPageEventView(FormView):
 
                             if condition:
                                 form.add_error('member_number_1',
-                                           _('Number {} has already used the discount for this event'.format(
-                                               form.cleaned_data[
-                                                   'member_number_{}'.format(
-                                                       number)
-                                               ])))
+                                               _('Number {} has already used the discount for this event'.format(
+                                                   form.cleaned_data[
+                                                       'member_number_{}'.format(
+                                                           number)
+                                                   ])))
                                 return False
 
             else:
@@ -1429,8 +1424,10 @@ class ListingPageEventView(FormView):
             context['event_id'],
             context['organizer'],
         )
-        context['tickets_discounts'] = self._get_tickets_discounts(context['tickets_type'])
-        context['event_discount'] = self._get_event_discount(context['event_id'])
+        context['tickets_discounts'] = self._get_tickets_discounts(
+            context['tickets_type'])
+        context['event_discount'] = self._get_event_discount(
+            context['event_id'])
         context['tickets_value'] = self._get_tickets(
             context['tickets_type']
         )
