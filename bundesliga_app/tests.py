@@ -511,7 +511,7 @@ class EventDiscountsViewTest(TestBase):
                 ticket_type.id)]['id'],
         )
 
-    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
+    @patch('bundesliga_app.utils.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
     def test_events_ticket_type_discounts_no_deleteable(self,
                                                         mock_check_discount_code_in_eb,
                                                         mock_get_event_eb_api,
@@ -534,6 +534,26 @@ class EventDiscountsViewTest(TestBase):
         self.assertFalse(
             self.response.context_data['tickets_type'][str(
                 ticket_type.id)]['discount']['deleteable'],
+        )
+
+    @patch('bundesliga_app.utils.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
+    def test_events_discount_no_deleteable(self,
+                                           mock_check_discount_code_in_eb,
+                                           mock_get_event_eb_api,
+                                           mock_get_event_tickets_eb_api):
+        discount = EventDiscountFactory(
+            event=self.event,
+            value=100.0,
+            value_type="percentage",
+        )
+        DiscountCodeFactory(
+            discount=discount,
+        )
+        self.response = self.client.get(
+            '/events_discount/{}/'.format(self.event.id)
+        )
+        self.assertFalse(
+            self.response.context_data['event_discount']['deleteable'],
         )
 
     def test_events_discount_in_response(self,
@@ -2192,6 +2212,72 @@ class DiscountAccessMixinTest(TestBase):
 
         with self.assertRaises(Http404):
             self.view.get_discount()
+
+    @patch('bundesliga_app.utils.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
+    def test_create_ticket_discount_no_deleteable(self,
+                                           mock_check_discount_code_in_eb):
+        event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        event_ticket_type = EventTicketTypeFactory(
+            event=event,
+        )
+        event_discount = EventDiscountFactory(
+            event=event,
+        )
+        DiscountCodeFactory(
+            discount=event_discount,
+        )
+        discount = TicketTypeDiscountFactory(
+            ticket_type=event_ticket_type,
+        )
+        self.view.kwargs = {
+            'event_id': event.id,
+            'discount_id': discount.id,
+        }
+        self.view.request.user = self.organizer
+        self.view.response = 'events_discount/{}/{}/'.format(
+            event.id, discount.id)
+        with self.assertRaises(PermissionDenied) as permission_denied:
+            self.view.verify_deleteable_discount('Ticket')
+        self.assertEqual(
+            permission_denied.exception.args[0],
+            "You have an used event discount so you can not manage ticket discounts for this event."
+        )
+
+    @patch('bundesliga_app.utils.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
+    def test_create_event_discount_no_deleteable(self,
+                                           mock_check_discount_code_in_eb):
+        event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+        )
+        event_ticket_type = EventTicketTypeFactory(
+            event=event,
+        )
+        event_discount = EventDiscountFactory(
+            event=event,
+        )
+        ticket_discount = TicketTypeDiscountFactory(
+            ticket_type=event_ticket_type,
+        )
+        DiscountCodeFactory(
+            discount=ticket_discount,
+        )
+        self.view.kwargs = {
+            'event_id': event.id,
+            'discount_id': event_discount.id,
+        }
+        self.view.request.user = self.organizer
+        self.view.response = 'events_discount/{}/{}/'.format(
+            event.id, event_discount.id)
+        with self.assertRaises(PermissionDenied) as permission_denied:
+            self.view.verify_deleteable_discount('Event')
+        self.assertEqual(
+            permission_denied.exception.args[0],
+            "You have an used ticket discount so you can not manage event discount for this event."
+        )
 
 
 class LandingPageBuyerViewTest(TestCase):

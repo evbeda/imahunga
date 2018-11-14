@@ -3,8 +3,11 @@ from social_django.models import UserSocialAuth
 from eventbrite import Eventbrite
 from .models import (
     Event,
+    EventDiscount,
     Discount,
+    DiscountCode,
     EventTicketType,
+    TicketTypeDiscount,
 )
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
@@ -19,6 +22,7 @@ from django.core.cache import cache
 from django.conf import settings
 CACHE_TTL = getattr(settings, "CACHE_TTL")
 CACHE_TTL_TICKETS = getattr(settings, "CACHE_TTL_TICKETS")
+
 
 class EventAccessMixin(object):
     """
@@ -36,6 +40,25 @@ class EventAccessMixin(object):
             raise PermissionDenied(_("You don't have access to this event"))
         return event
 
+    def _verify_if_discount_was_used(self, discount, event):
+        """ This method verify if the discount has been used in EB
+            if at least one discount it has been sold more than onces,
+            it will return False """
+
+        if DiscountCode.objects.filter(
+                discount=discount['id']).exists():
+            discount_codes = DiscountCode.objects.filter(
+                discount=discount['id'])
+            for discount_code in discount_codes:
+                discount_in_eb = check_discount_code_in_eb(
+                    self.request.user,
+                    event.event_id,
+                    discount_code.discount_code,
+                )
+                if not discount_in_eb['discounts'][0]['quantity_sold'] == 0:
+                    return False
+        return True
+
 
 class DiscountAccessMixin(EventAccessMixin):
     """
@@ -44,11 +67,44 @@ class DiscountAccessMixin(EventAccessMixin):
     also the access to the event is prohibited
     """
 
+    def verify_deleteable_discount(self, discount_type):
+        if discount_type == 'Event':
+            tickets = EventTicketType.objects.filter(
+                event=self.kwargs['event_id'],
+            )
+            for ticket in tickets:
+                if TicketTypeDiscount.objects.filter(
+                        ticket_type=ticket).exists():
+                    discount = TicketTypeDiscount.objects.get(
+                        ticket_type=ticket
+                    ).__dict__
+                    if not self._verify_if_discount_was_used(
+                        discount,
+                        ticket.event,
+                    ):
+                        raise PermissionDenied(_(
+                            "You have an used ticket discount so you can not manage event discount for this event.")
+                        )
+        else:
+            if EventDiscount.objects.filter(
+                    event=self.kwargs['event_id']).exists():
+                discount = EventDiscount.objects.get(
+                    event=self.kwargs['event_id']
+                ).__dict__
+                if not self._verify_if_discount_was_used(
+                    discount,
+                    Event.objects.get(id=self.kwargs['event_id']),
+                ):
+                    raise PermissionDenied(_(
+                        "You have an used event discount so you can not manage ticket discounts for this event.")
+                    )
+
     def get_discount(self):
         discount = get_object_or_404(
             Discount,
             id=self.kwargs['discount_id'],
         )
+
         if discount.discount_type.name == 'Event':
             if discount.eventdiscount.event.organizer != self.request.user:
                 raise PermissionDenied(_(
@@ -58,6 +114,7 @@ class DiscountAccessMixin(EventAccessMixin):
                 raise PermissionDenied(_(
                     "This discount does not match with the event")
                 )
+
         elif discount.discount_type.name == 'Ticket Type':
             if discount.tickettypediscount.ticket_type.event.organizer != self.request.user:
                 raise PermissionDenied(_(
@@ -66,6 +123,7 @@ class DiscountAccessMixin(EventAccessMixin):
                 raise PermissionDenied(_(
                     "This discount does not match with the event")
                 )
+
         return discount
 
 
@@ -185,6 +243,7 @@ def post_ticket_discount_code_to_eb(user, event_id, discount_code, discount_valu
         '/organizations/{}/discounts/'.format(organization_id),
         data
     )
+
 
 def post_event_discount_code_to_eb(user, event_id, discount_code, discount_value, uses):
     eventbrite = Eventbrite(get_auth_token(user))

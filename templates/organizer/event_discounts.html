@@ -53,10 +53,10 @@
 			    });
 			});
 			$(function() {
-			    if( "{{has_discount}}" == 'Event' ){
+			    if( "{{has_discount}}" == "Event deleteable" || "{{has_discount}}" == "Event not deleteable" ){
 			        $('#ticket_discount').hide();
 			        $('#discount_type_select').val("event_discount")
-			    }else if( "{{has_discount}}" == 'Ticket' ){
+			    }else if( "{{has_discount}}" == "Ticket deleteable" || "{{has_discount}}" == "Ticket not deleteable" ){
 			        $('#event_discount').hide();
 			        $('#discount_type_select').val("ticket_discount")
 			    }else{
@@ -85,7 +85,16 @@
 			</div>
 		</div>
 	</div>
-	{% if has_discount == 'Event' %}
+	{% if has_discount == 'Event not deleteable' %}
+		<div class="row">
+			<div class="col-6">
+				<div class="alert alert-danger">
+					<strong>{% trans "You have an used event discount so you can not manage ticket discounts for this event." %}</strong>
+				</div>
+			</div>
+		</div>
+	{% else %}
+		{% if has_discount == 'Event deleteable' %}
 		<div class="row">
 			<div class="col-6">
 				<div class="alert alert-warning">
@@ -93,7 +102,7 @@
 				</div>
 			</div>
 		</div>
-	{% endif %}
+		{% endif %}
 	{% for ticket_type_id, ticket_type in tickets_type.items %}
 		<div class="row">
 			<div class="col-6">
@@ -167,6 +176,7 @@
 			</div>
 		</div>
 	{% endfor %}
+	{% endif %}
 </div>
 <div id="event_discount">
 	<div class="row">
@@ -176,7 +186,16 @@
 			</div>
 		</div>
 	</div>
-	{% if has_discount == 'Ticket' %}
+	{% if has_discount == 'Ticket not deleteable' %}
+		<div class="row">
+			<div class="col-6">
+				<div class="alert alert-danger">
+					<strong>{% trans "You have an used ticket discount so you can not manage event discount for this event." %}</strong>
+				</div>
+			</div>
+		</div>
+	{% else %}
+		{% if has_discount == 'Ticket deleteable' %}
 		<div class="row">
 			<div class="col-6">
 				<div class="alert alert-warning">
@@ -184,7 +203,8 @@
 				</div>
 			</div>
 		</div>
-	{% endif %}
+		{% endif %}
+
 	<div class="row">
 		<div class="col-6">
 			{% if event_discount %}
@@ -242,5 +262,6 @@
 			{% endif %}
 		</div>
 	</div>
+	{% endif %}
 </div>
 {% endblock %}
