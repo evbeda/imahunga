@@ -1175,18 +1175,25 @@ class ListingPageEventView(FormView):
                         id=existing_discount_code[i].discount_code.id
                     )
                     if self.get_context_data()['tickets_discounts']['available']:
-                        discount = TicketTypeDiscount.objects.get(
-                            id=discount_code.discount.id
-                        )
-                        ticket_type = EventTicketType.objects.get(
-                            id=discount.ticket_type.id
-                        )
-                        condition = event.id == ticket_type.event.id
+                        if discount_code.discount.discount_type.name == 'Ticket Type':
+                            discount = TicketTypeDiscount.objects.get(
+                                id=discount_code.discount.id
+                            )
+                            ticket_type = EventTicketType.objects.get(
+                                id=discount.ticket_type.id
+                            )
+                            condition = event.id == ticket_type.event.id
+                        else:
+                            continue
                     else:
-                        discount = EventDiscount.objects.get(
-                            id=discount_code.discount.id
-                        )
-                        condition = event.id == discount.event_id
+                        if discount_code.discount.discount_type.name == 'Event':
+                            discount = EventDiscount.objects.get(
+                                id=discount_code.discount.id
+                            )
+                            condition = event.id == discount.event_id
+                        else:
+                            continue
+
                     if condition:
                         # Verify if discount already exists in EB
                         discount_code_eb_api = check_discount_code_in_eb(
@@ -1252,18 +1259,24 @@ class ListingPageEventView(FormView):
                                         )
 
                                         if self.get_context_data()['tickets_discounts']['available']:
-                                            discount = TicketTypeDiscount.objects.get(
-                                                id=discount_code.discount.id
-                                            )
-                                            ticket_type = EventTicketType.objects.get(
-                                                id=discount.ticket_type.id
-                                            )
-                                            condition = event.id == ticket_type.event.id
+                                            if discount_code.discount.discount_type.name == 'Ticket Type':
+                                                discount = TicketTypeDiscount.objects.get(
+                                                    id=discount_code.discount.id
+                                                )
+                                                ticket_type = EventTicketType.objects.get(
+                                                    id=discount.ticket_type.id
+                                                )
+                                                condition = event.id == ticket_type.event.id
+                                            else:
+                                                continue
                                         else:
-                                            discount = EventDiscount.objects.get(
-                                                id=discount_code.discount.id
-                                            )
-                                            condition = event.id == discount.event_id
+                                            if discount_code.discount.discount_type.name == 'Event':
+                                                discount = EventDiscount.objects.get(
+                                                    id=discount_code.discount.id
+                                                )
+                                                condition = event.id == discount.event_id
+                                            else:
+                                                continue
                                         if condition:
                                             # If there are no more uses
                                             if uses_left == 0:
@@ -1324,18 +1337,24 @@ class ListingPageEventView(FormView):
                                 id=used_discount_code[i].discount_code.id
                             )
                             if self.get_context_data()['tickets_discounts']['available']:
-                                discount = TicketTypeDiscount.objects.get(
-                                    id=discount_code.discount.id
-                                )
-                                ticket_type = EventTicketType.objects.get(
-                                    id=discount.ticket_type.id
-                                )
-                                condition = event.id == ticket_type.event.id
+                                if discount_code.discount.discount_type.name == 'Ticket Type':
+                                    discount = TicketTypeDiscount.objects.get(
+                                        id=discount_code.discount.id
+                                    )
+                                    ticket_type = EventTicketType.objects.get(
+                                        id=discount.ticket_type.id
+                                    )
+                                    condition = event.id == ticket_type.event.id
+                                else:
+                                    continue
                             else:
-                                discount = EventDiscount.objects.get(
-                                    id=discount_code.discount.id
-                                )
-                                condition = event.id == discount.event_id
+                                if discount_code.discount.discount_type.name == 'Event':
+                                    discount = EventDiscount.objects.get(
+                                        id=discount_code.discount.id
+                                    )
+                                    condition = event.id == discount.event_id
+                                else:
+                                    continue
 
                             if condition:
                                 form.add_error('member_number_1',
@@ -1359,18 +1378,24 @@ class ListingPageEventView(FormView):
                             id=used_discount_code[i].discount_code.id
                         )
                         if self.get_context_data()['tickets_discounts']['available']:
-                            discount = TicketTypeDiscount.objects.get(
-                                id=discount_code.discount.id
-                            )
-                            ticket_type = EventTicketType.objects.get(
-                                id=discount.ticket_type.id
-                            )
-                            condition = event.id == ticket_type.event.id
+                            if discount_code.discount.discount_type.name == 'Ticket Type':
+                                discount = TicketTypeDiscount.objects.get(
+                                    id=discount_code.discount.id
+                                )
+                                ticket_type = EventTicketType.objects.get(
+                                    id=discount.ticket_type.id
+                                )
+                                condition = event.id == ticket_type.event.id
+                            else:
+                                continue
                         else:
-                            discount = EventDiscount.objects.get(
-                                id=discount_code.discount.id
-                            )
-                            condition = event.id == discount.event_id
+                            if discount_code.discount.discount_type.name == 'Event':
+                                discount = EventDiscount.objects.get(
+                                    id=discount_code.discount.id
+                                )
+                                condition = event.id == discount.event_id
+                            else:
+                                continue
 
                         if condition:
                             form.add_error('member_number_1',
