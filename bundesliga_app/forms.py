@@ -266,7 +266,13 @@ class GetDiscountForm(forms.Form):
                 event.event_id,
                 ticket,
             )
-            value = ticket_type_eb[str(ticket)]['name'] + " - " + str(tickets_with_discount[ticket]['discount'].value) + "%"
+            value_without_discount = float(ticket_type_eb[str(ticket)]['actual_cost']['major_value'])
+            value_with_discount = value_without_discount - (value_without_discount * tickets_with_discount[ticket]['discount'].value)/100
+            value = "{} - ${} without discount - ${} with discount".format(
+                ticket_type_eb[str(ticket)]['name'],
+                value_without_discount,
+                value_with_discount,
+            )
             tickets_types_name = (
                 (ticket, value),) + tickets_types_name
         return tickets_types_name
