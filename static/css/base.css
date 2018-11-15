@@ -202,3 +202,7 @@ body{
     border: 1px solid rgba(0,0,0,.2);
     border-radius: .3rem;
 }
+
+.errors_discount{
+    top: 10px;
+}
