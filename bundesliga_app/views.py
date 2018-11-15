@@ -770,12 +770,14 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
             event = Event.objects.get(id=self.kwargs['event_id'])
             discount_codes = DiscountCode.objects.filter(
                 discount=self.kwargs['discount_id'])
+            discounts_in_eb = []
             for discount_code in discount_codes:
                 discount_in_eb = check_discount_code_in_eb(
                     self.request.user,
                     event.event_id,
                     discount_code.discount_code,
                 )
+                discounts_in_eb.append(discount_in_eb)
                 if not discount_in_eb['discounts'][0]['quantity_sold'] == 0:
                     messages.error(
                         self.request,
@@ -792,7 +794,7 @@ class DeleteDiscountView(DeleteView, LoginRequiredMixin, DiscountAccessMixin):
                     )
 
             # Delete the discount from EB
-            for discount_code in discount_codes:
+            for discount_in_eb in discounts_in_eb:
                 delete_discount_code_from_eb(
                     self.request.user,
                     discount_in_eb['discounts'][0]['id'],
