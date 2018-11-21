@@ -351,6 +351,58 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
                 # Delete event ticket type
                 event_ticket_type.delete()
 
+    def _verify_if_exists_buyed_discount(self, events, selected_events_id):
+        """
+        Verify if exists the event has a buyed discount, if it has it will return
+        True and if it hasn't, it will delete the discounts code from EB
+        """
+
+        for event in events:
+            """ If the event its not selected verify if it has a discount
+            """
+            if event['id'] not in selected_events_id:
+                if Event.objects.filter(event_id=event['id']).exists():
+                    event_in_db = Event.objects.get(event_id=event['id'])
+                    discounts = []
+
+                    if EventDiscount.objects.filter(
+                            event=event_in_db).exists():
+                        discounts.append(EventDiscount.objects.get(
+                            event=event_in_db))
+                    for ticket in EventTicketType.objects.filter(event=event_in_db):
+                        if TicketTypeDiscount.objects.filter(
+                                ticket_type=ticket).exists():
+                            discounts.append(
+                                TicketTypeDiscount.objects.get(
+                                    ticket_type=ticket)
+                            )
+                    for discount in discounts:
+                        if DiscountCode.objects.filter(
+                                discount=discount).exists():
+
+                            discount_codes = DiscountCode.objects.filter(
+                                discount=discount)
+
+                            for discount_code in discount_codes:
+                                discount_in_eb = check_discount_code_in_eb(
+                                    self.request.user,
+                                    event_in_db.event_id,
+                                    discount_code.discount_code,
+                                )
+                                if not discount_in_eb['discounts'][0]['quantity_sold'] == 0:
+                                    messages.error(
+                                        self.request,
+                                        _(
+                                            "You can not delete '{}' , because it has a discount that was already used by a member").format(
+                                            event['name']['text']))
+                                    return True
+                                else:
+                                    # Delete the discount from EB
+                                    delete_discount_code_from_eb(
+                                        self.request.user,
+                                        discount_in_eb['discounts'][0]['id'],
+                                    )
+
     # END METHODS THAT SUPPORT THE POST OF THIS VIEW
 
     def post(self, *args, **kwargs):
@@ -358,6 +410,13 @@ class SelectEvents(TemplateView, LoginRequiredMixin):
         events = self._get_event()
         events_id = self._get_events_selected_id()
 
+        if self._verify_if_exists_buyed_discount(events, events_id):
+            # If return True, the event has a buyed discount, so it can't be deleted
+            return HttpResponseRedirect(
+                reverse(
+                    'select_events',
+                )
+            )
         self._delete_unselected_events(events_id)
 
         tickets_id_eb = []

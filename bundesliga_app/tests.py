@@ -1979,6 +1979,106 @@ class SelectEventsViewTest(TestBase):
             0,
         )
 
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_WITH_USAGE)
+    def test_post_event_with_buyed_discount(self,
+                                            mock_check_discount_code_in_eb,
+                                            mock_get_events_user_eb_api,
+                                            mock_get_user_eb_api,
+                                            ):
+        event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+            event_id=event_mock_api_eb['id'],
+        )
+        self.ticket_type = EventTicketTypeFactory(
+            event=self.event
+        )
+        self.discount = TicketTypeDiscountFactory(
+            ticket_type=self.ticket_type,
+        )
+        DiscountCodeFactory(
+            discount=self.discount,
+        )
+        self.response = self.client.post(
+            path='/select_events/',
+        )
+        event_in_db = Event.objects.filter(event_id=event_mock_api_eb['id'])
+        event_ticket_type_in_db = EventTicketType.objects.filter(
+            event=self.event)
+        discount_in_db = TicketTypeDiscount.objects.filter(
+            ticket_type=self.ticket_type)
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(event_in_db),
+            1,
+        )
+        self.assertTrue(
+            event_in_db.get().is_active
+        )
+        self.assertEqual(
+            len(event_ticket_type_in_db),
+            1,
+        )
+        self.assertEqual(
+            len(discount_in_db),
+            1,
+        )
+
+    @patch('bundesliga_app.views.check_discount_code_in_eb', return_value=MOCK_DISCOUNT_EXISTS_IN_EB_NO_USAGE)
+    @patch('bundesliga_app.views.delete_discount_code_from_eb', return_value=MOCK_DELETE_DISCOUNT_EB)
+    def test_post_event_with_unused_discounts_in_eb(self,
+                                                    mock_delete_discount_code_from_eb,
+                                                    mock_check_discount_code_in_eb,
+                                                    mock_get_events_user_eb_api,
+                                                    mock_get_user_eb_api,
+                                                    ):
+        event_mock_api_eb = mock_get_events_user_eb_api.return_value[0]
+        self.event = EventFactory(
+            organizer=self.organizer,
+            is_active=True,
+            event_id=event_mock_api_eb['id'],
+        )
+        self.ticket_type = EventTicketTypeFactory(
+            event=self.event
+        )
+        self.discount = TicketTypeDiscountFactory(
+            ticket_type=self.ticket_type,
+        )
+        DiscountCodeFactory(
+            discount=self.discount,
+        )
+        self.response = self.client.post(
+            path='/select_events/',
+        )
+        event_in_db = Event.objects.filter(event_id=event_mock_api_eb['id'])
+        event_ticket_type_in_db = EventTicketType.objects.filter(
+            event=self.event)
+        discount_in_db = TicketTypeDiscount.objects.filter(
+            ticket_type=self.ticket_type)
+        discount_code_in_db = DiscountCode.objects.filter(
+            discount=self.discount)
+        self.assertEqual(self.response.status_code, 302)
+        self.assertEqual(
+            len(event_in_db),
+            1,
+        )
+        self.assertFalse(
+            event_in_db.get().is_active
+        )
+        self.assertEqual(
+            len(event_ticket_type_in_db),
+            0,
+        )
+        self.assertEqual(
+            len(discount_in_db),
+            0,
+        )
+        self.assertEqual(
+            len(discount_code_in_db),
+            0,
+        )
+
 
 class EventAccessMixinTest(TestBase):
     class DummyView(TemplateView, EventAccessMixin):
